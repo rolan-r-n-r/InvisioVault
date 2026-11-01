@@ -421,7 +421,7 @@ class InvisioVaultIntegrationTests(unittest.TestCase):
                 self.assertEqual(res_prod.headers.get('Access-Control-Allow-Origin'), 'https://invisio-vault.vercel.app')
 
                 # Preview branch domain
-                preview_origin = 'https://invisio-vault-g6h0nzwmb-mrtracker-news-projects.vercel.app'
+                preview_origin = 'https://invisio-vault-g6h0nzwmb-rolan-r-n-rs-projects.vercel.app'
                 res_prev = client.get('/api/health', headers={'Origin': preview_origin})
                 self.assertEqual(res_prev.headers.get('Access-Control-Allow-Origin'), preview_origin)
 

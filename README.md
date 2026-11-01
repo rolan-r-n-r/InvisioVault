@@ -84,7 +84,7 @@ This was my first-ever repo. The original code was *ambitious*. I came back, lea
 ## Author
 
 Created and maintained by **[Rolan (RNR)](https://rolan-rnr.netlify.app/)**
-- GitHub: [@Mrtracker-new](https://github.com/Mrtracker-new)
+- GitHub: [@rolan-r-n-r](https://github.com/rolan-r-n-r)
 - Email: [rolanlobo901@gmail.com](mailto:rolanlobo901@gmail.com)
 - Twitter/X: [@Rolan_RNR](https://x.com/Rolan_RNR)
 

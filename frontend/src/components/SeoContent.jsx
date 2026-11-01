@@ -171,7 +171,7 @@ export default function SeoContent() {
           <ShieldCheck size={16} className="inline-icon" /> <strong>Zero Retention:</strong> Files are processed statelessly in memory and purged immediately post-download.
         </p>
         <div className="links-group">
-          <a href="https://github.com/Mrtracker-new/InvisioVault" target="_blank" rel="noopener noreferrer">
+          <a href="https://github.com/rolan-r-n-r/InvisioVault" target="_blank" rel="noopener noreferrer">
             <FileCode size={14} className="inline-icon" /> View Source on GitHub
           </a>
           <span>•</span>

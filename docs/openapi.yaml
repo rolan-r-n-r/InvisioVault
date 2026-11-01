@@ -278,7 +278,7 @@ paths:
                 public_data:
                   type: string
                   description: Visible URL or public message.
-                  example: https://github.com/Mrtracker-new/InvisioVault
+                  example: https://github.com/rolan-r-n-r/InvisioVault
                 secret_text:
                   type: string
                   description: Confidential payload to hide within QR matrix modules.

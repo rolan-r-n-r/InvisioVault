@@ -20,7 +20,7 @@ I am committed to providing a welcoming, respectful, and harassment-free experie
 ### Local Setup
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/Mrtracker-new/InvisioVault.git
+   git clone https://github.com/rolan-r-n-r/InvisioVault.git
    cd InvisioVault
    ```
 
