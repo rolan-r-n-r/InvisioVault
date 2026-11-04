@@ -755,29 +755,34 @@ def png_path(render: RenderSpec) -> str:
 
 
 def materialize(render: RenderSpec, degradation: DegradationSpec) -> Tuple[Image.Image, RenderedQR]:
-    """Load the committed base render and apply a degradation profile."""
+    """Load the base render (or generate on the fly if not on disk) and apply a degradation profile."""
     path = png_path(render)
-    if not os.path.exists(path):
-        raise FileNotFoundError(
-            f"missing base render {path}; run `python -m tests.qr_harness build` first"
+    if os.path.exists(path):
+        with Image.open(path) as handle:
+            base = handle.convert("RGB")
+            base.load()
+        public_data = DEFAULT_PUBLIC
+        dimension = base.size[0] // render.scale - 2 * DEFAULT_BORDER
+        version = (dimension - 17) // 4
+        rendered = RenderedQR(
+            image=base,
+            version=version,
+            dimension=dimension,
+            scale=render.scale,
+            border=DEFAULT_BORDER,
+            public_data=public_data,
+            secret=build_secret(render.payload_class),
+            password=render.password,
+            path=path,
         )
-    with Image.open(path) as handle:
-        base = handle.convert("RGB")
-        base.load()
-    public_data = DEFAULT_PUBLIC
-    dimension = base.size[0] // render.scale - 2 * DEFAULT_BORDER
-    version = (dimension - 17) // 4
-    rendered = RenderedQR(
-        image=base,
-        version=version,
-        dimension=dimension,
-        scale=render.scale,
-        border=DEFAULT_BORDER,
-        public_data=public_data,
-        secret=build_secret(render.payload_class),
-        password=render.password,
-        path=path,
-    )
+    else:
+        rendered = render_stego(
+            secret=build_secret(render.payload_class),
+            public_data=DEFAULT_PUBLIC,
+            password=render.password,
+            scale=render.scale,
+        )
+        base = rendered.image
 
     img = base
     if (
@@ -911,21 +916,39 @@ def _atomic_write_json(path: str, payload: Dict[str, Any]) -> None:
 
 
 def read_manifest() -> Dict[str, Any]:
+    if not os.path.exists(MANIFEST_PATH):
+        raise FileNotFoundError(
+            f"Optional research manifest {MANIFEST_PATH} not found. "
+            "Run `python -m tests.qr_harness build` to generate the experimental corpus."
+        )
     with open(MANIFEST_PATH, "r", encoding="utf-8") as handle:
         return json.load(handle)
 
 
 def read_baseline() -> Dict[str, Any]:
+    if not os.path.exists(BASELINE_PATH):
+        raise FileNotFoundError(
+            f"Optional research baseline {BASELINE_PATH} not found. "
+            "Run `python -m tests.qr_harness build` to generate the experimental baseline."
+        )
     with open(BASELINE_PATH, "r", encoding="utf-8") as handle:
         return json.load(handle)
 
 
 def read_reference() -> Dict[str, Any]:
+    if not os.path.exists(REFERENCE_PATH):
+        raise FileNotFoundError(
+            f"Optional research reference {REFERENCE_PATH} not found."
+        )
     with open(REFERENCE_PATH, "r", encoding="utf-8") as handle:
         return json.load(handle)
 
 
 def read_fixture_hashes() -> Dict[str, str]:
+    if not os.path.exists(SHA256_PATH):
+        raise FileNotFoundError(
+            f"Optional research hashes {SHA256_PATH} not found."
+        )
     with open(SHA256_PATH, "r", encoding="utf-8") as handle:
         return json.load(handle)
 

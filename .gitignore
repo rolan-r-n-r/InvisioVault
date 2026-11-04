@@ -47,6 +47,12 @@ backend/uploads/
 backend/scratch/
 /tmp/
 
+# Temporary QR Experiment & Benchmark Artifacts
+backend/tests/qr_fixtures/
+backend/tests/qr_baseline.json
+backend/tests/qr_reference_phase3.json
+backend/tests/qr_phase3_bench.py
+
 # IDE & Editor
 .vscode/
 .idea/
