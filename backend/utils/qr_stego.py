@@ -1164,7 +1164,9 @@ def _extract_visual_qr(
             raw_contrast = raw_light_base - raw_dark_base
 
             if raw_contrast > 20.0:
-                raw_eff_delta = DARK_MODULATION_DELTA * max(0.08, raw_contrast / 255.0)
+                raw_dark_eff = DARK_MODULATION_DELTA * max(0.08, raw_contrast / 255.0)
+                raw_light_eff = ADAPTIVE_LIGHT_DELTA * max(0.08, raw_contrast / 255.0)
+                raw_eff_delta = raw_dark_eff
                 raw_bleed = min(2.5, max(0.0, (raw_contrast / 255.0) * 2.5))
 
                 hdr_total_fec_bytes = 16 + RS_HEADER_ECC_BYTES
@@ -1181,8 +1183,9 @@ def _extract_visual_qr(
                     f_eff_wn = np.array([_count_all_white_neighbors(ref_matrix, r, c) for r, c in fec_mods], dtype=np.float32)
                     f_avgs = raw_module_samples[f_rows, f_cols]
 
-                    for tf in [0.50, 0.45, 0.55, 0.40, 0.60]:
-                        t_delta = max(6.0, raw_eff_delta * tf)
+                    for tf in [0.50, 0.45, 0.55, 0.40, 0.60, 0.35, 0.30]:
+                        t_delta = np.where(f_is_dark, raw_dark_eff * tf, raw_light_eff * tf)
+                        t_delta = np.maximum(6.0, t_delta)
                         t_dark = f_base + (f_eff_wn * raw_bleed) + t_delta
                         t_light = f_base - ((5.6 - f_eff_wn) * raw_bleed * 0.5) - t_delta
                         thresholds = np.where(f_is_dark, t_dark, t_light)
@@ -1236,12 +1239,13 @@ def _extract_visual_qr(
 
                             dec_body = None
                             candidate_b_tfs: List[float] = [best_tf] if best_tf is not None else []
-                            for tf_cand in [0.50, 0.55, 0.45, 0.60, 0.40, 0.35, 0.65]:
+                            for tf_cand in [0.50, 0.55, 0.45, 0.60, 0.40, 0.35, 0.30, 0.25, 0.20, 0.15, 0.65]:
                                 if tf_cand not in candidate_b_tfs:
                                     candidate_b_tfs.append(tf_cand)
 
                             for b_tf in candidate_b_tfs:
-                                b_t_delta = max(6.0, raw_eff_delta * b_tf)
+                                b_t_delta = np.where(b_is_dark, raw_dark_eff * b_tf, raw_light_eff * b_tf)
+                                b_t_delta = np.maximum(6.0, b_t_delta)
                                 b_t_dark = b_base + (b_eff_wn * raw_bleed) + b_t_delta
                                 b_t_light = b_base - ((5.6 - b_eff_wn) * raw_bleed * 0.5) - b_t_delta
                                 b_thresholds = np.where(b_is_dark, b_t_dark, b_t_light)
@@ -1412,6 +1416,7 @@ def _extract_visual_qr(
             pass  # keep original plane-fit values
 
     effective_delta = DARK_MODULATION_DELTA * max(0.08, contrast / 255.0)
+    effective_light_delta = ADAPTIVE_LIGHT_DELTA * max(0.08, contrast / 255.0)
 
     if debug_info is not None:
         debug_info["clientVersion"] = client_version
@@ -1500,12 +1505,13 @@ def _extract_visual_qr(
             else (p_light[0] * r + p_light[1] * c + p_light[2])
         )
         eff_wn = _count_all_white_neighbors(ref_matrix, r, c)
-        thresh_delta = max(6.0, effective_delta * thresh_factor)
+        thresh_delta_dark = max(6.0, effective_delta * thresh_factor)
+        thresh_delta_light = max(6.0, effective_light_delta * thresh_factor)
         if is_dark:
-            thresh = base_val + (eff_wn * bleed_factor) + kmeans_c0_offset + thresh_delta
+            thresh = base_val + (eff_wn * bleed_factor) + kmeans_c0_offset + thresh_delta_dark
         else:
             eff_dn = 5.6 - eff_wn
-            thresh = base_val - (eff_dn * bleed_factor * 0.5) - thresh_delta
+            thresh = base_val - (eff_dn * bleed_factor * 0.5) - thresh_delta_light
 
         avg = float(module_medians[r, c])
         if is_dark:
@@ -1526,11 +1532,12 @@ def _extract_visual_qr(
             p_light[0] * rows + p_light[1] * cols + p_light[2],
         )
         eff_wn = np.array([_count_all_white_neighbors(ref_matrix, r, c) for r, c in module_list], dtype=np.float32)
-        thresh_delta = max(6.0, effective_delta * thresh_factor)
+        thresh_delta_dark = max(6.0, effective_delta * thresh_factor)
+        thresh_delta_light = max(6.0, effective_light_delta * thresh_factor)
 
-        thresh_dark = base_vals + (eff_wn * bleed_factor) + kmeans_c0_offset + thresh_delta
+        thresh_dark = base_vals + (eff_wn * bleed_factor) + kmeans_c0_offset + thresh_delta_dark
         eff_dn = 5.6 - eff_wn
-        thresh_light = base_vals - (eff_dn * bleed_factor * 0.5) - thresh_delta
+        thresh_light = base_vals - (eff_dn * bleed_factor * 0.5) - thresh_delta_light
         thresholds = np.where(is_dark, thresh_dark, thresh_light)
 
         avgs = module_medians[rows, cols]

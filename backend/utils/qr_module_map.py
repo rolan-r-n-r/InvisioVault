@@ -414,6 +414,12 @@ def detect_qr_version_from_timing(
         (float(position.bottom_right.x), float(position.bottom_right.y)),
         (float(position.top_right.x), float(position.top_right.y)),
     ]
+    quad_data = (
+        src_pts_outer[0][0], src_pts_outer[0][1],
+        src_pts_outer[1][0], src_pts_outer[1][1],
+        src_pts_outer[2][0], src_pts_outer[2][1],
+        src_pts_outer[3][0], src_pts_outer[3][1],
+    )
 
     best_ver: Optional[int] = None
     best_score = -1.0
@@ -468,80 +474,96 @@ def detect_qr_version_from_timing(
                 (float(rect_dim), 0.0),
             ]
 
-        coeffs = find_perspective_coeffs(src_pts, dst_pts)
+        # Prepare candidate rectifications:
+        # Candidate 1: Bilinear quad mapping (QUAD) — maps straight quadrilateral corners
+        # without non-linear perspective homography module compression.
+        rect_quad = None
         try:
-            rect = img.transform(
+            rect_quad = img.transform(
                 (rect_dim, rect_dim),
-                Image.Transform.PERSPECTIVE,
-                coeffs.tolist(),  # PIL expects Sequence, not ndarray
-                Image.Resampling.LANCZOS,
+                Image.Transform.QUAD,
+                quad_data,
+                Image.Resampling.BICUBIC,
             )
-        except ValueError:
-            # Pillow's C engine only permits NEAREST (0), BILINEAR (2), or BICUBIC (3) for PERSPECTIVE transform.
-            rect = img.transform(
+        except Exception:
+            rect_quad = None
+
+        # Candidate 2: Projective homography (PERSPECTIVE)
+        coeffs = find_perspective_coeffs(src_pts, dst_pts)
+        rect_persp = None
+        try:
+            rect_persp = img.transform(
                 (rect_dim, rect_dim),
                 Image.Transform.PERSPECTIVE,
                 coeffs.tolist(),
                 Image.Resampling.BICUBIC,
             )
+        except Exception:
+            rect_persp = None
 
-        # 1. Structural Finder Pattern Verification:
-        # Top-right finder is at (0, size - 7); Bottom-left finder is at (size - 7, 0)
-        is_hint = (target_version_hint is not None and ver == target_version_hint)
-        min_c = 4.0 if is_hint else 10.0
-        ok_tr, th_tr = _verify_finder_pattern(rect, 0, size - 7, scale, min_contrast=min_c)
-        ok_bl, th_bl = _verify_finder_pattern(rect, size - 7, 0, scale, min_contrast=min_c)
-        if not (ok_tr and ok_bl) and not is_hint:
-            continue
-        # A hint only lowers the contrast bar and orders candidates. It must
-        # still earn a plausible timing score below; it is never pre-seeded as
-        # the winner, so an invalid hint cannot bypass verification.
+        candidate_rects = [r for r in (rect_quad, rect_persp) if r is not None]
 
-        timing_threshold: float = (th_tr + th_bl) / 2.0
+        for rect in candidate_rects:
+            # 1. Structural Finder Pattern Verification:
+            # Top-right finder is at (0, size - 7); Bottom-left finder is at (size - 7, 0)
+            is_hint = (target_version_hint is not None and ver == target_version_hint)
+            min_c = 4.0 if is_hint else 10.0
+            ok_tr, th_tr = _verify_finder_pattern(rect, 0, size - 7, scale, min_contrast=min_c)
+            ok_bl, th_bl = _verify_finder_pattern(rect, size - 7, 0, scale, min_contrast=min_c)
+            if not (ok_tr and ok_bl) and not is_hint:
+                continue
+            # A hint only lowers the contrast bar and orders candidates. It must
+            # still earn a plausible timing score below; it is never pre-seeded as
+            # the winner, so an invalid hint cannot bypass verification.
 
-        # 2. Timing pattern along row 6 and column 6
-        correct = 0
-        total = (size - 16) * 2
-        if total <= 0:
-            best_ver = ver
-            best_rect = rect
-            break
+            timing_threshold: float = (th_tr + th_bl) / 2.0
 
-        for c in range(8, size - 8):
-            expected = 1 if (c % 2 == 0) else 0
-            luma = _get_pixel_luma(rect, c * scale + scale // 2, 6 * scale + scale // 2)
-            detected = 1 if luma < timing_threshold else 0
-            if detected == expected:
-                correct += 1
-
-        for r in range(8, size - 8):
-            expected = 1 if (r % 2 == 0) else 0
-            luma = _get_pixel_luma(rect, 6 * scale + scale // 2, r * scale + scale // 2)
-            detected = 1 if luma < timing_threshold else 0
-            if detected == expected:
-                correct += 1
-
-        score = correct / total
-
-        # Timing patterns are not error-correcting. At steep perspective or very
-        # low capture pitch the score falls below any sane threshold even though
-        # the symbol is readable. The BCH version block is error-correcting, so a
-        # candidate whose own version information decodes back to itself is
-        # eligible on that evidence alone.
-        bch_confirmed = False
-        if score < required_score:
-            try:
-                bch_version_probe, _bch_distance = read_version_information(rect, size)
-            except Exception:
-                bch_version_probe = None
-            bch_confirmed = bch_version_probe == ver
-
-        if (score >= required_score or bch_confirmed) and score > best_score:
-            best_score = score
-            best_ver = ver
-            best_rect = rect
-            if score >= 0.80:  # Confirmed match
+            # 2. Timing pattern along row 6 and column 6
+            correct = 0
+            total = (size - 16) * 2
+            if total <= 0:
+                best_ver = ver
+                best_rect = rect
                 break
+
+            for c in range(8, size - 8):
+                expected = 1 if (c % 2 == 0) else 0
+                luma = _get_pixel_luma(rect, c * scale + scale // 2, 6 * scale + scale // 2)
+                detected = 1 if luma < timing_threshold else 0
+                if detected == expected:
+                    correct += 1
+
+            for r in range(8, size - 8):
+                expected = 1 if (r % 2 == 0) else 0
+                luma = _get_pixel_luma(rect, 6 * scale + scale // 2, r * scale + scale // 2)
+                detected = 1 if luma < timing_threshold else 0
+                if detected == expected:
+                    correct += 1
+
+            score = correct / total
+
+            # Timing patterns are not error-correcting. At steep perspective or very
+            # low capture pitch the score falls below any sane threshold even though
+            # the symbol is readable. The BCH version block is error-correcting, so a
+            # candidate whose own version information decodes back to itself is
+            # eligible on that evidence alone.
+            bch_confirmed = False
+            if score < required_score:
+                try:
+                    bch_version_probe, _bch_distance = read_version_information(rect, size)
+                except Exception:
+                    bch_version_probe = None
+                bch_confirmed = bch_version_probe == ver
+
+            if (score >= required_score or bch_confirmed) and score > best_score:
+                best_score = score
+                best_ver = ver
+                best_rect = rect
+                if score >= 0.85:  # Confirmed match
+                    break
+
+        if best_score >= 0.85:
+            break
 
     # No candidate passed either the timing bar or BCH confirmation: report the
     # grid as unresolved instead of sampling an arbitrary module grid.

@@ -225,6 +225,34 @@ def test_extracts_under_mild_perspective(workdir):
     assert secret == SECRET
 
 
+def test_extracts_under_three_percent_perspective(workdir):
+    """Target 2: 3% perspective distortion must extract cleanly."""
+    out = _render(workdir)
+    with Image.open(out) as handle:
+        image = handle.convert("RGB")
+    warped_path = os.path.join(workdir, "persp_03.png")
+    _warp(image, 0.03, Image.Resampling.BILINEAR).save(warped_path)
+    public_data, secret = S.extract_from_qr_stego(warped_path)
+    assert public_data == PUBLIC
+    assert secret == SECRET
+
+
+def test_extracts_at_three_pixels_per_module(workdir):
+    """Target 1: 3 px/module pitch must extract cleanly."""
+    out = _render(workdir, scale=10)
+    with Image.open(out) as handle:
+        image = handle.convert("RGB")
+    w, h = image.size
+    modules = w // 10
+    target_dim = modules * 3
+    downscaled = image.resize((target_dim, target_dim), Image.Resampling.LANCZOS)
+    ppm3_path = os.path.join(workdir, "pitch_3ppm.png")
+    downscaled.save(ppm3_path)
+    public_data, secret = S.extract_from_qr_stego(ppm3_path)
+    assert public_data == PUBLIC
+    assert secret == SECRET
+
+
 @pytest.mark.parametrize("fraction", [0.04, 0.06, 0.08])
 def test_strong_perspective_never_returns_a_wrong_secret(workdir, fraction):
     """Geometry must not guess. Beyond the optical budget the payload may be lost,
