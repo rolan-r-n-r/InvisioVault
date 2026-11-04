@@ -25,7 +25,12 @@ from extensions import limiter
 
 from utils.steganography import hide_file_in_image, extract_file_from_image
 from utils.polyglot import create_polyglot, extract_from_polyglot
-from utils.validators import validate_image, validate_hideable_file, MAX_STEGO_IMAGE_SIZE
+from utils.validators import (
+    validate_image,
+    validate_hideable_file,
+    validate_qr_colors,
+    MAX_STEGO_IMAGE_SIZE,
+)
 from utils.qr_stego import (
     generate_qr_with_stego,
     extract_from_qr_stego,
@@ -696,7 +701,12 @@ def generate_qr_code():
             data = request.form
 
         public_data = str(data.get('public_data') or '').strip()
-        secret_text = str(data.get('secret_text') or data.get('secret_message') or '').strip()
+        # Preserve the secret byte-for-byte. Leading/trailing whitespace, tabs and
+        # newlines are payload; only an all-whitespace secret is rejected.
+        _secret_raw = data.get('secret_text')
+        if _secret_raw is None:
+            _secret_raw = data.get('secret_message')
+        secret_text = '' if _secret_raw is None else str(_secret_raw)
         password = data.get('password') or None
         fg_color = str(data.get('fg_color') or data.get('dark_color') or '#000000').strip()
         bg_color = str(data.get('bg_color') or data.get('light_color') or '#FFFFFF').strip()
@@ -710,7 +720,7 @@ def generate_qr_code():
         if not public_data:
             return jsonify({'error': 'Public data (QR content) is required'}), 400
         
-        if not secret_text:
+        if not secret_text.strip():
             return jsonify({'error': 'Secret text is required'}), 400
 
         # Enforce minimum password length (P2-02)
@@ -728,6 +738,15 @@ def generate_qr_code():
 
         fg_color = _sanitize_color(fg_color, '#000000')
         bg_color = _sanitize_color(bg_color, '#FFFFFF')
+
+        # Cheap polarity/luminance pre-filter. The post-render zxing self-check
+        # remains the authority for whether the symbol is actually scannable.
+        colors_ok, colors_reason = validate_qr_colors(fg_color, bg_color)
+        if not colors_ok:
+            return jsonify({
+                'error': colors_reason,
+                'failureReason': 'UNSCANNABLE_COLORS',
+            }), 400
         
         # Validate scale
         if scale < 1 or scale > 50:
@@ -775,9 +794,12 @@ def generate_qr_code():
     except QRStegoError as e:
         logger.error(f"QR generation stego error: {str(e)}")
         if e.error_code in (QRErrorCode.CAPACITY_EXCEEDED, QRErrorCode.QR_INVALID):
-            return jsonify({'error': str(e)}), 400
+            return jsonify({'error': str(e), 'failureReason': e.error_code.value}), 400
         safe_error = sanitize_error(str(e), current_app.config['DEBUG'])
-        return jsonify({'error': safe_error}), 400
+        return jsonify({
+            'error': safe_error,
+            'failureReason': getattr(e.error_code, 'value', 'QR_INVALID'),
+        }), 400
     except ValueError as e:
         logger.error(f"QR generation error: {str(e)}")
         safe_error = sanitize_error(str(e), current_app.config['DEBUG'])
@@ -962,6 +984,37 @@ def scan_qr_code():
             f"Public data length: {len(public_data)}, Secret present: {bool(secret_data)}, "
             f"Geometry: {debug_sink.get('geometrySource')}, Failure reason: {debug_sink.get('failureReason')}"
         )
+        # A hidden payload that exists but cannot be decoded must NOT be reported as
+        # a successful scan with an empty secret: that is indistinguishable from a
+        # plain QR and silently hides optical failures. Positive evidence of a
+        # hidden payload is the IVQR magic, or a body-level decode failure.
+        failure_reason = debug_sink.get('failureReason')
+        payload_detected = bool(debug_sink.get('ivqrMagicDetected')) or failure_reason in (
+            'PAYLOAD_DECODE_FAILED', 'CRC_FAILURE'
+        )
+        if not secret_data and payload_detected:
+            logger.warning(
+                "QR scan [%s]: hidden payload detected but not recoverable (%s)",
+                camera_scan_id, failure_reason,
+            )
+            damaged_data: Dict[str, Any] = {
+                'error': 'A hidden payload was detected but could not be decoded. '
+                         'Try a clearer, steadier capture.',
+                'success': False,
+                'cameraScanId': camera_scan_id,
+                'publicData': public_data,
+                'hasPassword': password is not None,
+                'failureReason': 'PAYLOAD_DECODE_FAILED',
+                'damaged': True,
+                '_status_code': 422,
+            }
+            with _qr_cache_lock:
+                qr_detection_cache[cache_key] = (now, damaged_data.copy())
+                while len(qr_detection_cache) > _QR_CACHE_MAX:
+                    qr_detection_cache.popitem(last=False)
+            resp = {k: v for k, v in damaged_data.items() if k != '_status_code'}
+            return jsonify(resp), 422
+
         resp_data: Dict[str, Any] = {
             'success': True,
             'cameraScanId': camera_scan_id,
@@ -991,12 +1044,21 @@ def scan_qr_code():
             '_status_code': 400,
             'cameraScanId': debug_sink.get('cameraScanId', 'unknown')
         }
-        if 'password' in str(e).lower():
+        error_code = getattr(e, 'error_code', None)
+        code_value = getattr(error_code, 'value', None)
+        if 'password' in str(e).lower() or code_value == 'WRONG_PASSWORD':
             logger.warning('QR scan: Password required but not provided or incorrect')
             err_data['passwordRequired'] = True
             err_data['failureReason'] = 'WRONG_PASSWORD'
         else:
-            err_data['failureReason'] = debug_sink.get('failureReason', 'EXTRACTION_EXCEPTION')
+            # Preserve the extractor's structured classification (invalid QR,
+            # unsupported format, corrupted payload, ...) instead of collapsing
+            # every failure into EXTRACTION_EXCEPTION.
+            err_data['failureReason'] = code_value or debug_sink.get(
+                'failureReason', 'EXTRACTION_EXCEPTION'
+            )
+            if code_value:
+                err_data['errorCode'] = code_value
 
         if cache_key is not None:
             with _qr_cache_lock:
@@ -1054,6 +1116,12 @@ def qr_capacity():
             'totalCapacityBytes': capacity,
             'totalCapacityFormatted': _format_bytes(capacity),
             'safeCapacityBytes': capacity,
+            'plainMaxBytes': info.get("plainMaxBytes", capacity),
+            'encryptedMaxBytes': info.get("encryptedMaxBytes", capacity),
+            'allSafePlainMaxBytes': info.get("allSafePlainMaxBytes", capacity),
+            'allSafeEncryptedMaxBytes': info.get("allSafeEncryptedMaxBytes", capacity),
+            'capacityBasis': info.get("capacityBasis"),
+            'publicDataFits': info.get("publicDataFits", True),
             'maxSafeVersion': info["maxSafeVersion"],
             'recommendedErrorCorrection': info["recommendedErrorCorrection"],
             'recommendedVersion': info["recommendedVersion"]

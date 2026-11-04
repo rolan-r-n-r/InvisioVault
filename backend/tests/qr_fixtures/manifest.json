@@ -1,0 +1,6844 @@
+{
+  "border": 4,
+  "degradations": {
+    "clean": {
+      "blur_sigma": 0.0,
+      "exposure": 1.0,
+      "frontend": false,
+      "id": "clean",
+      "jpeg_quality": null,
+      "noise_sigma": 0.0,
+      "perspective": 0.0,
+      "px_per_module": null,
+      "rotation_deg": 0.0,
+      "split": "train"
+    },
+    "frontend_ppm4": {
+      "blur_sigma": 0.0,
+      "exposure": 1.0,
+      "frontend": true,
+      "id": "frontend_ppm4",
+      "jpeg_quality": null,
+      "noise_sigma": 2.0,
+      "perspective": 0.0,
+      "px_per_module": 4,
+      "rotation_deg": 0.0,
+      "split": "train"
+    },
+    "ppm10": {
+      "blur_sigma": 0.0,
+      "exposure": 1.0,
+      "frontend": false,
+      "id": "ppm10",
+      "jpeg_quality": null,
+      "noise_sigma": 2.0,
+      "perspective": 0.0,
+      "px_per_module": 10,
+      "rotation_deg": 0.0,
+      "split": "train"
+    },
+    "ppm3": {
+      "blur_sigma": 0.0,
+      "exposure": 1.0,
+      "frontend": false,
+      "id": "ppm3",
+      "jpeg_quality": null,
+      "noise_sigma": 3.0,
+      "perspective": 0.0,
+      "px_per_module": 3,
+      "rotation_deg": 0.0,
+      "split": "heldout"
+    },
+    "ppm4": {
+      "blur_sigma": 0.0,
+      "exposure": 1.0,
+      "frontend": false,
+      "id": "ppm4",
+      "jpeg_quality": null,
+      "noise_sigma": 2.0,
+      "perspective": 0.0,
+      "px_per_module": 4,
+      "rotation_deg": 0.0,
+      "split": "train"
+    },
+    "ppm5": {
+      "blur_sigma": 0.0,
+      "exposure": 1.0,
+      "frontend": false,
+      "id": "ppm5",
+      "jpeg_quality": null,
+      "noise_sigma": 2.0,
+      "perspective": 0.0,
+      "px_per_module": 5,
+      "rotation_deg": 0.0,
+      "split": "train"
+    },
+    "ppm6": {
+      "blur_sigma": 0.0,
+      "exposure": 1.0,
+      "frontend": false,
+      "id": "ppm6",
+      "jpeg_quality": null,
+      "noise_sigma": 2.0,
+      "perspective": 0.0,
+      "px_per_module": 6,
+      "rotation_deg": 0.0,
+      "split": "train"
+    },
+    "ppm7": {
+      "blur_sigma": 0.0,
+      "exposure": 1.0,
+      "frontend": false,
+      "id": "ppm7",
+      "jpeg_quality": null,
+      "noise_sigma": 2.0,
+      "perspective": 0.0,
+      "px_per_module": 7,
+      "rotation_deg": 0.0,
+      "split": "heldout"
+    },
+    "ppm8": {
+      "blur_sigma": 0.0,
+      "exposure": 1.0,
+      "frontend": false,
+      "id": "ppm8",
+      "jpeg_quality": null,
+      "noise_sigma": 2.0,
+      "perspective": 0.0,
+      "px_per_module": 8,
+      "rotation_deg": 0.0,
+      "split": "train"
+    },
+    "ppm8_blur05": {
+      "blur_sigma": 0.5,
+      "exposure": 1.0,
+      "frontend": false,
+      "id": "ppm8_blur05",
+      "jpeg_quality": null,
+      "noise_sigma": 2.0,
+      "perspective": 0.0,
+      "px_per_module": 8,
+      "rotation_deg": 0.0,
+      "split": "train"
+    },
+    "ppm8_exposure120": {
+      "blur_sigma": 0.0,
+      "exposure": 1.2,
+      "frontend": false,
+      "id": "ppm8_exposure120",
+      "jpeg_quality": null,
+      "noise_sigma": 2.0,
+      "perspective": 0.0,
+      "px_per_module": 8,
+      "rotation_deg": 0.0,
+      "split": "heldout"
+    },
+    "ppm8_jpeg80": {
+      "blur_sigma": 0.0,
+      "exposure": 1.0,
+      "frontend": false,
+      "id": "ppm8_jpeg80",
+      "jpeg_quality": 80,
+      "noise_sigma": 2.0,
+      "perspective": 0.0,
+      "px_per_module": 8,
+      "rotation_deg": 0.0,
+      "split": "train"
+    },
+    "ppm8_persp03": {
+      "blur_sigma": 0.0,
+      "exposure": 1.0,
+      "frontend": false,
+      "id": "ppm8_persp03",
+      "jpeg_quality": null,
+      "noise_sigma": 2.0,
+      "perspective": 0.03,
+      "px_per_module": 8,
+      "rotation_deg": 0.0,
+      "split": "train"
+    },
+    "ppm8_rot5": {
+      "blur_sigma": 0.0,
+      "exposure": 1.0,
+      "frontend": false,
+      "id": "ppm8_rot5",
+      "jpeg_quality": null,
+      "noise_sigma": 2.0,
+      "perspective": 0.0,
+      "px_per_module": 8,
+      "rotation_deg": 5.0,
+      "split": "train"
+    }
+  },
+  "ecc": "m",
+  "fixtures": [
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 20.0,
+        "separation_dark": 50.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "clean",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 0.0,
+        "perspective": 0.0,
+        "px_per_module": null,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 20.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 55.69,
+        "version": 5,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": true,
+      "id": "small_plain_s20__clean",
+      "image": "png/small_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "small_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 55.71,
+      "version": 5
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 10.0,
+        "separation_dark": 51.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm10",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 10,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 10.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 43.85,
+        "version": 5,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "small_plain_s20__ppm10",
+      "image": "png/small_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "small_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 43.87,
+      "version": 5
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 8.0,
+        "separation_dark": 53.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm8",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 40.7,
+        "version": 5,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": true,
+      "id": "small_plain_s20__ppm8",
+      "image": "png/small_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "small_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 40.71,
+      "version": 5
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 7.0,
+        "separation_dark": 52.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm7",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 7,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 7.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 38.05,
+        "version": 5,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "small_plain_s20__ppm7",
+      "image": "png/small_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "small_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "heldout",
+      "timing_ms": 38.08,
+      "version": 5
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 6.0,
+        "separation_dark": 53.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm6",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 6,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 6.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 37.83,
+        "version": 5,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "small_plain_s20__ppm6",
+      "image": "png/small_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "small_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 37.85,
+      "version": 5
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 5.0,
+        "separation_dark": 54.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm5",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 5,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 5.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 39.41,
+        "version": 5,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "small_plain_s20__ppm5",
+      "image": "png/small_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "small_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 39.42,
+      "version": 5
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 4.0,
+        "separation_dark": 55.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm4",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 4,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 4.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 36.21,
+        "version": 5,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": true,
+      "id": "small_plain_s20__ppm4",
+      "image": "png/small_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "small_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 36.22,
+      "version": 5
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 3.0,
+        "separation_dark": 60.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm3",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 3.0,
+        "perspective": 0.0,
+        "px_per_module": 3,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 3.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 37.22,
+        "version": 5,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "small_plain_s20__ppm3",
+      "image": "png/small_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "small_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "heldout",
+      "timing_ms": 37.23,
+      "version": 5
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 8.0,
+        "separation_dark": 50.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm8_blur05",
+      "degradations": {
+        "blur_sigma": 0.5,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 40.2,
+        "version": 5,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "small_plain_s20__ppm8_blur05",
+      "image": "png/small_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "small_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 40.21,
+      "version": 5
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 8.0,
+        "separation_dark": 62.5,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm8_exposure120",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.2,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_pyzbar",
+        "px_per_module": 7.95,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 45.1,
+        "version": 5,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "small_plain_s20__ppm8_exposure120",
+      "image": "png/small_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "small_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "heldout",
+      "timing_ms": 45.12,
+      "version": 5
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 8.0,
+        "separation_dark": 52.5,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm8_jpeg80",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": 80,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 39.34,
+        "version": 5,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "small_plain_s20__ppm8_jpeg80",
+      "image": "png/small_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "small_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 39.36,
+      "version": 5
+    },
+    {
+      "ber": null,
+      "ber_coverage": null,
+      "ber_meta": null,
+      "degradation": "ppm8_rot5",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 5.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 44.39,
+        "version": 5,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "small_plain_s20__ppm8_rot5",
+      "image": "png/small_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "small_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 44.41,
+      "version": 5
+    },
+    {
+      "ber": null,
+      "ber_coverage": null,
+      "ber_meta": null,
+      "degradation": "ppm8_persp03",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.03,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.24,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 42.05,
+        "version": 5,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "small_plain_s20__ppm8_persp03",
+      "image": "png/small_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "small_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 42.06,
+      "version": 5
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 10.0,
+        "separation_dark": 55.5,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "frontend_ppm4",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": true,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 4,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 10.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 42.04,
+        "version": 5,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "small_plain_s20__frontend_ppm4",
+      "image": "png/small_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "small_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 42.06,
+      "version": 5
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 20.0,
+        "separation_dark": 50.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "clean",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 0.0,
+        "perspective": 0.0,
+        "px_per_module": null,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 19.97,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 249.34,
+        "version": 11,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": true,
+      "id": "small_sealed_s20__clean",
+      "image": "png/small_sealed_s20.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "small_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 249.37,
+      "version": 11
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 10.0,
+        "separation_dark": 51.5,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm10",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 10,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 10.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 215.17,
+        "version": 11,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "small_sealed_s20__ppm10",
+      "image": "png/small_sealed_s20.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "small_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 215.19,
+      "version": 11
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 8.0,
+        "separation_dark": 53.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm8",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 214.24,
+        "version": 11,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": true,
+      "id": "small_sealed_s20__ppm8",
+      "image": "png/small_sealed_s20.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "small_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 214.28,
+      "version": 11
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 7.0,
+        "separation_dark": 52.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm7",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 7,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 7.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 208.57,
+        "version": 11,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "small_sealed_s20__ppm7",
+      "image": "png/small_sealed_s20.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "small_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "heldout",
+      "timing_ms": 208.6,
+      "version": 11
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 6.0,
+        "separation_dark": 53.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm6",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 6,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 6.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 207.57,
+        "version": 11,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "small_sealed_s20__ppm6",
+      "image": "png/small_sealed_s20.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "small_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 207.59,
+      "version": 11
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 5.0,
+        "separation_dark": 54.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm5",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 5,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 5.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 213.9,
+        "version": 11,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "small_sealed_s20__ppm5",
+      "image": "png/small_sealed_s20.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "small_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 213.92,
+      "version": 11
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 4.0,
+        "separation_dark": 55.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm4",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 4,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 4.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 202.17,
+        "version": 11,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "small_sealed_s20__ppm4",
+      "image": "png/small_sealed_s20.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "small_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 202.19,
+      "version": 11
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 3.0,
+        "separation_dark": 61.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm3",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 3.0,
+        "perspective": 0.0,
+        "px_per_module": 3,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 3.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 209.91,
+        "version": 11,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "small_sealed_s20__ppm3",
+      "image": "png/small_sealed_s20.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "small_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "heldout",
+      "timing_ms": 209.93,
+      "version": 11
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 8.0,
+        "separation_dark": 50.5,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm8_blur05",
+      "degradations": {
+        "blur_sigma": 0.5,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 214.12,
+        "version": 11,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "small_sealed_s20__ppm8_blur05",
+      "image": "png/small_sealed_s20.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "small_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 214.14,
+      "version": 11
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 8.0,
+        "separation_dark": 63.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm8_exposure120",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.2,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.02,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 226.35,
+        "version": 11,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "small_sealed_s20__ppm8_exposure120",
+      "image": "png/small_sealed_s20.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "small_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "heldout",
+      "timing_ms": 226.37,
+      "version": 11
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 8.0,
+        "separation_dark": 52.5,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm8_jpeg80",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": 80,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 211.55,
+        "version": 11,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "small_sealed_s20__ppm8_jpeg80",
+      "image": "png/small_sealed_s20.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "small_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 211.57,
+      "version": 11
+    },
+    {
+      "ber": null,
+      "ber_coverage": null,
+      "ber_meta": null,
+      "degradation": "ppm8_rot5",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 5.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 221.2,
+        "version": 11,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "small_sealed_s20__ppm8_rot5",
+      "image": "png/small_sealed_s20.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "small_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 221.25,
+      "version": 11
+    },
+    {
+      "ber": null,
+      "ber_coverage": null,
+      "ber_meta": null,
+      "degradation": "ppm8_persp03",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.03,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": 251.01,
+        "failure_reason": "OPTICAL_SENSOR_SATURATION",
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.26,
+        "quality": 0.937,
+        "separation": 46.83,
+        "stage": "OPTICAL_SENSOR_SATURATION",
+        "timing_ms": 1587.65,
+        "version": 11,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "small_sealed_s20__ppm8_persp03",
+      "image": "png/small_sealed_s20.png",
+      "outcome": "no_magic",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "small_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": false,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 1587.67,
+      "version": 11
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 6.522,
+        "separation_dark": 62.5,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "frontend_ppm4",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": true,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 4,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 6.52,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 196.32,
+        "version": 11,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "small_sealed_s20__frontend_ppm4",
+      "image": "png/small_sealed_s20.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "small_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 196.34,
+      "version": 11
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 20.0,
+        "separation_dark": 50.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "clean",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 0.0,
+        "perspective": 0.0,
+        "px_per_module": null,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 20.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 296.24,
+        "version": 16,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": true,
+      "id": "medium_plain_s20__clean",
+      "image": "png/medium_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "medium_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 296.27,
+      "version": 16
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 10.0,
+        "separation_dark": 51.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm10",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 10,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 10.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 269.09,
+        "version": 16,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "medium_plain_s20__ppm10",
+      "image": "png/medium_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "medium_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 269.13,
+      "version": 16
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 8.0,
+        "separation_dark": 52.5,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm8",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 256.56,
+        "version": 16,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": true,
+      "id": "medium_plain_s20__ppm8",
+      "image": "png/medium_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "medium_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 256.6,
+      "version": 16
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 7.0,
+        "separation_dark": 52.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm7",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 7,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 7.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 260.08,
+        "version": 16,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "medium_plain_s20__ppm7",
+      "image": "png/medium_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "medium_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "heldout",
+      "timing_ms": 260.11,
+      "version": 16
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 6.0,
+        "separation_dark": 53.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm6",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 6,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 6.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 244.98,
+        "version": 16,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "medium_plain_s20__ppm6",
+      "image": "png/medium_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "medium_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 245.0,
+      "version": 16
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 5.0,
+        "separation_dark": 54.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm5",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 5,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 5.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 238.67,
+        "version": 16,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "medium_plain_s20__ppm5",
+      "image": "png/medium_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "medium_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 238.69,
+      "version": 16
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 4.0,
+        "separation_dark": 55.5,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm4",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 4,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 4.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 234.3,
+        "version": 16,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": true,
+      "id": "medium_plain_s20__ppm4",
+      "image": "png/medium_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "medium_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 234.32,
+      "version": 16
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 3.0,
+        "separation_dark": 61.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm3",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 3.0,
+        "perspective": 0.0,
+        "px_per_module": 3,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": 254.91,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 3.0,
+        "quality": 0.965,
+        "separation": 48.26,
+        "stage": "SUCCESS",
+        "timing_ms": 422.98,
+        "version": 16,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "medium_plain_s20__ppm3",
+      "image": "png/medium_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "medium_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "heldout",
+      "timing_ms": 423.0,
+      "version": 16
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 8.0,
+        "separation_dark": 51.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm8_blur05",
+      "degradations": {
+        "blur_sigma": 0.5,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 267.62,
+        "version": 16,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "medium_plain_s20__ppm8_blur05",
+      "image": "png/medium_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "medium_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 267.64,
+      "version": 16
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 8.0,
+        "separation_dark": 62.5,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm8_exposure120",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.2,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 255.05,
+        "version": 16,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "medium_plain_s20__ppm8_exposure120",
+      "image": "png/medium_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "medium_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "heldout",
+      "timing_ms": 255.08,
+      "version": 16
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 8.0,
+        "separation_dark": 53.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm8_jpeg80",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": 80,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 255.49,
+        "version": 16,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "medium_plain_s20__ppm8_jpeg80",
+      "image": "png/medium_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "medium_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 255.53,
+      "version": 16
+    },
+    {
+      "ber": null,
+      "ber_coverage": null,
+      "ber_meta": null,
+      "degradation": "ppm8_rot5",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 5.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 261.98,
+        "version": 16,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "medium_plain_s20__ppm8_rot5",
+      "image": "png/medium_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "medium_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 261.99,
+      "version": 16
+    },
+    {
+      "ber": null,
+      "ber_coverage": null,
+      "ber_meta": null,
+      "degradation": "ppm8_persp03",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.03,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": 250.9,
+        "failure_reason": "OPTICAL_SENSOR_SATURATION",
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.26,
+        "quality": 0.966,
+        "separation": 48.28,
+        "stage": "OPTICAL_SENSOR_SATURATION",
+        "timing_ms": 1652.61,
+        "version": 16,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "medium_plain_s20__ppm8_persp03",
+      "image": "png/medium_plain_s20.png",
+      "outcome": "no_magic",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "medium_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": false,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 1652.63,
+      "version": 16
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 5.056,
+        "separation_dark": 65.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "frontend_ppm4",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": true,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 4,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 5.04,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 214.04,
+        "version": 16,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "medium_plain_s20__frontend_ppm4",
+      "image": "png/medium_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "medium_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 214.05,
+      "version": 16
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 20.0,
+        "separation_dark": 50.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "clean",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 0.0,
+        "perspective": 0.0,
+        "px_per_module": null,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 20.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 564.84,
+        "version": 20,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": true,
+      "id": "medium_sealed_s20__clean",
+      "image": "png/medium_sealed_s20.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "medium_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 564.86,
+      "version": 20
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 10.0,
+        "separation_dark": 52.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm10",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 10,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 10.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 496.3,
+        "version": 20,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "medium_sealed_s20__ppm10",
+      "image": "png/medium_sealed_s20.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "medium_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 496.33,
+      "version": 20
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 8.0,
+        "separation_dark": 53.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm8",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 500.75,
+        "version": 20,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": true,
+      "id": "medium_sealed_s20__ppm8",
+      "image": "png/medium_sealed_s20.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "medium_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 500.78,
+      "version": 20
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 7.0,
+        "separation_dark": 53.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm7",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 7,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 7.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 476.86,
+        "version": 20,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "medium_sealed_s20__ppm7",
+      "image": "png/medium_sealed_s20.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "medium_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "heldout",
+      "timing_ms": 476.88,
+      "version": 20
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 6.0,
+        "separation_dark": 54.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm6",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 6,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 6.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 479.23,
+        "version": 20,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "medium_sealed_s20__ppm6",
+      "image": "png/medium_sealed_s20.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "medium_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 479.26,
+      "version": 20
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 5.0,
+        "separation_dark": 54.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm5",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 5,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 5.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 469.59,
+        "version": 20,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "medium_sealed_s20__ppm5",
+      "image": "png/medium_sealed_s20.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "medium_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 469.62,
+      "version": 20
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 4.0,
+        "separation_dark": 55.5,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm4",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 4,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 4.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 477.82,
+        "version": 20,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": true,
+      "id": "medium_sealed_s20__ppm4",
+      "image": "png/medium_sealed_s20.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "medium_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 477.84,
+      "version": 20
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 3.0,
+        "separation_dark": 61.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm3",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 3.0,
+        "perspective": 0.0,
+        "px_per_module": 3,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": 254.85,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 3.0,
+        "quality": 1.0,
+        "separation": 53.0,
+        "stage": "SUCCESS",
+        "timing_ms": 747.22,
+        "version": 20,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "medium_sealed_s20__ppm3",
+      "image": "png/medium_sealed_s20.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "medium_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "heldout",
+      "timing_ms": 747.25,
+      "version": 20
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 8.0,
+        "separation_dark": 51.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm8_blur05",
+      "degradations": {
+        "blur_sigma": 0.5,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 509.12,
+        "version": 20,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "medium_sealed_s20__ppm8_blur05",
+      "image": "png/medium_sealed_s20.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "medium_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 509.16,
+      "version": 20
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 8.0,
+        "separation_dark": 63.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm8_exposure120",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.2,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.01,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 493.92,
+        "version": 20,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "medium_sealed_s20__ppm8_exposure120",
+      "image": "png/medium_sealed_s20.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "medium_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "heldout",
+      "timing_ms": 493.95,
+      "version": 20
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 8.0,
+        "separation_dark": 53.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm8_jpeg80",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": 80,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 477.34,
+        "version": 20,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "medium_sealed_s20__ppm8_jpeg80",
+      "image": "png/medium_sealed_s20.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "medium_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 477.4,
+      "version": 20
+    },
+    {
+      "ber": null,
+      "ber_coverage": null,
+      "ber_meta": null,
+      "degradation": "ppm8_rot5",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 5.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 506.42,
+        "version": 20,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "medium_sealed_s20__ppm8_rot5",
+      "image": "png/medium_sealed_s20.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "medium_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 506.46,
+      "version": 20
+    },
+    {
+      "ber": null,
+      "ber_coverage": null,
+      "ber_meta": null,
+      "degradation": "ppm8_persp03",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.03,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": 231.58,
+        "failure_reason": "NO_HIDDEN_DATA",
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.61,
+        "quality": 1.0,
+        "separation": 221.73,
+        "stage": "NO_HIDDEN_DATA",
+        "timing_ms": 1681.64,
+        "version": 19,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "medium_sealed_s20__ppm8_persp03",
+      "image": "png/medium_sealed_s20.png",
+      "outcome": "no_magic",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "medium_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": false,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 1681.68,
+      "version": 20
+    },
+    {
+      "ber": 0.00155,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 4.286,
+        "separation_dark": 75.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "frontend_ppm4",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": true,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 4,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 4.29,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 429.37,
+        "version": 20,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "medium_sealed_s20__frontend_ppm4",
+      "image": "png/medium_sealed_s20.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "medium_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 429.39,
+      "version": 20
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "separation_light": 40.0,
+          "skipped": []
+        },
+        "px_per_module": 20.0,
+        "separation_dark": 50.0,
+        "separation_light": 40.0,
+        "skipped": []
+      },
+      "degradation": "clean",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 0.0,
+        "perspective": 0.0,
+        "px_per_module": null,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 20.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 293.28,
+        "version": 16,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": true,
+      "id": "large_plain_s20__clean",
+      "image": "png/large_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "large_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 696,
+      "secret_class": "large",
+      "secret_match": true,
+      "secret_sha256": "e1c24f76249368832d0067db084e1653614484995aab3149d6572e37487dc308",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 293.3,
+      "version": 16
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "separation_light": 40.0,
+          "skipped": []
+        },
+        "px_per_module": 10.0,
+        "separation_dark": 51.0,
+        "separation_light": 41.0,
+        "skipped": []
+      },
+      "degradation": "ppm10",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 10,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 10.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 273.1,
+        "version": 16,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "large_plain_s20__ppm10",
+      "image": "png/large_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "large_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 696,
+      "secret_class": "large",
+      "secret_match": true,
+      "secret_sha256": "e1c24f76249368832d0067db084e1653614484995aab3149d6572e37487dc308",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 273.12,
+      "version": 16
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "separation_light": 40.0,
+          "skipped": []
+        },
+        "px_per_module": 8.0,
+        "separation_dark": 52.5,
+        "separation_light": 42.5,
+        "skipped": []
+      },
+      "degradation": "ppm8",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 249.07,
+        "version": 16,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": true,
+      "id": "large_plain_s20__ppm8",
+      "image": "png/large_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "large_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 696,
+      "secret_class": "large",
+      "secret_match": true,
+      "secret_sha256": "e1c24f76249368832d0067db084e1653614484995aab3149d6572e37487dc308",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 249.12,
+      "version": 16
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "separation_light": 40.0,
+          "skipped": []
+        },
+        "px_per_module": 7.0,
+        "separation_dark": 53.0,
+        "separation_light": 43.0,
+        "skipped": []
+      },
+      "degradation": "ppm7",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 7,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 7.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 247.75,
+        "version": 16,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "large_plain_s20__ppm7",
+      "image": "png/large_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "large_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 696,
+      "secret_class": "large",
+      "secret_match": true,
+      "secret_sha256": "e1c24f76249368832d0067db084e1653614484995aab3149d6572e37487dc308",
+      "source": "synthetic",
+      "split": "heldout",
+      "timing_ms": 247.76,
+      "version": 16
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "separation_light": 40.0,
+          "skipped": []
+        },
+        "px_per_module": 6.0,
+        "separation_dark": 53.0,
+        "separation_light": 43.5,
+        "skipped": []
+      },
+      "degradation": "ppm6",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 6,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 6.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 247.94,
+        "version": 16,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "large_plain_s20__ppm6",
+      "image": "png/large_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "large_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 696,
+      "secret_class": "large",
+      "secret_match": true,
+      "secret_sha256": "e1c24f76249368832d0067db084e1653614484995aab3149d6572e37487dc308",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 247.96,
+      "version": 16
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "separation_light": 40.0,
+          "skipped": []
+        },
+        "px_per_module": 5.0,
+        "separation_dark": 54.0,
+        "separation_light": 45.0,
+        "skipped": []
+      },
+      "degradation": "ppm5",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 5,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 5.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 234.56,
+        "version": 16,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "large_plain_s20__ppm5",
+      "image": "png/large_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "large_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 696,
+      "secret_class": "large",
+      "secret_match": true,
+      "secret_sha256": "e1c24f76249368832d0067db084e1653614484995aab3149d6572e37487dc308",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 234.58,
+      "version": 16
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "separation_light": 40.0,
+          "skipped": []
+        },
+        "px_per_module": 4.0,
+        "separation_dark": 56.0,
+        "separation_light": 45.0,
+        "skipped": []
+      },
+      "degradation": "ppm4",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 4,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 4.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 238.0,
+        "version": 16,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": true,
+      "id": "large_plain_s20__ppm4",
+      "image": "png/large_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "large_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 696,
+      "secret_class": "large",
+      "secret_match": true,
+      "secret_sha256": "e1c24f76249368832d0067db084e1653614484995aab3149d6572e37487dc308",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 238.03,
+      "version": 16
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "separation_light": 40.0,
+          "skipped": []
+        },
+        "px_per_module": 3.0,
+        "separation_dark": 61.0,
+        "separation_light": 51.0,
+        "skipped": []
+      },
+      "degradation": "ppm3",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 3.0,
+        "perspective": 0.0,
+        "px_per_module": 3,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": 254.92,
+        "failure_reason": "PAYLOAD_DECODE_FAILED",
+        "geometry_source": "server_zxing",
+        "px_per_module": 3.0,
+        "quality": 0.98,
+        "separation": 49.0,
+        "stage": "PAYLOAD_DECODE_FAILED",
+        "timing_ms": 532.39,
+        "version": 16,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": "HIDDEN_PAYLOAD_CORRUPTED",
+      "failure_reason": null,
+      "fast": false,
+      "id": "large_plain_s20__ppm3",
+      "image": "png/large_plain_s20.png",
+      "outcome": "payload_fail",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "large_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 696,
+      "secret_class": "large",
+      "secret_match": false,
+      "secret_sha256": "e1c24f76249368832d0067db084e1653614484995aab3149d6572e37487dc308",
+      "source": "synthetic",
+      "split": "heldout",
+      "timing_ms": 532.41,
+      "version": 16
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "separation_light": 40.0,
+          "skipped": []
+        },
+        "px_per_module": 8.0,
+        "separation_dark": 51.0,
+        "separation_light": 40.0,
+        "skipped": []
+      },
+      "degradation": "ppm8_blur05",
+      "degradations": {
+        "blur_sigma": 0.5,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 251.1,
+        "version": 16,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "large_plain_s20__ppm8_blur05",
+      "image": "png/large_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "large_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 696,
+      "secret_class": "large",
+      "secret_match": true,
+      "secret_sha256": "e1c24f76249368832d0067db084e1653614484995aab3149d6572e37487dc308",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 251.12,
+      "version": 16
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 0.5764,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "separation_light": 40.0,
+          "skipped": []
+        },
+        "px_per_module": 8.0,
+        "separation_dark": 63.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm8_exposure120",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.2,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": 253.85,
+        "failure_reason": "PAYLOAD_DECODE_FAILED",
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.0,
+        "quality": 1.0,
+        "separation": 57.5,
+        "stage": "PAYLOAD_DECODE_FAILED",
+        "timing_ms": 580.09,
+        "version": 16,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": "HIDDEN_PAYLOAD_CORRUPTED",
+      "failure_reason": null,
+      "fast": false,
+      "id": "large_plain_s20__ppm8_exposure120",
+      "image": "png/large_plain_s20.png",
+      "outcome": "payload_fail",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "large_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 696,
+      "secret_class": "large",
+      "secret_match": false,
+      "secret_sha256": "e1c24f76249368832d0067db084e1653614484995aab3149d6572e37487dc308",
+      "source": "synthetic",
+      "split": "heldout",
+      "timing_ms": 580.11,
+      "version": 16
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "separation_light": 40.0,
+          "skipped": []
+        },
+        "px_per_module": 8.0,
+        "separation_dark": 53.0,
+        "separation_light": 43.0,
+        "skipped": []
+      },
+      "degradation": "ppm8_jpeg80",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": 80,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 251.56,
+        "version": 16,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "large_plain_s20__ppm8_jpeg80",
+      "image": "png/large_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "large_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 696,
+      "secret_class": "large",
+      "secret_match": true,
+      "secret_sha256": "e1c24f76249368832d0067db084e1653614484995aab3149d6572e37487dc308",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 251.58,
+      "version": 16
+    },
+    {
+      "ber": null,
+      "ber_coverage": null,
+      "ber_meta": null,
+      "degradation": "ppm8_rot5",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 5.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 261.89,
+        "version": 16,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "large_plain_s20__ppm8_rot5",
+      "image": "png/large_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "large_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 696,
+      "secret_class": "large",
+      "secret_match": true,
+      "secret_sha256": "e1c24f76249368832d0067db084e1653614484995aab3149d6572e37487dc308",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 261.94,
+      "version": 16
+    },
+    {
+      "ber": null,
+      "ber_coverage": null,
+      "ber_meta": null,
+      "degradation": "ppm8_persp03",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.03,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": 251.29,
+        "failure_reason": "OPTICAL_SENSOR_SATURATION",
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.26,
+        "quality": 0.962,
+        "separation": 48.08,
+        "stage": "OPTICAL_SENSOR_SATURATION",
+        "timing_ms": 1579.96,
+        "version": 16,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "large_plain_s20__ppm8_persp03",
+      "image": "png/large_plain_s20.png",
+      "outcome": "no_magic",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "large_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 696,
+      "secret_class": "large",
+      "secret_match": false,
+      "secret_sha256": "e1c24f76249368832d0067db084e1653614484995aab3149d6572e37487dc308",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 1580.0,
+      "version": 16
+    },
+    {
+      "ber": 0.003626,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "separation_light": 40.0,
+          "skipped": []
+        },
+        "px_per_module": 5.056,
+        "separation_dark": 68.0,
+        "separation_light": 60.0,
+        "skipped": []
+      },
+      "degradation": "frontend_ppm4",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": true,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 4,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 5.04,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 218.61,
+        "version": 16,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "large_plain_s20__frontend_ppm4",
+      "image": "png/large_plain_s20.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "large_plain_s20",
+      "render_scale": 20,
+      "secret_bytes": 696,
+      "secret_class": "large",
+      "secret_match": true,
+      "secret_sha256": "e1c24f76249368832d0067db084e1653614484995aab3149d6572e37487dc308",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 218.63,
+      "version": 16
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "separation_light": 40.0,
+          "skipped": []
+        },
+        "px_per_module": 20.0,
+        "separation_dark": 50.0,
+        "separation_light": 40.0,
+        "skipped": []
+      },
+      "degradation": "clean",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 0.0,
+        "perspective": 0.0,
+        "px_per_module": null,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 20.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 499.37,
+        "version": 19,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": true,
+      "id": "large_sealed_s20__clean",
+      "image": "png/large_sealed_s20.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "large_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 696,
+      "secret_class": "large",
+      "secret_match": true,
+      "secret_sha256": "e1c24f76249368832d0067db084e1653614484995aab3149d6572e37487dc308",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 499.4,
+      "version": 19
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "separation_light": 40.0,
+          "skipped": []
+        },
+        "px_per_module": 10.0,
+        "separation_dark": 52.0,
+        "separation_light": 41.0,
+        "skipped": []
+      },
+      "degradation": "ppm10",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 10,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 10.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 481.35,
+        "version": 19,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "large_sealed_s20__ppm10",
+      "image": "png/large_sealed_s20.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "large_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 696,
+      "secret_class": "large",
+      "secret_match": true,
+      "secret_sha256": "e1c24f76249368832d0067db084e1653614484995aab3149d6572e37487dc308",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 481.38,
+      "version": 19
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "separation_light": 40.0,
+          "skipped": []
+        },
+        "px_per_module": 8.0,
+        "separation_dark": 53.0,
+        "separation_light": 43.5,
+        "skipped": []
+      },
+      "degradation": "ppm8",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 458.72,
+        "version": 19,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": true,
+      "id": "large_sealed_s20__ppm8",
+      "image": "png/large_sealed_s20.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "large_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 696,
+      "secret_class": "large",
+      "secret_match": true,
+      "secret_sha256": "e1c24f76249368832d0067db084e1653614484995aab3149d6572e37487dc308",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 458.76,
+      "version": 19
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "separation_light": 40.0,
+          "skipped": []
+        },
+        "px_per_module": 7.0,
+        "separation_dark": 53.0,
+        "separation_light": 44.0,
+        "skipped": []
+      },
+      "degradation": "ppm7",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 7,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 7.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 435.62,
+        "version": 19,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "large_sealed_s20__ppm7",
+      "image": "png/large_sealed_s20.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "large_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 696,
+      "secret_class": "large",
+      "secret_match": true,
+      "secret_sha256": "e1c24f76249368832d0067db084e1653614484995aab3149d6572e37487dc308",
+      "source": "synthetic",
+      "split": "heldout",
+      "timing_ms": 435.65,
+      "version": 19
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "separation_light": 40.0,
+          "skipped": []
+        },
+        "px_per_module": 6.0,
+        "separation_dark": 53.0,
+        "separation_light": 43.5,
+        "skipped": []
+      },
+      "degradation": "ppm6",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 6,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 6.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 450.38,
+        "version": 19,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "large_sealed_s20__ppm6",
+      "image": "png/large_sealed_s20.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "large_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 696,
+      "secret_class": "large",
+      "secret_match": true,
+      "secret_sha256": "e1c24f76249368832d0067db084e1653614484995aab3149d6572e37487dc308",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 450.41,
+      "version": 19
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "separation_light": 40.0,
+          "skipped": []
+        },
+        "px_per_module": 5.0,
+        "separation_dark": 55.0,
+        "separation_light": 45.0,
+        "skipped": []
+      },
+      "degradation": "ppm5",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 5,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 5.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 453.22,
+        "version": 19,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "large_sealed_s20__ppm5",
+      "image": "png/large_sealed_s20.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "large_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 696,
+      "secret_class": "large",
+      "secret_match": true,
+      "secret_sha256": "e1c24f76249368832d0067db084e1653614484995aab3149d6572e37487dc308",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 453.25,
+      "version": 19
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "separation_light": 40.0,
+          "skipped": []
+        },
+        "px_per_module": 4.0,
+        "separation_dark": 55.0,
+        "separation_light": 46.5,
+        "skipped": []
+      },
+      "degradation": "ppm4",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 4,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 4.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 422.52,
+        "version": 19,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "large_sealed_s20__ppm4",
+      "image": "png/large_sealed_s20.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "large_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 696,
+      "secret_class": "large",
+      "secret_match": true,
+      "secret_sha256": "e1c24f76249368832d0067db084e1653614484995aab3149d6572e37487dc308",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 422.54,
+      "version": 19
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "separation_light": 40.0,
+          "skipped": []
+        },
+        "px_per_module": 3.0,
+        "separation_dark": 63.0,
+        "separation_light": 54.0,
+        "skipped": []
+      },
+      "degradation": "ppm3",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 3.0,
+        "perspective": 0.0,
+        "px_per_module": 3,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": 254.85,
+        "failure_reason": "PAYLOAD_DECODE_FAILED",
+        "geometry_source": "server_zxing",
+        "px_per_module": 3.0,
+        "quality": 1.0,
+        "separation": 54.0,
+        "stage": "PAYLOAD_DECODE_FAILED",
+        "timing_ms": 793.23,
+        "version": 19,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": "HIDDEN_PAYLOAD_CORRUPTED",
+      "failure_reason": null,
+      "fast": false,
+      "id": "large_sealed_s20__ppm3",
+      "image": "png/large_sealed_s20.png",
+      "outcome": "payload_fail",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "large_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 696,
+      "secret_class": "large",
+      "secret_match": false,
+      "secret_sha256": "e1c24f76249368832d0067db084e1653614484995aab3149d6572e37487dc308",
+      "source": "synthetic",
+      "split": "heldout",
+      "timing_ms": 793.28,
+      "version": 19
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "separation_light": 40.0,
+          "skipped": []
+        },
+        "px_per_module": 8.0,
+        "separation_dark": 50.5,
+        "separation_light": 40.0,
+        "skipped": []
+      },
+      "degradation": "ppm8_blur05",
+      "degradations": {
+        "blur_sigma": 0.5,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 457.3,
+        "version": 19,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "large_sealed_s20__ppm8_blur05",
+      "image": "png/large_sealed_s20.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "large_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 696,
+      "secret_class": "large",
+      "secret_match": true,
+      "secret_sha256": "e1c24f76249368832d0067db084e1653614484995aab3149d6572e37487dc308",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 457.33,
+      "version": 19
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 0.5421,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "separation_light": 40.0,
+          "skipped": []
+        },
+        "px_per_module": 8.0,
+        "separation_dark": 63.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm8_exposure120",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.2,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": 253.66,
+        "failure_reason": "PAYLOAD_DECODE_FAILED",
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.0,
+        "quality": 1.0,
+        "separation": 57.98,
+        "stage": "PAYLOAD_DECODE_FAILED",
+        "timing_ms": 817.33,
+        "version": 19,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": "HIDDEN_PAYLOAD_CORRUPTED",
+      "failure_reason": null,
+      "fast": false,
+      "id": "large_sealed_s20__ppm8_exposure120",
+      "image": "png/large_sealed_s20.png",
+      "outcome": "payload_fail",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "large_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 696,
+      "secret_class": "large",
+      "secret_match": false,
+      "secret_sha256": "e1c24f76249368832d0067db084e1653614484995aab3149d6572e37487dc308",
+      "source": "synthetic",
+      "split": "heldout",
+      "timing_ms": 817.35,
+      "version": 19
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "separation_light": 40.0,
+          "skipped": []
+        },
+        "px_per_module": 8.0,
+        "separation_dark": 53.0,
+        "separation_light": 44.0,
+        "skipped": []
+      },
+      "degradation": "ppm8_jpeg80",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": 80,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 440.57,
+        "version": 19,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "large_sealed_s20__ppm8_jpeg80",
+      "image": "png/large_sealed_s20.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "large_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 696,
+      "secret_class": "large",
+      "secret_match": true,
+      "secret_sha256": "e1c24f76249368832d0067db084e1653614484995aab3149d6572e37487dc308",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 440.63,
+      "version": 19
+    },
+    {
+      "ber": null,
+      "ber_coverage": null,
+      "ber_meta": null,
+      "degradation": "ppm8_rot5",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 5.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 453.19,
+        "version": 19,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "large_sealed_s20__ppm8_rot5",
+      "image": "png/large_sealed_s20.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "large_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 696,
+      "secret_class": "large",
+      "secret_match": true,
+      "secret_sha256": "e1c24f76249368832d0067db084e1653614484995aab3149d6572e37487dc308",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 453.21,
+      "version": 19
+    },
+    {
+      "ber": null,
+      "ber_coverage": null,
+      "ber_meta": null,
+      "degradation": "ppm8_persp03",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.03,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": 216.9,
+        "failure_reason": "NO_HIDDEN_DATA",
+        "geometry_source": "server_zxing",
+        "px_per_module": 10.52,
+        "quality": 1.0,
+        "separation": 229.91,
+        "stage": "NO_HIDDEN_DATA",
+        "timing_ms": 1600.92,
+        "version": 14,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "large_sealed_s20__ppm8_persp03",
+      "image": "png/large_sealed_s20.png",
+      "outcome": "no_magic",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "large_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 696,
+      "secret_class": "large",
+      "secret_match": false,
+      "secret_sha256": "e1c24f76249368832d0067db084e1653614484995aab3149d6572e37487dc308",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 1600.95,
+      "version": 19
+    },
+    {
+      "ber": 0.021601,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 20.0,
+          "separation_dark": 50.0,
+          "separation_light": 40.0,
+          "skipped": []
+        },
+        "px_per_module": 4.455,
+        "separation_dark": 75.0,
+        "separation_light": 67.5,
+        "skipped": []
+      },
+      "degradation": "frontend_ppm4",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": true,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 4,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 4.45,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 405.2,
+        "version": 19,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "large_sealed_s20__frontend_ppm4",
+      "image": "png/large_sealed_s20.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "large_sealed_s20",
+      "render_scale": 20,
+      "secret_bytes": 696,
+      "secret_class": "large",
+      "secret_match": true,
+      "secret_sha256": "e1c24f76249368832d0067db084e1653614484995aab3149d6572e37487dc308",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 405.21,
+      "version": 19
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 10.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 10.0,
+        "separation_dark": 50.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "clean",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 0.0,
+        "perspective": 0.0,
+        "px_per_module": null,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 10.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 463.34,
+        "version": 20,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": true,
+      "id": "medium_sealed_s10__clean",
+      "image": "png/medium_sealed_s10.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "medium_sealed_s10",
+      "render_scale": 10,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 463.37,
+      "version": 20
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 10.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 10.0,
+        "separation_dark": 50.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm10",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 10,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 10.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 489.27,
+        "version": 20,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "medium_sealed_s10__ppm10",
+      "image": "png/medium_sealed_s10.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "medium_sealed_s10",
+      "render_scale": 10,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 489.29,
+      "version": 20
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 10.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 8.0,
+        "separation_dark": 52.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm8",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.01,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 503.3,
+        "version": 20,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": true,
+      "id": "medium_sealed_s10__ppm8",
+      "image": "png/medium_sealed_s10.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "medium_sealed_s10",
+      "render_scale": 10,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 503.32,
+      "version": 20
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 10.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 7.0,
+        "separation_dark": 54.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm7",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 7,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 7.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 487.66,
+        "version": 20,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "medium_sealed_s10__ppm7",
+      "image": "png/medium_sealed_s10.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "medium_sealed_s10",
+      "render_scale": 10,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "heldout",
+      "timing_ms": 487.68,
+      "version": 20
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 10.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 6.0,
+        "separation_dark": 55.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm6",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 6,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 6.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 478.27,
+        "version": 20,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "medium_sealed_s10__ppm6",
+      "image": "png/medium_sealed_s10.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "medium_sealed_s10",
+      "render_scale": 10,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 478.29,
+      "version": 20
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 10.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 5.0,
+        "separation_dark": 56.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm5",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 5,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 5.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 471.68,
+        "version": 20,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "medium_sealed_s10__ppm5",
+      "image": "png/medium_sealed_s10.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "medium_sealed_s10",
+      "render_scale": 10,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 471.73,
+      "version": 20
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 10.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 4.0,
+        "separation_dark": 59.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm4",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 4,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 4.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 469.25,
+        "version": 20,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "medium_sealed_s10__ppm4",
+      "image": "png/medium_sealed_s10.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "medium_sealed_s10",
+      "render_scale": 10,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 469.29,
+      "version": 20
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 10.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 3.0,
+        "separation_dark": 67.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm3",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 3.0,
+        "perspective": 0.0,
+        "px_per_module": 3,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": 254.84,
+        "failure_reason": "PAYLOAD_DECODE_FAILED",
+        "geometry_source": "server_zxing",
+        "px_per_module": 3.0,
+        "quality": 1.0,
+        "separation": 52.99,
+        "stage": "PAYLOAD_DECODE_FAILED",
+        "timing_ms": 673.62,
+        "version": 20,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": "HIDDEN_PAYLOAD_CORRUPTED",
+      "failure_reason": null,
+      "fast": false,
+      "id": "medium_sealed_s10__ppm3",
+      "image": "png/medium_sealed_s10.png",
+      "outcome": "payload_fail",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "medium_sealed_s10",
+      "render_scale": 10,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": false,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "heldout",
+      "timing_ms": 673.64,
+      "version": 20
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 10.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 8.0,
+        "separation_dark": 49.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm8_blur05",
+      "degradations": {
+        "blur_sigma": 0.5,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 484.15,
+        "version": 20,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "medium_sealed_s10__ppm8_blur05",
+      "image": "png/medium_sealed_s10.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "medium_sealed_s10",
+      "render_scale": 10,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 484.2,
+      "version": 20
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 10.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 8.0,
+        "separation_dark": 62.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm8_exposure120",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.2,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.01,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 487.96,
+        "version": 20,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "medium_sealed_s10__ppm8_exposure120",
+      "image": "png/medium_sealed_s10.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "medium_sealed_s10",
+      "render_scale": 10,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "heldout",
+      "timing_ms": 487.98,
+      "version": 20
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 10.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 8.0,
+        "separation_dark": 54.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm8_jpeg80",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": 80,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.01,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 515.07,
+        "version": 20,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "medium_sealed_s10__ppm8_jpeg80",
+      "image": "png/medium_sealed_s10.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "medium_sealed_s10",
+      "render_scale": 10,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 515.1,
+      "version": 20
+    },
+    {
+      "ber": null,
+      "ber_coverage": null,
+      "ber_meta": null,
+      "degradation": "ppm8_rot5",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 5.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 508.26,
+        "version": 20,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "medium_sealed_s10__ppm8_rot5",
+      "image": "png/medium_sealed_s10.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "medium_sealed_s10",
+      "render_scale": 10,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 508.29,
+      "version": 20
+    },
+    {
+      "ber": null,
+      "ber_coverage": null,
+      "ber_meta": null,
+      "degradation": "ppm8_persp03",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.03,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": 232.71,
+        "failure_reason": "NO_HIDDEN_DATA",
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.61,
+        "quality": 1.0,
+        "separation": 246.57,
+        "stage": "NO_HIDDEN_DATA",
+        "timing_ms": 1656.18,
+        "version": 19,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "medium_sealed_s10__ppm8_persp03",
+      "image": "png/medium_sealed_s10.png",
+      "outcome": "no_magic",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "medium_sealed_s10",
+      "render_scale": 10,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": false,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 1656.2,
+      "version": 20
+    },
+    {
+      "ber": 0.015238,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 10.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 4.286,
+        "separation_dark": 71.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "frontend_ppm4",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": true,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 4,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 4.29,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 438.12,
+        "version": 20,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "medium_sealed_s10__frontend_ppm4",
+      "image": "png/medium_sealed_s10.png",
+      "outcome": "success",
+      "password_ref": "FIXTURE_PASSWORD",
+      "public_data": "https://invisiovault.com",
+      "render": "medium_sealed_s10",
+      "render_scale": 10,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_match": true,
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 438.13,
+      "version": 20
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 10.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 10.0,
+        "separation_dark": 50.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "clean",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 0.0,
+        "perspective": 0.0,
+        "px_per_module": null,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 10.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 38.82,
+        "version": 5,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": true,
+      "id": "small_plain_s10__clean",
+      "image": "png/small_plain_s10.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "small_plain_s10",
+      "render_scale": 10,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 38.83,
+      "version": 5
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 10.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 10.0,
+        "separation_dark": 50.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm10",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 10,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 10.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 43.36,
+        "version": 5,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "small_plain_s10__ppm10",
+      "image": "png/small_plain_s10.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "small_plain_s10",
+      "render_scale": 10,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 43.38,
+      "version": 5
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 10.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 8.0,
+        "separation_dark": 52.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm8",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_pyzbar",
+        "px_per_module": 7.95,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 46.96,
+        "version": 5,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": true,
+      "id": "small_plain_s10__ppm8",
+      "image": "png/small_plain_s10.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "small_plain_s10",
+      "render_scale": 10,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 46.97,
+      "version": 5
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 10.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 7.0,
+        "separation_dark": 53.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm7",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 7,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 7.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 40.13,
+        "version": 5,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "small_plain_s10__ppm7",
+      "image": "png/small_plain_s10.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "small_plain_s10",
+      "render_scale": 10,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "heldout",
+      "timing_ms": 40.15,
+      "version": 5
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 10.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 6.0,
+        "separation_dark": 54.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm6",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 6,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 6.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 41.63,
+        "version": 5,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "small_plain_s10__ppm6",
+      "image": "png/small_plain_s10.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "small_plain_s10",
+      "render_scale": 10,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 41.64,
+      "version": 5
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 10.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 5.0,
+        "separation_dark": 55.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm5",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 5,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 5.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 37.84,
+        "version": 5,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "small_plain_s10__ppm5",
+      "image": "png/small_plain_s10.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "small_plain_s10",
+      "render_scale": 10,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 37.86,
+      "version": 5
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 10.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 4.0,
+        "separation_dark": 57.5,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm4",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 4,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 4.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 38.91,
+        "version": 5,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "small_plain_s10__ppm4",
+      "image": "png/small_plain_s10.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "small_plain_s10",
+      "render_scale": 10,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 38.92,
+      "version": 5
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 10.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 3.0,
+        "separation_dark": 67.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm3",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 3.0,
+        "perspective": 0.0,
+        "px_per_module": 3,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 3.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 36.92,
+        "version": 5,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "small_plain_s10__ppm3",
+      "image": "png/small_plain_s10.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "small_plain_s10",
+      "render_scale": 10,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "heldout",
+      "timing_ms": 36.94,
+      "version": 5
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 10.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 8.0,
+        "separation_dark": 48.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm8_blur05",
+      "degradations": {
+        "blur_sigma": 0.5,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 42.34,
+        "version": 5,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "small_plain_s10__ppm8_blur05",
+      "image": "png/small_plain_s10.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "small_plain_s10",
+      "render_scale": 10,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 42.36,
+      "version": 5
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 10.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 8.0,
+        "separation_dark": 61.5,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm8_exposure120",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.2,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_pyzbar",
+        "px_per_module": 7.95,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 45.5,
+        "version": 5,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "small_plain_s10__ppm8_exposure120",
+      "image": "png/small_plain_s10.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "small_plain_s10",
+      "render_scale": 10,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "heldout",
+      "timing_ms": 45.52,
+      "version": 5
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 10.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 8.0,
+        "separation_dark": 54.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "ppm8_jpeg80",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": 80,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_pyzbar",
+        "px_per_module": 7.95,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 46.24,
+        "version": 5,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "small_plain_s10__ppm8_jpeg80",
+      "image": "png/small_plain_s10.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "small_plain_s10",
+      "render_scale": 10,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 46.25,
+      "version": 5
+    },
+    {
+      "ber": null,
+      "ber_coverage": null,
+      "ber_meta": null,
+      "degradation": "ppm8_rot5",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 8,
+        "rotation_deg": 5.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 7.99,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 42.39,
+        "version": 5,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "small_plain_s10__ppm8_rot5",
+      "image": "png/small_plain_s10.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "small_plain_s10",
+      "render_scale": 10,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 42.41,
+      "version": 5
+    },
+    {
+      "ber": null,
+      "ber_coverage": null,
+      "ber_meta": null,
+      "degradation": "ppm8_persp03",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": false,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.03,
+        "px_per_module": 8,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 8.24,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 44.65,
+        "version": 5,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "small_plain_s10__ppm8_persp03",
+      "image": "png/small_plain_s10.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "small_plain_s10",
+      "render_scale": 10,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 44.66,
+      "version": 5
+    },
+    {
+      "ber": 0.0,
+      "ber_coverage": 1.0,
+      "ber_meta": {
+        "clean_meta": {
+          "px_per_module": 10.0,
+          "separation_dark": 50.0,
+          "skipped": [
+            "light"
+          ]
+        },
+        "px_per_module": 10.0,
+        "separation_dark": 51.0,
+        "skipped": [
+          "light"
+        ]
+      },
+      "degradation": "frontend_ppm4",
+      "degradations": {
+        "blur_sigma": 0.0,
+        "exposure": 1.0,
+        "frontend_transform": true,
+        "jpeg_quality": null,
+        "noise_sigma": 2.0,
+        "perspective": 0.0,
+        "px_per_module": 4,
+        "rotation_deg": 0.0
+      },
+      "diagnostics": {
+        "attempts": 1,
+        "contrast": null,
+        "failure_reason": null,
+        "geometry_source": "server_zxing",
+        "px_per_module": 10.0,
+        "quality": null,
+        "separation": null,
+        "stage": "SUCCESS",
+        "timing_ms": 42.91,
+        "version": 5,
+        "version_source": "timing_pattern"
+      },
+      "ecc": "m",
+      "error_code": null,
+      "failure_reason": null,
+      "fast": false,
+      "id": "small_plain_s10__frontend_ppm4",
+      "image": "png/small_plain_s10.png",
+      "outcome": "success",
+      "password_ref": null,
+      "public_data": "https://invisiovault.com",
+      "render": "small_plain_s10",
+      "render_scale": 10,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_match": true,
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "source": "synthetic",
+      "split": "train",
+      "timing_ms": 42.93,
+      "version": 5
+    }
+  ],
+  "generated_at": "2026-11-03T06:12:54+00:00",
+  "notes": [
+    "Synthetic fixtures only. Never commit real captures.",
+    "Secret plaintext is not stored; only SHA-256 plus the deterministic recipe.",
+    "expected/outcome values are the pre-change baseline behaviour."
+  ],
+  "public_data": "https://invisiovault.com",
+  "renders": {
+    "large_plain_s20": {
+      "image": "png/large_plain_s20.png",
+      "image_sha256": "0fcfd97660a2fe3e53b6ebc5102ad148e528adbc3d751473a78c1b10641f1844",
+      "password_ref": null,
+      "render_scale": 20,
+      "secret_bytes": 696,
+      "secret_class": "large",
+      "secret_sha256": "e1c24f76249368832d0067db084e1653614484995aab3149d6572e37487dc308",
+      "version": 16
+    },
+    "large_sealed_s20": {
+      "image": "png/large_sealed_s20.png",
+      "image_sha256": "f369c9a66cf3b317b909e212fb7eab7273229e49e4166424a6cabfbd36511ad4",
+      "password_ref": "FIXTURE_PASSWORD",
+      "render_scale": 20,
+      "secret_bytes": 696,
+      "secret_class": "large",
+      "secret_sha256": "e1c24f76249368832d0067db084e1653614484995aab3149d6572e37487dc308",
+      "version": 19
+    },
+    "medium_plain_s20": {
+      "image": "png/medium_plain_s20.png",
+      "image_sha256": "2236ff317c5d54cc24536ef32cc9a5f2d7caee715c5f991a4c4908217c6ff2fc",
+      "password_ref": null,
+      "render_scale": 20,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "version": 16
+    },
+    "medium_sealed_s10": {
+      "image": "png/medium_sealed_s10.png",
+      "image_sha256": "8d1e7ac5f28837406306e3a08ec59a941b3e2c44040e0147339777392fcc6b87",
+      "password_ref": "FIXTURE_PASSWORD",
+      "render_scale": 10,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "version": 20
+    },
+    "medium_sealed_s20": {
+      "image": "png/medium_sealed_s20.png",
+      "image_sha256": "cbc047b4b8ec4725a8bc7a86aacf30359b09b4914ee3a1aa57a65bf3be9bc0c6",
+      "password_ref": "FIXTURE_PASSWORD",
+      "render_scale": 20,
+      "secret_bytes": 300,
+      "secret_class": "medium",
+      "secret_sha256": "be9e89fdbe77e3d68a0b92d3830f6d131a603fdc9f35bfb4482d207c26b29df1",
+      "version": 20
+    },
+    "small_plain_s10": {
+      "image": "png/small_plain_s10.png",
+      "image_sha256": "875b268c9e3bbcd9aa0b8cd279f124229bd7eaa5f3d24f0c6165e4a2dd60caa0",
+      "password_ref": null,
+      "render_scale": 10,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "version": 5
+    },
+    "small_plain_s20": {
+      "image": "png/small_plain_s20.png",
+      "image_sha256": "dbd5c7028ece1b0ab4e33e1b740a21cba1a6705d9b3ecc02bc15c5fb5833449f",
+      "password_ref": null,
+      "render_scale": 20,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "version": 5
+    },
+    "small_sealed_s20": {
+      "image": "png/small_sealed_s20.png",
+      "image_sha256": "1465e49acb40fb9cfa87a6d6ae976202e033801784d58f1eda613a41b1bf3433",
+      "password_ref": "FIXTURE_PASSWORD",
+      "render_scale": 20,
+      "secret_bytes": 9,
+      "secret_class": "small",
+      "secret_sha256": "cb49b9f875c20c934a4da7d3a4dbb06c1a859f5e0cb48ff6cddd5288044379fa",
+      "version": 11
+    }
+  },
+  "schema": 1
+}

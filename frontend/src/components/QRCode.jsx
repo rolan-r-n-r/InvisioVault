@@ -243,6 +243,17 @@ function QRCode() {
             const scanId = err.response?.data?.cameraScanId || 'unknown'
             const failureReason = err.response?.data?.failureReason
             const isPwdRequired = !!err.response?.data?.passwordRequired
+
+            // Rate limiting is not a decode failure: retrying only burns the
+            // remaining budget, so stop and tell the user when to come back.
+            if (err.response?.status === 429) {
+                const retryAfter = err.response?.headers?.['retry-after']
+                setExtractError(retryAfter
+                    ? `Too many scans. Please wait ${retryAfter} seconds and try again.`
+                    : 'Too many scans in a short time. Please wait a minute and try again.')
+                clearCooldown(true)
+                return
+            }
             console.error(`[QRCode Component] Extraction error [${scanId}] reason=${failureReason}:`, err)
 
             // PAYLOAD_DECODE_FAILED means the magic header was found but body RS-decode failed

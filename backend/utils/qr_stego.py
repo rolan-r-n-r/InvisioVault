@@ -41,6 +41,7 @@ import os
 import secrets
 import struct
 import tempfile
+import time
 from typing import Any, Dict, List, Optional, Tuple, Sequence
 
 import numpy as np
@@ -75,6 +76,7 @@ from utils.qr_module_map import (
     get_qr_dimension,
     get_safe_data_modules,
     get_structural_modules,
+    read_version_information,
     verify_finder_pattern,
 )
 
@@ -91,6 +93,26 @@ RS_BODY_ECC_BYTES: int = 24        # Parity bytes for payload body (corrects up 
 MAX_SAFE_STREAM_BYTES: int = 2_000  # Maximum safe secret text size in bytes
 MAX_SAFE_VISUAL_BYTES: int = 1_200  # Maximum safe visual secret text size
 
+# ── Modulation strength (Phase 3) ─────────────────────────────────────────────
+# Encoder-side luma steps applied to module interiors. Extraction estimates its
+# own decision threshold from the observed image, so these values are never used
+# verbatim when decoding; raising them adds optical margin without changing the
+# container, the bit layout, or the IVQR v1 wire format.
+# Measured Phase 3 policy: only the light channel changes (40 -> 72). Raising
+# the dark step to 56/64 or the light step to 96 produced no measurable gain on
+# the training matrix, so the dark channel keeps its shipped value.
+ADAPTIVE_LIGHT_DELTA: int = 72
+MODULATION_DARK_FLOOR: int = 20
+MODULATION_LIGHT_FLOOR: int = 24
+MODULATION_INSET: int = 1
+MODULATION_MIDPOINT_MARGIN: int = 8
+LIGHT_LUMA_FLOOR: int = 120
+# The darkest light-module state must stay clearly lighter than the brightest
+# dark-module state, or the four symbol levels (dark/light x modulated/not)
+# overlap and the public symbol stops being decodable. Palettes that cannot
+# host both states are rejected rather than rendered borderline.
+MIN_MODULATION_STATE_SEPARATION: int = 24
+
 
 class QRErrorCode(str, Enum):
     """Failure classification codes for QR steganography operations."""
@@ -106,6 +128,8 @@ class QRErrorCode(str, Enum):
     PAYLOAD_TRUNCATED = "PAYLOAD_TRUNCATED"
     CAPACITY_EXCEEDED = "CAPACITY_EXCEEDED"
     UNSUPPORTED_VERSION = "UNSUPPORTED_VERSION"
+    UNSCANNABLE_COLORS = "UNSCANNABLE_COLORS"
+    GENERATION_SELF_CHECK_FAILED = "GENERATION_SELF_CHECK_FAILED"
 
 
 class QRStegoError(ValueError):
@@ -250,24 +274,92 @@ def get_qr_capacity_info(public_data: str, scale: int = 10, method: str = "auto"
     """
     public_bytes_len = len(public_data.encode("utf-8")) if public_data else 0
 
-    # Stream mode capacity at max safe version (v20, Error Level M)
-    # Total binary capacity of v20 at Level M is 1,663 bytes.
-    # Base64 expansion is 4/3, overhead is prefix (8B) + header/salt (32B).
-    # We cap at 1,273 bytes (standard Level H limit) to ensure conservative safety.
-    # Safe visual capacity at MAX_SAFE_QR_VERSION (v22)
-    # Safe data modules for v22: 8,826 bits = 1,103 bytes.
-    # Container overhead: 16B header + 16B salt + Fernet token overhead (~57B) + padding (~15B) = ~104B.
-    safe_mods_count = len(get_safe_data_modules(MAX_SAFE_QR_VERSION))
-    safe_visual_capacity = max(0, (safe_mods_count // 8) - 104)
+    safe_modules = get_safe_data_modules(MAX_SAFE_QR_VERSION)
+    total_safe_modules = len(safe_modules)
+
+    # The dark/light split depends on the rendered matrix, so measure it for the
+    # caller's actual public data instead of assuming half. A symbol that cannot
+    # hold the public data at v22 has no payload capacity.
+    public_fits = True
+    try:
+        probe = segno.make(
+            public_data or " ", version=MAX_SAFE_QR_VERSION, error="m", boost_error=False
+        )
+        matrix = probe.matrix
+        dark_safe_modules = sum(1 for (r, c) in safe_modules if matrix[r][c] == 1)
+    except Exception:
+        public_fits = False
+        dark_safe_modules = 0
+
+    plain_dark = _max_secret_bytes(dark_safe_modules, None) if public_fits else 0
+    sealed_dark = _max_secret_bytes(dark_safe_modules, "x") if public_fits else 0
+    plain_all = _max_secret_bytes(total_safe_modules, None) if public_fits else 0
+    sealed_all = _max_secret_bytes(total_safe_modules, "x") if public_fits else 0
 
     return {
-        "safeCapacityBytes": safe_visual_capacity,
+        # Backward-compatible key: the reliable dark-only, unencrypted limit.
+        "safeCapacityBytes": plain_dark,
+        # Dark-only capacity (the selector's primary path, camera-reliable).
+        "plainMaxBytes": plain_dark,
+        "encryptedMaxBytes": sealed_dark,
+        # All-safe capacity (the selector's fallback; light modules included).
+        "allSafePlainMaxBytes": plain_all,
+        "allSafeEncryptedMaxBytes": sealed_all,
+        "capacityBasis": "computed-uncompressed-max-at-v22",
+        "publicDataFits": public_fits,
         "maxSafeVersion": MAX_SAFE_QR_VERSION,
         "recommendedErrorCorrection": "M",
         "recommendedVersion": 15,
         "publicDataLength": public_bytes_len,
         "method": "visual",
     }
+
+
+def _fernet_token_length(plaintext_len: int) -> int:
+    """Length of a Fernet token for *plaintext_len* bytes.
+
+    Fernet packs version(1) + timestamp(8) + IV(16) + ciphertext(n) + HMAC(32)
+    and base64-encodes the result, so the token length is deterministic even
+    though the bytes are not.
+    """
+    raw = plaintext_len + 57
+    return 4 * ((raw + 2) // 3)
+
+
+def _container_length_for_secret(n_bytes: int, password: Optional[str]) -> int:
+    """IVQR v1 container length for an incompressible n-byte secret."""
+    if password:
+        return 16 + SALT_LENGTH + _fernet_token_length(n_bytes)
+    return 16 + n_bytes + 4  # header + payload + CRC-32 trailer
+
+
+def _fec_bits_for_secret(n_bytes: int, password: Optional[str]) -> int:
+    """Carrier modules consumed by the current 2-stage RS layout."""
+    bytes_total = (
+        _container_length_for_secret(n_bytes, password)
+        + RS_HEADER_ECC_BYTES
+        + RS_BODY_ECC_BYTES
+    )
+    return bytes_total * 8
+
+
+def _max_secret_bytes(carrier_modules: int, password: Optional[str]) -> int:
+    """Largest secret that fits *carrier_modules* without relying on compression.
+
+    Deliberately models the **uncompressed** worst case: zlib can make the packed
+    length non-monotonic in the input size, so a compressed estimate would not
+    be a guaranteed limit.
+    """
+    if carrier_modules <= 0:
+        return 0
+    lo, hi = 0, MAX_SAFE_VISUAL_BYTES
+    while lo < hi:
+        mid = (lo + hi + 1) // 2
+        if _fec_bits_for_secret(mid, password) <= carrier_modules:
+            lo = mid
+        else:
+            hi = mid - 1
+    return lo
 
 
 def calculate_qr_capacity(public_data: str, scale: int = 10) -> int:
@@ -347,6 +439,112 @@ def _select_qr_version_for_visual(
     )
 
 
+def _self_check_enabled() -> bool:
+    """Whether generated QR images are verified before being returned."""
+    env_value = os.getenv("QR_SELF_CHECK")
+    if env_value is not None:
+        return env_value.strip().lower() in ("1", "true", "yes", "on")
+    try:
+        from flask import current_app
+
+        if current_app:
+            return bool(current_app.config.get("QR_SELF_CHECK", True))
+    except Exception:  # no application context (tests, CLI)
+        pass
+    return True
+
+
+def _decode_public_text(img: Image.Image) -> Optional[str]:
+    """Read the visible QR text using every decoder the app ships.
+
+    A single decoder is not a fair authority. Measured on a real generated v7
+    symbol at 8 px/module: zxing's default detector returns nothing, while
+    zxing's pure path and pyzbar both read the exact public text (and the same
+    symbol reads fine with modulation disabled). Treating one locator as the
+    arbiter would reject valid output; treating none as the arbiter would accept
+    unscannable output.
+    """
+    for kwargs in ({}, {"is_pure": True}):
+        try:
+            results = zxingcpp.read_barcodes(img, **kwargs)
+        except Exception:
+            continue
+        if results:
+            text = getattr(results[0], "text", None)
+            if text:
+                return text
+
+    if pyzbar is not None:
+        try:
+            results = pyzbar.decode(img)
+        except Exception:
+            results = None
+        if results:
+            try:
+                return results[0].data.decode("utf-8")
+            except UnicodeDecodeError:
+                return None
+    return None
+
+
+def _self_check_generated_qr(
+    qr_path: str,
+    public_data: str,
+    secret_text: str,
+    password: Optional[str],
+) -> None:
+    """Verify a freshly written QR image: public text plus exact secret round-trip.
+
+    The zxing decode is the authority for colour readability, because arithmetic
+    contrast cannot predict binarisation. The extractor round-trip is the
+    authority for the hidden payload, including exact whitespace and Unicode.
+
+    Raises:
+        QRStegoError: UNSCANNABLE_COLORS if the public symbol does not scan,
+            GENERATION_SELF_CHECK_FAILED if the hidden payload does not
+            round-trip exactly.
+    """
+    try:
+        with Image.open(qr_path) as handle:
+            img = handle.convert("RGB")
+            img.load()
+    except Exception as exc:
+        raise QRStegoError(
+            f"Generated QR code could not be re-read: {exc}",
+            error_code=QRErrorCode.GENERATION_SELF_CHECK_FAILED,
+        ) from exc
+
+    if _decode_public_text(img) != public_data:
+        raise QRStegoError(
+            "The generated QR code is not scannable with these colours. "
+            "Choose a darker foreground and a lighter background.",
+            error_code=QRErrorCode.UNSCANNABLE_COLORS,
+        )
+
+    try:
+        extracted_public, extracted_secret = extract_from_qr_stego(
+            qr_path, password=password
+        )
+    except QRStegoError as exc:
+        raise QRStegoError(
+            "The generated QR code failed its hidden-payload self-check: "
+            f"{getattr(exc.error_code, 'value', exc)}",
+            error_code=QRErrorCode.GENERATION_SELF_CHECK_FAILED,
+        ) from exc
+
+    if extracted_public != public_data:
+        raise QRStegoError(
+            "The generated QR code did not reproduce its public content.",
+            error_code=QRErrorCode.GENERATION_SELF_CHECK_FAILED,
+        )
+    if extracted_secret != secret_text:
+        raise QRStegoError(
+            "The generated QR code did not reproduce the secret exactly "
+            "(whitespace, Unicode or length mismatch).",
+            error_code=QRErrorCode.GENERATION_SELF_CHECK_FAILED,
+        )
+
+
 def _embed_visual_qr(
     public_data: str,
     secret_text: str,
@@ -358,8 +556,19 @@ def _embed_visual_qr(
     border: int = DEFAULT_BORDER,
     delta: int = DARK_MODULATION_DELTA,
     logo_path: Optional[str] = None,
+    *,
+    light_delta: Optional[int] = None,
+    inset: int = MODULATION_INSET,
+    adaptive_modulation: bool = True,
 ) -> str:
-    """Embed hidden secret into safe data modules of a clean visible QR code."""
+    """Embed hidden secret into safe data modules of a clean visible QR code.
+
+    ``adaptive_modulation`` selects the palette-aware light-channel policy
+    (Phase 3, on by default). Passing ``False`` reproduces the historical fixed
+    modulation exactly, which is what the legacy fixture corpus was rendered
+    with. ``light_delta``/``inset`` exist so the measurement harness can
+    evaluate candidates through the production renderer.
+    """
     # 1. Pack container and apply 2-Stage Reed-Solomon Forward Error Correction
     container = pack_qr_container(secret_text, password)
     header = container[:16]
@@ -406,8 +615,25 @@ def _embed_visual_qr(
     # 5. Render image with isolated structural patterns (vectorized module assignment)
     img_size = (qr_size + 2 * border) * scale
     structural = get_structural_modules(ver)
-    dark_adj = _adjust_luma(fg_rgb, delta)
-    light_adj = _adjust_luma(bg_rgb, -LIGHT_MODULATION_DELTA)
+    dark_delta, light_delta = _modulation_deltas(
+        fg_rgb,
+        bg_rgb,
+        adaptive_modulation,
+        dark_delta=delta,
+        light_delta=light_delta,
+    )
+    inset = max(0, min(int(inset), max(0, (scale - 2) // 2)))
+    separation = _modulation_state_separation(fg_rgb, bg_rgb, dark_delta, light_delta)
+    if separation < MIN_MODULATION_STATE_SEPARATION:
+        raise QRStegoError(
+            "These colours leave too little contrast for a hidden payload: the "
+            f"modulated module states are only {separation:.0f} luma apart "
+            f"(minimum {MIN_MODULATION_STATE_SEPARATION}). Choose a darker "
+            "foreground or a lighter background.",
+            error_code=QRErrorCode.UNSCANNABLE_COLORS,
+        )
+    dark_adj = _adjust_luma(fg_rgb, dark_delta)
+    light_adj = _adjust_luma(bg_rgb, -light_delta)
 
     arr = np.full((img_size, img_size, 3), bg_rgb, dtype=np.uint8)
     for r in range(qr_size):
@@ -423,7 +649,10 @@ def _embed_visual_qr(
                 arr[y0:y0 + scale, x0:x0 + scale] = base_color
                 if mod_bit_map.get((r, c), 0) == 1:
                     inner_color = dark_adj if is_dark else light_adj
-                    arr[y0 + 1:y0 + scale - 1, x0 + 1:x0 + scale - 1] = inner_color
+                    arr[
+                        y0 + inset:y0 + scale - inset,
+                        x0 + inset:x0 + scale - inset,
+                    ] = inner_color
 
     img = Image.fromarray(arr, "RGB")
 
@@ -433,9 +662,27 @@ def _embed_visual_qr(
         img.save(output_path, "PNG")
     finally:
         img.close()
+
+    if _self_check_enabled():
+        try:
+            _self_check_generated_qr(output_path, public_data, secret_text, password)
+        except Exception:
+            # Never hand back a file that failed validation.
+            try:
+                os.remove(output_path)
+            except OSError:
+                pass
+            raise
+
     logger.info(
-        "Visual QR saved to %s (Version %d, Size %dx%d)",
-        output_path, ver, img_size, img_size
+        "Visual QR saved to %s (Version %d, Size %dx%d, deltas=%d/%d, inset=%d)",
+        output_path,
+        ver,
+        img_size,
+        img_size,
+        dark_delta,
+        light_delta,
+        inset,
     )
     return output_path
 
@@ -595,6 +842,157 @@ def _clahe_numpy(gray: np.ndarray, tile_grid: int = 8, clip_limit: float = 2.5) 
     return np.clip(eq, 0, 255).astype(np.uint8)
 
 
+def _confidence_stats(
+    avgs: np.ndarray,
+    thresholds: np.ndarray,
+    separation: float,
+) -> Dict[str, Any]:
+    """Per-module sampling confidence, reported only (not used for FEC).
+
+    Confidence is the distance from the decision threshold, normalised by the
+    measured modulation separation. It identifies samples that a future erasure
+    decoder could discard, but Phase 2 must not claim erasure correction: the
+    Reed-Solomon call sites are unchanged.
+    """
+    values = np.asarray(avgs, dtype=np.float64).ravel()
+    limits = np.asarray(thresholds, dtype=np.float64).ravel()
+    if values.size == 0 or values.size != limits.size:
+        return {"mean": None, "p10": None, "uncertain": 0, "n": 0}
+    margin = np.abs(values - limits)
+    conf = np.clip(margin / max(6.0, float(separation)), 0.0, 1.0)
+    return {
+        "mean": round(float(conf.mean()), 3),
+        "p10": round(float(np.percentile(conf, 10)), 3),
+        "uncertain": int((conf < 0.35).sum()),
+        "n": int(conf.size),
+    }
+
+
+def _align_module_grid(
+    rectified: Image.Image,
+    qr_size: int,
+    ref_matrix: Sequence[Sequence[int]],
+    structural: Sequence[Tuple[int, int]],
+    debug_info: Optional[Dict[str, Any]] = None,
+) -> Image.Image:
+    """Correct residual grid misalignment before sampling.
+
+    Rectification maps the detected quadrilateral onto an assumed module grid.
+    At low capture pitch the homography is off by a fraction of a module, which
+    is invisible to the timing-score test but fatal to module sampling (Phase 0
+    recorded 3 px/module fixtures with BER 0 that still failed to extract).
+
+    Because every structural module's expected value is known from the public
+    data, the true offset and scale can be measured directly: search a small
+    (dx, dy, scale) neighbourhood and maximise structural agreement.
+    """
+    try:
+        gray = np.asarray(rectified.convert("L"), dtype=np.float32)
+    except Exception:
+        return rectified
+    height, width = gray.shape
+    if qr_size < 21 or width < qr_size or height < qr_size:
+        return rectified
+    ppm = width / float(qr_size)
+
+    points = list(structural)
+    if len(points) < 64:
+        return rectified
+    rows = np.array([p[0] for p in points], dtype=np.float64)
+    cols = np.array([p[1] for p in points], dtype=np.float64)
+    expected_dark = np.array([ref_matrix[p[0]][p[1]] == 1 for p in points], dtype=bool)
+
+    # Cap the sample count so a v22 matrix does not make the search expensive.
+    if rows.size > 600:
+        idx = np.linspace(0, rows.size - 1, 600).astype(np.int64)
+        rows, cols, expected_dark = rows[idx], cols[idx], expected_dark[idx]
+
+    center = (qr_size - 1) / 2.0
+
+    def _score(dx: float, dy: float, scale_corr: float) -> float:
+        xs = (((cols - center) / scale_corr + center - dx) + 0.5) * ppm
+        ys = (((rows - center) / scale_corr + center - dy) + 0.5) * ppm
+        xi = np.clip(np.rint(xs).astype(np.int64), 0, width - 1)
+        yi = np.clip(np.rint(ys).astype(np.int64), 0, height - 1)
+        vals = gray[yi, xi]
+        dark = vals[expected_dark]
+        light = vals[~expected_dark]
+        if dark.size < 8 or light.size < 8:
+            return -1.0
+        mid_dark = float(np.median(dark))
+        mid_light = float(np.median(light))
+        if mid_light - mid_dark < 8.0:
+            return -1.0
+        thr = (mid_dark + mid_light) / 2.0
+        correct = int((dark < thr).sum()) + int((light >= thr).sum())
+        return correct / float(vals.size)
+
+    baseline = _score(0.0, 0.0, 1.0)
+    if baseline < 0:
+        return rectified
+
+    best_dx = best_dy = 0.0
+    best_scale = 1.0
+    best_score = baseline
+
+    for scale_corr in (0.98, 1.0, 1.02):
+        for dx in np.arange(-0.5, 0.5001, 0.1):
+            for dy in np.arange(-0.5, 0.5001, 0.1):
+                score = _score(float(dx), float(dy), scale_corr)
+                if score > best_score:
+                    best_score = score
+                    best_dx, best_dy, best_scale = float(dx), float(dy), scale_corr
+
+    for dx in np.arange(best_dx - 0.08, best_dx + 0.0801, 0.04):
+        for dy in np.arange(best_dy - 0.08, best_dy + 0.0801, 0.04):
+            score = _score(float(dx), float(dy), best_scale)
+            if score > best_score:
+                best_score = score
+                best_dx, best_dy = float(dx), float(dy)
+
+    for scale_corr in (best_scale - 0.005, best_scale, best_scale + 0.005):
+        score = _score(best_dx, best_dy, scale_corr)
+        if score > best_score:
+            best_score = score
+            best_scale = scale_corr
+
+    if debug_info is not None:
+        debug_info["alignmentScoreBefore"] = round(float(baseline), 4)
+        debug_info["alignmentScore"] = round(float(best_score), 4)
+        debug_info["gridOffsetX"] = round(best_dx, 3)
+        debug_info["gridOffsetY"] = round(best_dy, 3)
+        debug_info["gridScale"] = round(best_scale, 4)
+
+    if best_score < baseline + 0.01 or (best_dx == 0.0 and best_dy == 0.0 and best_scale == 1.0):
+        return rectified
+
+    # Bring the measured grid back onto the canonical sampling lattice so the
+    # sampling code below keeps its (module + 0.5) * ppm assumption.
+    a = 1.0 / best_scale
+    offset_x = ppm * ((center - best_dx + 0.5) - (center + 0.5) / best_scale)
+    offset_y = ppm * ((center - best_dy + 0.5) - (center + 0.5) / best_scale)
+    coeffs = (a, 0.0, offset_x, 0.0, a, offset_y)
+    try:
+        aligned = rectified.transform(
+            rectified.size,
+            Image.Transform.AFFINE,
+            coeffs,
+            # NEAREST, not bilinear: interpolating a second time smooths the
+            # 1-pixel-inset modulation and loses the payload even when the grid
+            # alignment improves (measured: structural score 0.82 -> 1.00 with
+            # bilinear, and the secret still failed to decode).
+            resample=Image.Resampling.NEAREST,
+        )
+    except Exception as exc:
+        logger.debug("Grid re-alignment skipped: %s", exc)
+        return rectified
+    logger.debug(
+        "Grid alignment %.3f -> %.3f (dx=%.3f dy=%.3f scale=%.4f)",
+        baseline, best_score, best_dx, best_dy, best_scale,
+    )
+    return aligned
+
+
 def _extract_visual_qr(
     img: Image.Image,
     position,
@@ -620,10 +1018,65 @@ def _extract_visual_qr(
 
     if target_ver is None or rectified is None:
         if debug_info is not None:
-            debug_info["failureReason"] = "INVALID_VERSION"
+            debug_info["failureReason"] = "VERSION_UNRESOLVED"
+            debug_info["failureStage"] = "VERSION_IDENTIFICATION"
         return public_data, ""
 
     qr_size = get_qr_dimension(target_ver)
+
+    # ── Version information (BCH): authoritative when it decodes cleanly ──────
+    # The timing heuristic can land on a neighbouring version when the capture is
+    # small; the BCH-protected version blocks are error-correcting evidence.
+    try:
+        bch_version, bch_distance = read_version_information(rectified, qr_size)
+    except Exception as bch_err:
+        logger.debug("Version information unreadable: %s", bch_err)
+        bch_version, bch_distance = None, 18
+    if debug_info is not None:
+        debug_info["versionInfoVersion"] = bch_version
+        debug_info["versionInfoDistance"] = int(bch_distance)
+    if bch_version is not None and bch_version != target_ver:
+        alt_version, alt_rect = detect_qr_version_from_timing(
+            img,
+            position,
+            min_version=max(7, min_version),
+            target_version_hint=bch_version,
+        )
+        if alt_version == bch_version and alt_rect is not None:
+            logger.info(
+                "BCH version information overrode timing estimate: v%s -> v%s (distance %d)",
+                target_ver, bch_version, bch_distance,
+            )
+            target_ver, rectified = alt_version, alt_rect
+            qr_size = get_qr_dimension(target_ver)
+            if debug_info is not None:
+                debug_info["versionSource"] = "bch_version_info"
+        elif debug_info is not None:
+            debug_info["versionSource"] = "timing_pattern_bch_conflict"
+    elif debug_info is not None:
+        debug_info["versionSource"] = (
+            "bch_version_info" if bch_version is not None else "timing_pattern"
+        )
+
+    # Record geometry before the fast path: PASS 1 can return successfully without
+    # ever reaching the later diagnostic block, which would leave version unset.
+    if debug_info is not None:
+        debug_info["detectedVersion"] = int(target_ver)
+        debug_info["qrDimension"] = int(qr_size)
+        try:
+            top_edge = math.hypot(
+                position.top_right.x - position.top_left.x,
+                position.top_right.y - position.top_left.y,
+            )
+            bottom_edge = math.hypot(
+                position.bottom_right.x - position.bottom_left.x,
+                position.bottom_right.y - position.bottom_left.y,
+            )
+            debug_info["pxPerModule"] = round(
+                ((top_edge + bottom_edge) / 2.0) / float(qr_size), 2
+            )
+        except Exception:  # geometry object without usable corners
+            pass
 
     # ── Diagnostic Debug Dump (Enable via INVISIOVAULT_DEBUG_DUMP=true) ─────────
     ENABLE_DEBUG_SCAN_DUMP = os.getenv("INVISIOVAULT_DEBUG_DUMP", "false").strip().lower() == "true"
@@ -653,6 +1106,9 @@ def _extract_visual_qr(
     qr_ref = segno.make(public_data, version=target_ver, error="m", boost_error=False)
     ref_matrix = qr_ref.matrix
     structural = get_structural_modules(target_ver)
+    rectified = _align_module_grid(
+        rectified, qr_size, ref_matrix, structural, debug_info=debug_info
+    )
     safe_mods = get_safe_data_modules(target_ver)
     seed_material = f"{public_data}|{target_ver}|{qr_size}".encode("utf-8")
 
@@ -683,6 +1139,8 @@ def _extract_visual_qr(
     # so it does not accidentally use the upscaled scale variable intended for Pass 2.
     raw_rectified = rectified.copy()
     raw_scale = max(1, rectified.size[0] // qr_size)
+    if debug_info is not None:
+        debug_info["rectifiedPxPerModule"] = int(raw_scale)
 
     try:
         raw_gray = np.array(raw_rectified.convert("L"), dtype=np.uint8)
@@ -714,6 +1172,7 @@ def _extract_visual_qr(
                     rsc_hdr = RSCodec(RS_HEADER_ECC_BYTES)
                     dec_hdr = None
                     best_tf = None
+                    hdr_confidence: Optional[Dict[str, Any]] = None
                     fec_mods = permuted_mods_fec[:hdr_total_fec_bytes * 8]
                     f_rows = np.array([m[0] for m in fec_mods], dtype=np.intp)
                     f_cols = np.array([m[1] for m in fec_mods], dtype=np.intp)
@@ -728,6 +1187,7 @@ def _extract_visual_qr(
                         t_light = f_base - ((5.6 - f_eff_wn) * raw_bleed * 0.5) - t_delta
                         thresholds = np.where(f_is_dark, t_dark, t_light)
                         cur_bits = np.where(f_is_dark, f_avgs > thresholds, f_avgs < thresholds).astype(int).tolist()
+                        hdr_confidence = _confidence_stats(f_avgs, thresholds, raw_eff_delta)
 
                         raw_hdr_bytes = bytearray()
                         for b_idx in range(0, len(cur_bits) - 7, 8):
@@ -747,6 +1207,8 @@ def _extract_visual_qr(
                             continue
 
                     if dec_hdr is not None:
+                        if debug_info is not None and hdr_confidence is not None:
+                            debug_info["confidence"] = hdr_confidence
                         magic, version, flags, orig_len, payload_len = struct.unpack(">4sBBII", dec_hdr[:14])
                         is_encrypted = bool(flags & 0x01)
                         if is_encrypted and not password:
@@ -801,7 +1263,21 @@ def _extract_visual_qr(
 
                             if dec_body is not None:
                                 container_bytes = dec_hdr[:16] + dec_body[:payload_len]
-                                secret_text = unpack_qr_container(container_bytes, password)
+                                try:
+                                    secret_text = unpack_qr_container(container_bytes, password)
+                                except ValueError as container_err:
+                                    # Magic and FEC were fine, so the failure is in the
+                                    # container or the key, not in the optics.
+                                    if debug_info is not None:
+                                        debug_info["ivqrMagicDetected"] = True
+                                        message = str(container_err).lower()
+                                        debug_info["failureReason"] = (
+                                            "DECRYPTION_FAILED"
+                                            if "password" in message or "tampered" in message
+                                            else "CONTAINER_INVALID"
+                                        )
+                                        debug_info["failureStage"] = "CONTAINER_VALIDATION"
+                                    raise
                                 if debug_info is not None:
                                     debug_info["fastPath"] = True
                                     debug_info["ivqrMagicDetected"] = True
@@ -1061,6 +1537,36 @@ def _extract_visual_qr(
         bits = np.where(is_dark, avgs > thresholds, avgs < thresholds).astype(int)
         return bits.tolist()
 
+    # Diagnostic-only per-module confidence for the header carrier modules.
+    # Not passed to Reed-Solomon: no erasure decoding is implemented in Phase 2.
+    if debug_info is not None:
+        try:
+            hdr_bits_needed = (16 + RS_HEADER_ECC_BYTES) * 8
+            if len(permuted_mods_fec) >= hdr_bits_needed:
+                hdr_mods = permuted_mods_fec[:hdr_bits_needed]
+                h_rows = np.array([m[0] for m in hdr_mods], dtype=np.intp)
+                h_cols = np.array([m[1] for m in hdr_mods], dtype=np.intp)
+                h_is_dark = np.array([ref_matrix[r][c] == 1 for r, c in hdr_mods], dtype=bool)
+                h_base = np.where(
+                    h_is_dark,
+                    p_dark[0] * h_rows + p_dark[1] * h_cols + p_dark[2],
+                    p_light[0] * h_rows + p_light[1] * h_cols + p_light[2],
+                )
+                h_eff_wn = np.array(
+                    [_count_all_white_neighbors(ref_matrix, r, c) for r, c in hdr_mods],
+                    dtype=np.float32,
+                )
+                h_delta = max(6.0, effective_delta * _anchor_tf)
+                h_thr_dark = h_base + (h_eff_wn * bleed_factor) + kmeans_c0_offset + h_delta
+                h_thr_light = h_base - ((5.6 - h_eff_wn) * bleed_factor * 0.5) - h_delta
+                h_thresholds = np.where(h_is_dark, h_thr_dark, h_thr_light)
+                h_avgs = module_medians[h_rows, h_cols]
+                debug_info["confidence"] = _confidence_stats(
+                    h_avgs, h_thresholds, effective_delta
+                )
+        except Exception as conf_err:
+            logger.debug("Confidence estimation skipped: %s", conf_err)
+
     scan_id = debug_info.get("cameraScanId") if debug_info else None
     debug_capture_enabled = os.getenv("DEBUG_CAMERA_CAPTURE", "false").strip().lower() == "true"
 
@@ -1266,7 +1772,10 @@ def _extract_visual_qr(
         if debug_info is not None:
             if contrast < 8.0:
                 debug_info["failureReason"] = "LOW_CONTRAST"
-            elif light_at_center > 248.0 and (light_at_center - dark_at_center) > 180.0:
+            elif light_at_center >= 250.0 and dark_at_center >= 60.0:
+                # Real clipping lifts the black level too. A white background with
+                # true blacks is a correctly exposed symbol that simply carries no
+                # payload, so it must not be reported as sensor saturation.
                 debug_info["failureReason"] = "OPTICAL_SENSOR_SATURATION"
             else:
                 debug_info["failureReason"] = "NO_HIDDEN_DATA"
@@ -1446,7 +1955,7 @@ def generate_qr_with_stego(
     )
 
 
-def extract_from_qr_stego(
+def _extract_from_qr_stego_impl(
     qr_path: str,
     password: Optional[str] = None,
     raw_qr_text: Optional[str] = None,
@@ -1555,6 +2064,8 @@ def extract_from_qr_stego(
             if debug_info is not None:
                 debug_info["geometrySource"] = "client_jsqr"
             try:
+                if debug_info is not None:
+                    debug_info["attempts"] = int(debug_info.get("attempts", 0)) + 1
                 pub, sec = _extract_visual_qr(
                     img,
                     parsed_client_pos,
@@ -1648,6 +2159,8 @@ def extract_from_qr_stego(
         # Check Visual Module Layer with server position
         if position is not None:
             try:
+                if debug_info is not None:
+                    debug_info["attempts"] = int(debug_info.get("attempts", 0)) + 1
                 pub, sec = _extract_visual_qr(
                     img,
                     position,
@@ -1671,6 +2184,8 @@ def extract_from_qr_stego(
         # Fallback to client geometry if server position did not recover payload
         if parsed_client_pos is not None and position != parsed_client_pos:
             try:
+                if debug_info is not None:
+                    debug_info["attempts"] = int(debug_info.get("attempts", 0)) + 1
                 pub, sec = _extract_visual_qr(
                     img,
                     parsed_client_pos,
@@ -1715,6 +2230,140 @@ def extract_from_qr_stego(
         ) from exc
 
 
+def _build_scan_diagnostics(
+    debug_info: Optional[Dict[str, Any]],
+    client_version: Optional[int],
+    elapsed_ms: float,
+    error_code: Optional[QRErrorCode] = None,
+) -> Dict[str, Any]:
+    """Normalise extractor internals into the Phase 0 diagnostics contract.
+
+    Pure mapping: it reads the existing ``debug_info`` sink and adds no new
+    extraction logic. ``quality`` is the measured modulation separation relative
+    to the nominal dark delta, clamped to [0, 1]; it is a relative score, not a
+    probability of success.
+    """
+    raw = dict(debug_info or {})
+
+    detected = raw.get("detectedVersion")
+    dimension = raw.get("qrDimension")
+    version = detected
+    if version is None and isinstance(dimension, int):
+        version = (dimension - 17) // 4
+    if version is None and client_version is not None:
+        version = int(client_version)
+
+    separation: Optional[float] = None
+    centroids = raw.get("kmeansCentroids")
+    if isinstance(centroids, (tuple, list)) and len(centroids) == 2:
+        try:
+            separation = float(centroids[1]) - float(centroids[0])
+        except (TypeError, ValueError):
+            separation = None
+    if separation is None and raw.get("effectiveDelta") is not None:
+        try:
+            separation = float(raw["effectiveDelta"])
+        except (TypeError, ValueError):
+            separation = None
+
+    quality: Optional[float] = None
+    if separation is not None:
+        quality = round(max(0.0, min(1.0, separation / float(DARK_MODULATION_DELTA))), 3)
+
+    if client_version is not None and detected is not None and int(detected) == int(client_version):
+        version_source = "client_hint"
+    elif detected is not None:
+        version_source = "timing_pattern"
+    elif client_version is not None:
+        version_source = "client_hint_only"
+    else:
+        version_source = "unknown"
+
+    if raw.get("failureReason"):
+        stage = raw["failureReason"]
+    elif error_code is not None:
+        stage = error_code.value
+    elif raw.get("success"):
+        stage = "SUCCESS"
+    else:
+        stage = "NO_HIDDEN_DATA"
+
+    return {
+        "version": int(version) if version is not None else None,
+        "version_source": version_source,
+        "px_per_module": raw.get("pxPerModule"),
+        "quality": quality,
+        "separation": round(float(separation), 2) if separation is not None else None,
+        "contrast": raw.get("contrast"),
+        "attempts": int(raw.get("attempts", 0)),
+        "stage": stage,
+        "timing_ms": round(elapsed_ms, 2),
+        "geometry_source": raw.get("geometrySource"),
+        "version_info": raw.get("versionInfoVersion"),
+        "version_info_distance": raw.get("versionInfoDistance"),
+        "alignment_score": raw.get("alignmentScore"),
+        "alignment_score_before": raw.get("alignmentScoreBefore"),
+        "grid_offset_x": raw.get("gridOffsetX"),
+        "grid_offset_y": raw.get("gridOffsetY"),
+        "grid_scale": raw.get("gridScale"),
+        "confidence": raw.get("confidence"),
+        "failure_stage": raw.get("failureStage"),
+        "failure_reason": raw.get("failureReason"),
+    }
+
+
+def extract_from_qr_stego(
+    qr_path: str,
+    password: Optional[str] = None,
+    raw_qr_text: Optional[str] = None,
+    client_corners: Optional[Dict[str, Any]] = None,
+    client_version: Optional[int] = None,
+    debug_info: Optional[Dict[str, Any]] = None,
+    return_diagnostics: bool = False,
+) -> Tuple[str, str] | Tuple[str, str, Dict[str, Any]]:
+    """Extract (public_data, secret) from a QR image.
+
+    ``return_diagnostics=False`` (default) keeps the historical 2-tuple return
+    shape, so every existing caller and API response is unchanged. Passing
+    ``True`` returns ``(public_data, secret, diagnostics)`` where diagnostics
+    carries version/quality/timing metrics for the Phase 0 measurement harness.
+
+    On failure the diagnostics are attached to the raised ``QRStegoError`` as
+    ``exc.diagnostics`` so a caller can distinguish stages even when extraction
+    raises.
+    """
+    if not return_diagnostics:
+        return _extract_from_qr_stego_impl(
+            qr_path,
+            password=password,
+            raw_qr_text=raw_qr_text,
+            client_corners=client_corners,
+            client_version=client_version,
+            debug_info=debug_info,
+        )
+
+    started = time.perf_counter()
+    sink: Dict[str, Any] = debug_info if debug_info is not None else {}
+    try:
+        public_data, secret_text = _extract_from_qr_stego_impl(
+            qr_path,
+            password=password,
+            raw_qr_text=raw_qr_text,
+            client_corners=client_corners,
+            client_version=client_version,
+            debug_info=sink,
+        )
+    except QRStegoError as exc:
+        elapsed_ms = (time.perf_counter() - started) * 1000.0
+        exc.diagnostics = _build_scan_diagnostics(
+            sink, client_version, elapsed_ms, error_code=exc.error_code
+        )
+        raise
+
+    elapsed_ms = (time.perf_counter() - started) * 1000.0
+    return public_data, secret_text, _build_scan_diagnostics(sink, client_version, elapsed_ms)
+
+
 def decode_qr_only(qr_path: str) -> str:
     """Decode and return the visible QR data, cleanly stripping any fragment."""
     public_data, _ = extract_from_qr_stego(qr_path, password=None)
@@ -1743,6 +2392,75 @@ def _adjust_luma(rgb: Tuple[int, int, int], delta: int) -> Tuple[int, int, int]:
         max(0, min(255, rgb[1] + delta)),
         max(0, min(255, rgb[2] + delta)),
     )
+
+
+def _perceived_luma(rgb: Tuple[int, int, int]) -> float:
+    """Rec. 601 luma of an RGB triple (weights sum to 1)."""
+    return 0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]
+
+
+def _modulation_state_separation(
+    fg_rgb: Tuple[int, int, int],
+    bg_rgb: Tuple[int, int, int],
+    dark_delta: int,
+    light_delta: int,
+) -> float:
+    """Luma between the brightest dark state and the darkest light state."""
+    bright_dark = _perceived_luma(_adjust_luma(fg_rgb, dark_delta))
+    dark_light = _perceived_luma(_adjust_luma(bg_rgb, -light_delta))
+    return dark_light - bright_dark
+
+
+def _modulation_deltas(
+    fg_rgb: Tuple[int, int, int],
+    bg_rgb: Tuple[int, int, int],
+    adaptive: bool,
+    dark_delta: int = DARK_MODULATION_DELTA,
+    light_delta: Optional[int] = None,
+) -> Tuple[int, int]:
+    """Choose the dark/light interior luma steps for this palette.
+
+    Fixed mode returns the historical constants, so old output is reproducible.
+    Adaptive mode changes only the light channel: it raises the light step to
+    :data:`ADAPTIVE_LIGHT_DELTA` so a +20% exposure cannot clip the modulation
+    back onto the background, then bounds that step by the palette's own
+    binarisation midpoint so the public symbol never depends on the dithering
+    of its data modules. The dark step is deliberately left alone: larger dark
+    deltas were measured and produced no gain.
+    """
+    light_default = LIGHT_MODULATION_DELTA if light_delta is None else int(light_delta)
+    if not adaptive:
+        return int(dark_delta), light_default
+
+    fg_luma = _perceived_luma(fg_rgb)
+    bg_luma = _perceived_luma(bg_rgb)
+    midpoint = (fg_luma + bg_luma) / 2.0
+
+    dark = max(MODULATION_DARK_FLOOR, int(dark_delta))
+    target_light = ADAPTIVE_LIGHT_DELTA if light_delta is None else int(light_delta)
+    light = max(
+        MODULATION_LIGHT_FLOOR,
+        min(target_light, int(bg_luma - midpoint - MODULATION_MIDPOINT_MARGIN)),
+    )
+    # Never drive a light interior below the floor when the palette allows it
+    # (over-exposure clips anything closer to white than this).
+    light = min(light, max(MODULATION_LIGHT_FLOOR, int(bg_luma - LIGHT_LUMA_FLOOR)))
+
+    # Per-channel clipping makes the realised step smaller than the nominal
+    # delta; verify the adjusted colour itself, not the arithmetic.
+    while (
+        dark > MODULATION_DARK_FLOOR
+        and _perceived_luma(_adjust_luma(fg_rgb, dark))
+        > midpoint - MODULATION_MIDPOINT_MARGIN
+    ):
+        dark -= 4
+    while (
+        light > MODULATION_LIGHT_FLOOR
+        and _perceived_luma(_adjust_luma(bg_rgb, -light))
+        < midpoint + MODULATION_MIDPOINT_MARGIN
+    ):
+        light -= 4
+    return int(dark), int(light)
 
 
 def _embed_logo_image(

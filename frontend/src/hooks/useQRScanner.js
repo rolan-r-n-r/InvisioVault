@@ -372,18 +372,15 @@ export function useQRScanner(isActive, onQRDetected, onError, isPaused = false, 
                         }
                     }
 
-                    // ── Step 2: Crop with padding & enforce MIN_OUTPUT_SIZE ──────────
-                    // Guarantee adequate pixels per module (PPM) even from a distance.
-                    const MIN_OUTPUT_SIZE = 450
-                    let targetW = cropW
-                    let targetH = cropH
-                    let scaleMultiplier = 1.0
-
-                    if (cropW < MIN_OUTPUT_SIZE || cropH < MIN_OUTPUT_SIZE) {
-                        scaleMultiplier = Math.max(MIN_OUTPUT_SIZE / cropW, MIN_OUTPUT_SIZE / cropH)
-                        targetW = Math.round(cropW * scaleMultiplier)
-                        targetH = Math.round(cropH * scaleMultiplier)
-                    }
+                    // ── Step 2: 30 % padded crop, sent at native resolution ───────────
+                    // Payload crop is sent at NATIVE resolution.
+                    // No upscaling: it adds no information, and the smoothing it
+                    // forced softened the 1px stego modulation below the backend's
+                    // binarisation threshold. Geometry is remapped with a 1.0
+                    // multiplier because the crop is no longer resized.
+                    const scaleMultiplier = 1.0
+                    const targetW = cropW
+                    const targetH = cropH
 
                     // Remap corner coordinates relative to cropped image origin (0,0)
                     // scaled by scaleMultiplier to strictly match workCanvas dimensions.
@@ -422,17 +419,12 @@ export function useQRScanner(isActive, onQRDetected, onError, isPaused = false, 
                             wCtx.imageSmoothingQuality = 'low'
                         }
 
-                        // Optical Anti-Aliasing (Moiré Killer):
-                        // When scanning a digital screen, LCD/OLED subpixels create high-frequency Moiré fringes.
-                        // When the crop bounding box is small (distant scan or small screen display),
-                        // apply a subtle Gaussian blur (1.0px) as an optical low-pass filter (OLPF)
-                        // to attenuate high-frequency screen subpixels while preserving lower-frequency QR modules.
-                        const isSmallCrop = cropW < MIN_OUTPUT_SIZE || cropH < MIN_OUTPUT_SIZE
-                        if (antiMoireRef.current && isSmallCrop && 'filter' in wCtx) {
-                            wCtx.filter = 'blur(1.0px)'
-                        } else {
-                            wCtx.filter = 'none'
-                        }
+                        // No blur on the payload image.
+                        // A 1px Gaussian blur applied after resampling destroys the
+                        // 1-pixel-inset modulation that carries the hidden payload.
+                        // The bytes sent to /qr/scan must stay unsmoothed; the
+                        // antiMoireRef toggle no longer touches this path.
+                        wCtx.filter = 'none'
 
                         wCtx.drawImage(snapshotCanvas, cropX, cropY, cropW, cropH, 0, 0, targetW, targetH)
                         wCtx.filter = 'none'

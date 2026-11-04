@@ -17,10 +17,12 @@ including calls inside ``steganography.py`` and ``qr_stego.py``.
 """
 
 import logging
+import os
+import re
+from typing import Optional, Tuple
+
 from PIL import Image
 from werkzeug.datastructures import FileStorage
-
-import os
 
 logger = logging.getLogger(__name__)
 
@@ -60,6 +62,106 @@ _IMAGE_MAGIC = {
     b'\xff\xd8\xff':      {'jpg', 'jpeg'},     # JPEG — SOI + first marker byte
     b'BM':                {'bmp'},             # BMP — "BM" header
 }
+
+
+# ── QR colour validation ──────────────────────────────────────────────────────
+#
+# A QR symbol needs dark-on-light polarity and enough luminance separation for a
+# scanner to binarize it. The functions here are a *cheap pre-filter* only: the
+# authority is the post-render zxing decode in the generation self-check, which
+# accepts colours that look bad on paper but scan fine (e.g. #00FF00 on white)
+# and rejects colours that pass arithmetic but do not binarize (e.g. #AAAAAA on
+# white, luma gap ~85).
+
+_HEX_COLOR_RE = re.compile(r'^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$')
+
+# Minimum receiver-side luma separation (0-255) before a colour pair is even
+# rendered. Calibrated so #AAAAAA on #FFFFFF passes this filter and must be
+# caught by the self-check instead.
+MIN_QR_LUMA_DELTA = 64.0
+
+
+def normalize_hex_color(value: str, default: str) -> str:
+    """Expand 3-char hex and upper-case a valid 6-char hex; else return default."""
+    if not isinstance(value, str):
+        return default
+    candidate = value.strip()
+    if not _HEX_COLOR_RE.match(candidate):
+        return default
+    if len(candidate) == 4:
+        return '#' + ''.join(ch * 2 for ch in candidate[1:]).upper()
+    return candidate.upper()
+
+
+def hex_to_rgb(value: str) -> Tuple[int, int, int]:
+    """Parse ``#RGB``/``#RRGGBB``. Raises ValueError on anything else."""
+    if not isinstance(value, str) or not _HEX_COLOR_RE.match(value.strip()):
+        raise ValueError(f"Invalid hex colour: {value!r}")
+    candidate = value.strip()
+    if len(candidate) == 4:
+        candidate = '#' + ''.join(ch * 2 for ch in candidate[1:])
+    return (
+        int(candidate[1:3], 16),
+        int(candidate[3:5], 16),
+        int(candidate[5:7], 16),
+    )
+
+
+def _srgb_to_linear(channel: int) -> float:
+    c = channel / 255.0
+    return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
+
+
+def qr_relative_luminance(rgb: Tuple[int, int, int]) -> float:
+    """WCAG relative luminance (0 = black, 1 = white)."""
+    r, g, b = (_srgb_to_linear(c) for c in rgb)
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+
+def qr_contrast_ratio(fg_hex: str, bg_hex: str) -> float:
+    """WCAG contrast ratio. Advisory only — it is not a QR readability gate."""
+    lf = qr_relative_luminance(hex_to_rgb(fg_hex))
+    lb = qr_relative_luminance(hex_to_rgb(bg_hex))
+    lighter, darker = max(lf, lb), min(lf, lb)
+    return (lighter + 0.05) / (darker + 0.05)
+
+
+def _perceived_luma(rgb: Tuple[int, int, int]) -> float:
+    r, g, b = rgb
+    return 0.299 * r + 0.587 * g + 0.114 * b
+
+
+def validate_qr_colors(fg_hex: str, bg_hex: str) -> Tuple[bool, Optional[str]]:
+    """Pre-filter a QR colour pair.
+
+    Returns ``(ok, reason)``. Rejects inverted polarity (dark background) and a
+    luma gap below :data:`MIN_QR_LUMA_DELTA`. Everything that passes must still
+    survive the post-render zxing self-check, which is the real authority.
+    """
+    try:
+        fg = hex_to_rgb(fg_hex)
+        bg = hex_to_rgb(bg_hex)
+    except ValueError as exc:
+        return False, str(exc)
+
+    fg_luma = _perceived_luma(fg)
+    bg_luma = _perceived_luma(bg)
+
+    if bg_luma <= fg_luma:
+        return False, (
+            "The QR foreground must be darker than the background. "
+            "Inverted or equal-luminance colours cannot be scanned."
+        )
+
+    delta = bg_luma - fg_luma
+    if delta < MIN_QR_LUMA_DELTA:
+        return False, (
+            f"Foreground and background are too similar (luminance gap "
+            f"{delta:.0f}, minimum {MIN_QR_LUMA_DELTA:.0f}). "
+            "Choose a darker foreground or lighter background."
+        )
+
+    return True, None
 
 
 def validate_file(

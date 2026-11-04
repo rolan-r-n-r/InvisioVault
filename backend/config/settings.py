@@ -77,6 +77,10 @@ class Config:
     MAX_CONTENT_LENGTH = min(_env_max_content, 100 * 1024 * 1024)  # 50 MB default, capped at 100 MB guard
     SMALL_OBJECT_THRESHOLD_BYTES = int(os.getenv('SMALL_OBJECT_THRESHOLD_BYTES', '1048576'))  # 1 MB
     MAX_PIXEL_COUNT = int(os.getenv('MAX_PIXEL_COUNT', '25000000'))  # 25 megapixels
+
+    # QR steganography: verify every generated image before returning it.
+    # Disable only for offline diagnostics; never in production.
+    QR_SELF_CHECK = os.getenv('QR_SELF_CHECK', 'true').strip().lower() in ('1', 'true', 'yes', 'on')
     
     # CORS settings - will be set by subclasses
     CORS_ORIGINS_RAW = None

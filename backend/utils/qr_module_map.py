@@ -254,6 +254,134 @@ def get_pattern_centers(version: int) -> Dict[str, Tuple[float, float]]:
     return centers
 
 
+# ── QR version information (ISO/IEC 18004 §8.9) ──────────────────────────────
+#
+# Versions 7 and above carry the version number twice as an 18-bit BCH(18, 6)
+# codeword. Unlike the timing-pattern heuristic this is error-correcting, so it
+# is the authoritative identification when it decodes cleanly. Reimplemented
+# here (13-bit generator 0x1F25) and validated against the ZXing known-good
+# codewords in the tests; no new dependency.
+
+_VERSION_INFO_GENERATOR = 0x1F25
+VERSION_INFO_MIN_VERSION = 7
+VERSION_INFO_MAX_ERRORS = 3
+
+
+def version_info_codeword(version: int) -> int:
+    """Return the 18-bit BCH codeword for a QR version (7-40).
+
+    The 6 data bits are the version number; the 12-bit remainder is computed
+    with the BCH generator x^12 + x^11 + x^10 + x^9 + x^8 + x^5 + x^2 + 1.
+    """
+    if not VERSION_INFO_MIN_VERSION <= version <= 40:
+        raise ValueError(
+            f"Version information exists only for versions 7-40, got {version}"
+        )
+    value = version << 12
+    remainder = value
+    for bit in range(17, 11, -1):
+        if remainder & (1 << bit):
+            remainder ^= _VERSION_INFO_GENERATOR << (bit - 12)
+    return value | (remainder & 0xFFF)
+
+
+def decode_version_information(bits: int) -> Tuple[Optional[int], int]:
+    """Decode 18 version-information bits.
+
+    Returns ``(version, hamming_distance)``. ``version`` is ``None`` when no
+    codeword lies within the 3-bit correction radius, so a damaged block is
+    reported as unresolved instead of being silently misread.
+    """
+    if not isinstance(bits, int) or bits < 0 or bits >= (1 << 18):
+        return None, 18
+    best_version: Optional[int] = None
+    best_distance = 19
+    probe = bits
+    for version in range(VERSION_INFO_MIN_VERSION, 41):
+        distance = bin(probe ^ version_info_codeword(version)).count("1")
+        if distance < best_distance:
+            best_distance = distance
+            best_version = version
+            if distance == 0:
+                break
+    if best_distance > VERSION_INFO_MAX_ERRORS:
+        return None, best_distance
+    return best_version, best_distance
+
+
+def _read_version_bits(
+    rect: Image.Image,
+    size: int,
+    block: str,
+) -> Optional[int]:
+    """Read one 18-bit version block from a rectified module grid.
+
+    Bit order follows the reference implementation: the top-right block is read
+    row-major with rows and columns descending; the bottom-left block is read
+    column-major with columns and rows descending.
+    """
+    if size < 45:  # version < 7 has no version information
+        return None
+    scale = rect.size[0] / float(size)
+    gray = np.asarray(rect.convert("L"), dtype=np.float64)
+    ij_min = size - 11
+
+    def _sample(module_r: int, module_c: int) -> int:
+        x = int(round((module_c + 0.5) * scale))
+        y = int(round((module_r + 0.5) * scale))
+        x = min(max(x, 0), gray.shape[1] - 1)
+        y = min(max(y, 0), gray.shape[0] - 1)
+        y0, y1 = max(0, y - 1), min(gray.shape[0], y + 2)
+        x0, x1 = max(0, x - 1), min(gray.shape[1], x + 2)
+        return int(round(float(np.median(gray[y0:y1, x0:x1]))))
+
+    samples: List[int] = []
+    if block == "top_right":
+        for row in range(5, -1, -1):
+            for col in range(size - 9, ij_min - 1, -1):
+                samples.append(_sample(row, col))
+    else:
+        for col in range(5, -1, -1):
+            for row in range(size - 9, ij_min - 1, -1):
+                samples.append(_sample(row, col))
+
+    if len(samples) != 18:
+        return None
+
+    luma = np.asarray(samples, dtype=np.float64)
+    if float(luma.max()) - float(luma.min()) < 8.0:
+        return None  # no usable contrast in the version block
+    threshold = (float(luma.min()) + float(luma.max())) / 2.0
+    bits = 0
+    for value in samples:
+        bits = (bits << 1) | (1 if value < threshold else 0)
+    return bits
+
+
+def read_version_information(
+    rect: Image.Image,
+    size: Optional[int] = None,
+) -> Tuple[Optional[int], int]:
+    """Decode the QR version from a rectified grid.
+
+    Reads both copies and keeps the one with the smallest Hamming distance, so a
+    single damaged block does not lose the version. Returns ``(None, 18)`` when
+    neither block decodes within the correction radius (or version < 7).
+    """
+    if size is None:
+        size = rect.size[0] // 10
+    best_version: Optional[int] = None
+    best_distance = 18
+    for block in ("top_right", "bottom_left"):
+        bits = _read_version_bits(rect, size, block)
+        if bits is None:
+            continue
+        version, distance = decode_version_information(bits)
+        if version is not None and distance < best_distance:
+            best_version, best_distance = version, distance
+    return best_version, best_distance
+
+
 def detect_qr_version_from_timing(
     img: Image.Image,
     position,
@@ -292,6 +420,7 @@ def detect_qr_version_from_timing(
     best_rect: Optional[Image.Image] = None
 
     # Prioritize target_version_hint if provided and valid
+    required_score = 0.55 if target_version_hint is not None else 0.60
     candidate_versions: List[int] = []
     if target_version_hint is not None and max(1, min_version) <= target_version_hint <= 40:
         candidate_versions.append(target_version_hint)
@@ -361,16 +490,14 @@ def detect_qr_version_from_timing(
         is_hint = (target_version_hint is not None and ver == target_version_hint)
         min_c = 4.0 if is_hint else 10.0
         ok_tr, th_tr = _verify_finder_pattern(rect, 0, size - 7, scale, min_contrast=min_c)
-        if not ok_tr and not is_hint:
-            continue
         ok_bl, th_bl = _verify_finder_pattern(rect, size - 7, 0, scale, min_contrast=min_c)
-        if not ok_bl and not is_hint:
+        if not (ok_tr and ok_bl) and not is_hint:
             continue
+        # A hint only lowers the contrast bar and orders candidates. It must
+        # still earn a plausible timing score below; it is never pre-seeded as
+        # the winner, so an invalid hint cannot bypass verification.
 
         timing_threshold: float = (th_tr + th_bl) / 2.0
-        if is_hint and best_rect is None:
-            best_ver = ver
-            best_rect = rect
 
         # 2. Timing pattern along row 6 and column 6
         correct = 0
@@ -395,13 +522,29 @@ def detect_qr_version_from_timing(
                 correct += 1
 
         score = correct / total
-        if score > best_score:
+
+        # Timing patterns are not error-correcting. At steep perspective or very
+        # low capture pitch the score falls below any sane threshold even though
+        # the symbol is readable. The BCH version block is error-correcting, so a
+        # candidate whose own version information decodes back to itself is
+        # eligible on that evidence alone.
+        bch_confirmed = False
+        if score < required_score:
+            try:
+                bch_version_probe, _bch_distance = read_version_information(rect, size)
+            except Exception:
+                bch_version_probe = None
+            bch_confirmed = bch_version_probe == ver
+
+        if (score >= required_score or bch_confirmed) and score > best_score:
             best_score = score
             best_ver = ver
             best_rect = rect
             if score >= 0.80:  # Confirmed match
                 break
 
+    # No candidate passed either the timing bar or BCH confirmation: report the
+    # grid as unresolved instead of sampling an arbitrary module grid.
     if best_ver is None:
         return None, None
 
