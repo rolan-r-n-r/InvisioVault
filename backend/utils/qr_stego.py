@@ -470,15 +470,27 @@ def _decode_public_text(img: Image.Image) -> Optional[str]:
     arbiter would reject valid output; treating none as the arbiter would accept
     unscannable output.
     """
-    for kwargs in ({}, {"is_pure": True}):
-        try:
-            results = zxingcpp.read_barcodes(img, **kwargs)
-        except Exception:
-            continue
-        if results:
-            text = getattr(results[0], "text", None)
-            if text:
-                return text
+    binarizer_cls = getattr(zxingcpp, "Binarizer", None)
+    binarizers = [None]
+    if binarizer_cls is not None:
+        if hasattr(binarizer_cls, "GlobalHistogram"):
+            binarizers.append(binarizer_cls.GlobalHistogram)
+        if hasattr(binarizer_cls, "FixedThreshold"):
+            binarizers.append(binarizer_cls.FixedThreshold)
+
+    for binarizer in binarizers:
+        for is_pure in (False, True):
+            kwargs: Dict[str, Any] = {"is_pure": is_pure}
+            if binarizer is not None:
+                kwargs["binarizer"] = binarizer
+            try:
+                results = zxingcpp.read_barcodes(img, **kwargs)
+            except Exception:
+                continue
+            if results:
+                text = getattr(results[0], "text", None)
+                if text:
+                    return text
 
     if pyzbar is not None:
         try:
@@ -2109,6 +2121,13 @@ def _extract_from_qr_stego_impl(
             if binarizer_cls is not None and hasattr(binarizer_cls, "LocalAverage"):
                 read_kwargs["binarizer"] = binarizer_cls.LocalAverage
             decoded_objects = zxingcpp.read_barcodes(img, **read_kwargs)
+            if not decoded_objects and binarizer_cls is not None:
+                for alt_bin in ("GlobalHistogram", "FixedThreshold"):
+                    if hasattr(binarizer_cls, alt_bin):
+                        read_kwargs["binarizer"] = getattr(binarizer_cls, alt_bin)
+                        decoded_objects = zxingcpp.read_barcodes(img, **read_kwargs)
+                        if decoded_objects:
+                            break
         except Exception as exc:
             logger.debug("zxingcpp read failed: %s, falling back to pyzbar", exc)
 
