@@ -1,0 +1,208 @@
+/* -------------------------------------------------------------------------- */
+/*            Ambient Editorial Brand Identity Component                      */
+/* -------------------------------------------------------------------------- */
+
+.ambient-brand-identity {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+  max-width: 360px;
+  pointer-events: auto;
+  user-select: none;
+  background: transparent !important;
+  color: #FFFFFF;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                        1. Pixel-Art Shield Emblem                          */
+/* -------------------------------------------------------------------------- */
+
+.shield-emblem-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 1.25rem;
+  background: transparent !important;
+}
+
+.pixel-shield-canvas {
+  display: block;
+  background: transparent !important;
+  filter: drop-shadow(0 4px 16px rgba(255, 255, 255, 0.04));
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ambient-brand-identity:hover .pixel-shield-canvas {
+  transform: translateY(-2px) scale(1.02);
+}
+
+/* -------------------------------------------------------------------------- */
+/*                        2. Cryptographic Protocol Line                      */
+/* -------------------------------------------------------------------------- */
+
+.editorial-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+  width: 100%;
+}
+
+.editorial-meta-line {
+  display: inline-block;
+  width: 24px;
+  height: 1px;
+  background: #525252;
+}
+
+.editorial-meta-tag {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.625rem;
+  letter-spacing: 0.16em;
+  font-weight: 500;
+  color: #737373;
+  text-transform: uppercase;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                        3. Primary Editorial Typography                     */
+/* -------------------------------------------------------------------------- */
+
+.editorial-headline {
+  font-family: 'Playfair Display', 'Didot', 'Bodoni MT', 'Georgia', 'Times New Roman', serif;
+  font-size: clamp(1.85rem, 2.7vw, 2.85rem);
+  font-weight: 400;
+  line-height: 1.04;
+  letter-spacing: -0.028em;
+  color: #FFFFFF;
+  margin: 0 0 1.25rem 0;
+  text-transform: uppercase;
+  text-rendering: optimizeLegibility;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                        4. Understated Supporting Text                      */
+/* -------------------------------------------------------------------------- */
+
+.editorial-supporting {
+  font-family: var(--font-sans);
+  font-size: clamp(0.8125rem, 0.95vw, 0.9375rem);
+  font-weight: 400;
+  line-height: 1.65;
+  letter-spacing: 0.015em;
+  color: #A3A3A3;
+  margin: 0 0 1.75rem 0;
+  max-width: 290px;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                        5. Micro-Pixel Cryptographic Accents                */
+/* -------------------------------------------------------------------------- */
+
+.editorial-accents {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.micro-pixel {
+  width: 3px;
+  height: 3px;
+  background: #333333;
+  display: inline-block;
+}
+
+.micro-pixel.active {
+  background: #FFFFFF;
+  animation: microPixelPulse 3.6s infinite ease-in-out;
+}
+
+.micro-hash {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.5625rem;
+  letter-spacing: 0.14em;
+  color: #404040;
+  margin-left: 6px;
+  text-transform: uppercase;
+}
+
+@keyframes microPixelPulse {
+  0%, 100% {
+    opacity: 0.35;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/*                               Responsiveness                               */
+/* -------------------------------------------------------------------------- */
+
+/* Standard Laptop Scaling (1366x768 - 1599px) */
+@media (max-width: 1599px) {
+  .ambient-brand-identity {
+    max-width: 320px;
+  }
+
+  .editorial-headline {
+    font-size: clamp(1.65rem, 2.3vw, 2.35rem);
+    margin-bottom: 1rem;
+  }
+
+  .editorial-supporting {
+    font-size: 0.8125rem;
+    margin-bottom: 1.25rem;
+  }
+}
+
+@media (max-width: 1399px) {
+  .ambient-brand-identity {
+    max-width: 215px;
+  }
+
+  .shield-emblem-container {
+    margin-bottom: 0.85rem;
+  }
+
+  .editorial-meta {
+    margin-bottom: 0.65rem;
+  }
+
+  .editorial-meta-line {
+    width: 14px;
+  }
+
+  .editorial-headline {
+    font-size: 1.45rem;
+    line-height: 1.08;
+    margin-bottom: 0.85rem;
+  }
+
+  .editorial-supporting {
+    font-size: 0.75rem;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+    max-width: 200px;
+  }
+
+  .micro-hash {
+    display: none; /* Keep ultra-compact on narrow laptop gutter */
+  }
+}
+
+/* Reduced Motion Override */
+@media (prefers-reduced-motion: reduce) {
+  .micro-pixel.active {
+    animation: none;
+    opacity: 0.8;
+  }
+  .pixel-shield-canvas {
+    transition: none;
+  }
+}
+
