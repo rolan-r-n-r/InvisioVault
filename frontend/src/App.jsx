@@ -1,6 +1,6 @@
 import { useState, useEffect, lazy, Suspense } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { HelpCircle, Shield, Image as ImageIcon, Layers, QrCode } from 'lucide-react'
+import { HelpCircle, Image as ImageIcon, Layers, QrCode } from 'lucide-react'
 import WakeServerButton from './components/WakeServerButton'
 import SeoContent from './components/SeoContent'
 import './App.css'
@@ -11,6 +11,7 @@ const ExtractFile = lazy(() => import('./components/ExtractFile'))
 const Polyglot = lazy(() => import('./components/Polyglot'))
 const QRCode = lazy(() => import('./components/QRCode'))
 const TutorialModal = lazy(() => import('./components/TutorialModal'))
+const AmbientVisualization = lazy(() => import('./components/AmbientVisualization/AmbientVisualization'))
 
 const ROUTE_METADATA = {
   stego: {
@@ -157,11 +158,16 @@ function App() {
   }
 
   return (
-    <div className="app">
-      {/* Skip to main content link for keyboard users (WCAG 2.4.1) */}
-      <a href="#main-content" className="skip-link">
-        Skip to main content
-      </a>
+    <>
+      <Suspense fallback={null}>
+        <AmbientVisualization mode={mode} />
+      </Suspense>
+
+      <div className="app">
+        {/* Skip to main content link for keyboard users (WCAG 2.4.1) */}
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
 
       <header className="app-header">
         <div className="header-top">
@@ -179,7 +185,7 @@ function App() {
           </button>
         </div>
         <h1 className="brand-title">
-          <Shield className="brand-icon" size={28} />
+          <img src="/favicon.svg" alt="InvisioVault Logo" className="brand-icon" width="28" height="28" />
           <span>InvisioVault</span>
         </h1>
         <p>Advanced steganography, universal polyglots &amp; stealth QR barcodes</p>
@@ -320,6 +326,7 @@ function App() {
         )}
       </Suspense>
     </div>
+    </>
   )
 }
 
