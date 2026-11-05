@@ -174,30 +174,29 @@ def verify_finder_pattern(
     Returns:
         (is_valid, threshold) where threshold is the estimated dark/light midpoint.
     """
+    px = rect.load()
+    if px is None:
+        return False, 128.0
+
     # Center 3x3 must be dark: (r0+2..r0+4, c0+2..c0+4)
     center_samples: List[float] = []
     for dr in range(2, 5):
         for dc in range(2, 5):
-            center_samples.append(
-                _get_pixel_luma(rect, (c0 + dc) * scale + scale // 2, (r0 + dr) * scale + scale // 2)
-            )
+            val = px[(c0 + dc) * scale + scale // 2, (r0 + dr) * scale + scale // 2]
+            center_samples.append(float(val[0]) if isinstance(val, tuple) else float(val))
 
     # Ring around center must be light: (r0+1, c0+1..5), (r0+5, c0+1..5) and vertical edges
     ring_samples: List[float] = []
     for dc in range(1, 6):
-        ring_samples.append(
-            _get_pixel_luma(rect, (c0 + dc) * scale + scale // 2, (r0 + 1) * scale + scale // 2)
-        )
-        ring_samples.append(
-            _get_pixel_luma(rect, (c0 + dc) * scale + scale // 2, (r0 + 5) * scale + scale // 2)
-        )
+        v1 = px[(c0 + dc) * scale + scale // 2, (r0 + 1) * scale + scale // 2]
+        ring_samples.append(float(v1[0]) if isinstance(v1, tuple) else float(v1))
+        v2 = px[(c0 + dc) * scale + scale // 2, (r0 + 5) * scale + scale // 2]
+        ring_samples.append(float(v2[0]) if isinstance(v2, tuple) else float(v2))
     for dr in range(2, 5):
-        ring_samples.append(
-            _get_pixel_luma(rect, (c0 + 1) * scale + scale // 2, (r0 + dr) * scale + scale // 2)
-        )
-        ring_samples.append(
-            _get_pixel_luma(rect, (c0 + 5) * scale + scale // 2, (r0 + dr) * scale + scale // 2)
-        )
+        v1 = px[(c0 + 1) * scale + scale // 2, (r0 + dr) * scale + scale // 2]
+        ring_samples.append(float(v1[0]) if isinstance(v1, tuple) else float(v1))
+        v2 = px[(c0 + 5) * scale + scale // 2, (r0 + dr) * scale + scale // 2]
+        ring_samples.append(float(v2[0]) if isinstance(v2, tuple) else float(v2))
 
     avg_center = sum(center_samples) / len(center_samples)
     avg_ring = sum(ring_samples) / len(ring_samples)
@@ -327,13 +326,13 @@ def _read_version_bits(
     ij_min = size - 11
 
     def _sample(module_r: int, module_c: int) -> int:
-        x = int(round((module_c + 0.5) * scale))
-        y = int(round((module_r + 0.5) * scale))
+        x = round((module_c + 0.5) * scale)
+        y = round((module_r + 0.5) * scale)
         x = min(max(x, 0), gray.shape[1] - 1)
         y = min(max(y, 0), gray.shape[0] - 1)
         y0, y1 = max(0, y - 1), min(gray.shape[0], y + 2)
         x0, x1 = max(0, x - 1), min(gray.shape[1], x + 2)
-        return int(round(float(np.median(gray[y0:y1, x0:x1]))))
+        return round(float(np.median(gray[y0:y1, x0:x1])))
 
     samples: List[int] = []
     if block == "top_right":
@@ -526,16 +525,21 @@ def detect_qr_version_from_timing(
                 best_rect = rect
                 break
 
+            px = rect.load()
+            if px is None:
+                continue
             for c in range(8, size - 8):
                 expected = 1 if (c % 2 == 0) else 0
-                luma = _get_pixel_luma(rect, c * scale + scale // 2, 6 * scale + scale // 2)
+                val = px[c * scale + scale // 2, 6 * scale + scale // 2]
+                luma = float(val[0]) if isinstance(val, tuple) else float(val)
                 detected = 1 if luma < timing_threshold else 0
                 if detected == expected:
                     correct += 1
 
             for r in range(8, size - 8):
                 expected = 1 if (r % 2 == 0) else 0
-                luma = _get_pixel_luma(rect, 6 * scale + scale // 2, r * scale + scale // 2)
+                val = px[6 * scale + scale // 2, r * scale + scale // 2]
+                luma = float(val[0]) if isinstance(val, tuple) else float(val)
                 detected = 1 if luma < timing_threshold else 0
                 if detected == expected:
                     correct += 1

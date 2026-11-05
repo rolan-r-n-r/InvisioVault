@@ -42,7 +42,7 @@ import secrets
 import struct
 import tempfile
 import time
-from typing import Any, Dict, List, Optional, Tuple, Sequence
+from typing import Any, Dict, List, Literal, Optional, Sequence, Set, Tuple, overload
 
 import numpy as np
 from PIL import Image, ImageOps, ImageDraw
@@ -135,9 +135,15 @@ class QRErrorCode(str, Enum):
 class QRStegoError(ValueError):
     """Exception raised for QR steganography failures with structured classification."""
 
-    def __init__(self, message: str, error_code: QRErrorCode = QRErrorCode.QR_INVALID):
+    def __init__(
+        self,
+        message: str,
+        error_code: QRErrorCode = QRErrorCode.QR_INVALID,
+        diagnostics: Optional[Dict[str, Any]] = None,
+    ):
         super().__init__(message)
         self.error_code = error_code
+        self.diagnostics: Optional[Dict[str, Any]] = diagnostics
 
 
 # ── Legacy compatibility helpers ──────────────────────────────────────────────
@@ -622,7 +628,7 @@ def _embed_visual_qr(
         dark_delta=delta,
         light_delta=light_delta,
     )
-    inset = max(0, min(int(inset), max(0, (scale - 2) // 2)))
+    inset = max(0, min(inset, max(0, (scale - 2) // 2)))
     separation = _modulation_state_separation(fg_rgb, bg_rgb, dark_delta, light_delta)
     if separation < MIN_MODULATION_STATE_SEPARATION:
         raise QRStegoError(
@@ -864,7 +870,7 @@ def _confidence_stats(
         "mean": round(float(conf.mean()), 3),
         "p10": round(float(np.percentile(conf, 10)), 3),
         "uncertain": int((conf < 0.35).sum()),
-        "n": int(conf.size),
+        "n": conf.size,
     }
 
 
@@ -872,7 +878,7 @@ def _align_module_grid(
     rectified: Image.Image,
     qr_size: int,
     ref_matrix: Sequence[Sequence[int]],
-    structural: Sequence[Tuple[int, int]],
+    structural: Set[Tuple[int, int]] | Sequence[Tuple[int, int]],
     debug_info: Optional[Dict[str, Any]] = None,
 ) -> Image.Image:
     """Correct residual grid misalignment before sampling.
@@ -887,7 +893,7 @@ def _align_module_grid(
     (dx, dy, scale) neighbourhood and maximise structural agreement.
     """
     try:
-        gray = np.asarray(rectified.convert("L"), dtype=np.float32)
+        gray = np.asarray(rectified if rectified.mode == "L" else rectified.convert("L"), dtype=np.float32)
     except Exception:
         return rectified
     height, width = gray.shape
@@ -1034,7 +1040,7 @@ def _extract_visual_qr(
         bch_version, bch_distance = None, 18
     if debug_info is not None:
         debug_info["versionInfoVersion"] = bch_version
-        debug_info["versionInfoDistance"] = int(bch_distance)
+        debug_info["versionInfoDistance"] = bch_distance
     if bch_version is not None and bch_version != target_ver:
         alt_version, alt_rect = detect_qr_version_from_timing(
             img,
@@ -1047,7 +1053,7 @@ def _extract_visual_qr(
                 "BCH version information overrode timing estimate: v%s -> v%s (distance %d)",
                 target_ver, bch_version, bch_distance,
             )
-            target_ver, rectified = alt_version, alt_rect
+            target_ver, rectified = bch_version, alt_rect
             qr_size = get_qr_dimension(target_ver)
             if debug_info is not None:
                 debug_info["versionSource"] = "bch_version_info"
@@ -1061,8 +1067,8 @@ def _extract_visual_qr(
     # Record geometry before the fast path: PASS 1 can return successfully without
     # ever reaching the later diagnostic block, which would leave version unset.
     if debug_info is not None:
-        debug_info["detectedVersion"] = int(target_ver)
-        debug_info["qrDimension"] = int(qr_size)
+        debug_info["detectedVersion"] = target_ver
+        debug_info["qrDimension"] = qr_size
         try:
             top_edge = math.hypot(
                 position.top_right.x - position.top_left.x,
@@ -1137,13 +1143,12 @@ def _extract_visual_qr(
     # on the raw rectified image using fast 3x3 mean/center sampling.
     # Refinement: Explicitly compute raw_scale = rectified.size[0] // qr_size
     # so it does not accidentally use the upscaled scale variable intended for Pass 2.
-    raw_rectified = rectified.copy()
     raw_scale = max(1, rectified.size[0] // qr_size)
     if debug_info is not None:
-        debug_info["rectifiedPxPerModule"] = int(raw_scale)
+        debug_info["rectifiedPxPerModule"] = raw_scale
 
     try:
-        raw_gray = np.array(raw_rectified.convert("L"), dtype=np.uint8)
+        raw_gray = np.asarray(rectified if rectified.mode == "L" else rectified.convert("L"), dtype=np.uint8)
         raw_centers = (np.arange(qr_size) * raw_scale + (raw_scale // 2)).astype(int)
 
         if raw_scale >= 3:
@@ -1325,23 +1330,25 @@ def _extract_visual_qr(
     # bit-flip errors.  Use the 5th/95th percentile range as a fast estimate.
     CLAHE_CONTRAST_GATE = 80.0  # lx — skip CLAHE above this global contrast
     try:
-        rect_arr = np.array(rectified.convert("L"), dtype=np.uint8)
+        rect_arr = np.asarray(rectified if rectified.mode == "L" else rectified.convert("L"), dtype=np.uint8)
         p5, p95 = np.percentile(rect_arr, [5.0, 95.0])
         global_contrast = float(p95 - p5)
         if global_contrast < CLAHE_CONTRAST_GATE:
             rect_eq = _clahe_numpy(rect_arr, tile_grid=8, clip_limit=2.5)
-            rectified = Image.fromarray(rect_eq, mode="L").convert("RGB")
+            rectified = Image.fromarray(rect_eq, mode="L")
+            rect_gray = rect_eq
             logger.debug("CLAHE applied (global_contrast=%.1f < %.1f)", global_contrast, CLAHE_CONTRAST_GATE)
         else:
+            rect_gray = rect_arr
             logger.debug("CLAHE skipped (global_contrast=%.1f >= %.1f)", global_contrast, CLAHE_CONTRAST_GATE)
     except Exception as _clahe_err:
         logger.debug("CLAHE failed, using raw rectified image: %s", _clahe_err)
+        rect_gray = np.asarray(rectified if rectified.mode == "L" else rectified.convert("L"), dtype=np.uint8)
 
     # Save processed diagnostic image (after upscale and CLAHE)
     _dump_debug_scan(rectified, "processed")
 
     # ── Vectorized 5x5 Median Sampling via sliding_window_view ──────────────
-    rect_gray = np.array(rectified.convert("L"), dtype=np.uint8)
     padded_rect = np.pad(rect_gray, pad_width=2, mode="edge")
     windows = np.lib.stride_tricks.sliding_window_view(padded_rect, (5, 5))
     centers = (np.arange(qr_size) * scale + (scale // 2)).astype(int)
@@ -1588,7 +1595,7 @@ def _extract_visual_qr(
             rectified.save(rect_path)
             rectified.save(rect_latest)
 
-            vis_img = rectified.convert("RGB").copy()
+            vis_img = rectified.convert("RGB")
             draw = ImageDraw.Draw(vis_img)
             # Structural markers in cyan
             for sr, sc in structural:
@@ -2030,14 +2037,13 @@ def _extract_from_qr_stego_impl(
             img_source = qr_path
 
         with Image.open(img_source) as raw_img:
-            img = raw_img.copy()
-            if img.mode in ("RGBA", "LA", "P"):
-                img = img.convert("RGBA")
-                background = Image.new("RGBA", img.size, (255, 255, 255, 255))
-                background.paste(img, mask=img.split()[3])
+            if raw_img.mode in ("RGBA", "LA", "P"):
+                rgba = raw_img.convert("RGBA")
+                background = Image.new("RGBA", rgba.size, (255, 255, 255, 255))
+                background.paste(rgba, mask=rgba.split()[3])
                 img = background.convert("L")
             else:
-                img = img.convert("L")
+                img = raw_img.convert("L")
 
         parsed_client_pos = _parse_client_corners(client_corners)
 
@@ -2258,7 +2264,7 @@ def _build_scan_diagnostics(
     if version is None and isinstance(dimension, int):
         version = (dimension - 17) // 4
     if version is None and client_version is not None:
-        version = int(client_version)
+        version = client_version
 
     separation: Optional[float] = None
     centroids = raw.get("kmeansCentroids")
@@ -2277,7 +2283,7 @@ def _build_scan_diagnostics(
     if separation is not None:
         quality = round(max(0.0, min(1.0, separation / float(DARK_MODULATION_DELTA))), 3)
 
-    if client_version is not None and detected is not None and int(detected) == int(client_version):
+    if client_version is not None and detected is not None and int(detected) == client_version:
         version_source = "client_hint"
     elif detected is not None:
         version_source = "timing_pattern"
@@ -2318,6 +2324,39 @@ def _build_scan_diagnostics(
         "failure_reason": raw.get("failureReason"),
     }
 
+
+@overload
+def extract_from_qr_stego(
+    qr_path: str,
+    password: Optional[str] = ...,
+    raw_qr_text: Optional[str] = ...,
+    client_corners: Optional[Dict[str, Any]] = ...,
+    client_version: Optional[int] = ...,
+    debug_info: Optional[Dict[str, Any]] = ...,
+    return_diagnostics: Literal[False] = ...,
+) -> Tuple[str, str]: ...
+
+@overload
+def extract_from_qr_stego(
+    qr_path: str,
+    password: Optional[str] = ...,
+    raw_qr_text: Optional[str] = ...,
+    client_corners: Optional[Dict[str, Any]] = ...,
+    client_version: Optional[int] = ...,
+    debug_info: Optional[Dict[str, Any]] = ...,
+    return_diagnostics: Literal[True] = ...,
+) -> Tuple[str, str, Dict[str, Any]]: ...
+
+@overload
+def extract_from_qr_stego(
+    qr_path: str,
+    password: Optional[str] = ...,
+    raw_qr_text: Optional[str] = ...,
+    client_corners: Optional[Dict[str, Any]] = ...,
+    client_version: Optional[int] = ...,
+    debug_info: Optional[Dict[str, Any]] = ...,
+    return_diagnostics: bool = ...,
+) -> Tuple[str, str] | Tuple[str, str, Dict[str, Any]]: ...
 
 def extract_from_qr_stego(
     qr_path: str,
@@ -2435,16 +2474,16 @@ def _modulation_deltas(
     of its data modules. The dark step is deliberately left alone: larger dark
     deltas were measured and produced no gain.
     """
-    light_default = LIGHT_MODULATION_DELTA if light_delta is None else int(light_delta)
+    light_default = LIGHT_MODULATION_DELTA if light_delta is None else light_delta
     if not adaptive:
-        return int(dark_delta), light_default
+        return dark_delta, light_default
 
     fg_luma = _perceived_luma(fg_rgb)
     bg_luma = _perceived_luma(bg_rgb)
     midpoint = (fg_luma + bg_luma) / 2.0
 
-    dark = max(MODULATION_DARK_FLOOR, int(dark_delta))
-    target_light = ADAPTIVE_LIGHT_DELTA if light_delta is None else int(light_delta)
+    dark = max(MODULATION_DARK_FLOOR, dark_delta)
+    target_light = ADAPTIVE_LIGHT_DELTA if light_delta is None else light_delta
     light = max(
         MODULATION_LIGHT_FLOOR,
         min(target_light, int(bg_luma - midpoint - MODULATION_MIDPOINT_MARGIN)),
@@ -2467,7 +2506,7 @@ def _modulation_deltas(
         < midpoint + MODULATION_MIDPOINT_MARGIN
     ):
         light -= 4
-    return int(dark), int(light)
+    return dark, light
 
 
 def _embed_logo_image(
