@@ -6,12 +6,15 @@ GitHub: https://github.com/rolan-r-n-r
 Twitter/X: https://x.com/Rolan_RNR
 
 /* THANKS */
-The open-source cryptographic and Python communities (Cryptography.io, Pillow, Segno, ZXing-C++, PyZipper).
+The open-source cryptographic, computer vision, and graphics communities:
+- Cryptography.io, Pillow, Segno, ZXing-C++, PyZipper
+- Three.js & WebGL community
+- Lucide Icons
 
 /* SITE */
-Last update: 2026-09-18
-Standards: HTML5, CSS3, ES2024, WebRTC, WCAG 2.1 AA
-Software: React 19, Vite, Flask, Gunicorn, Lucide Icons
-Components: Steganography Engine, Universal Polyglot Engine, QR Steganography
+Last update: 2026-11-05
+Standards: HTML5, CSS3, ES2024, WebGL 2.0, WebRTC, WCAG 2.1 AA
+Software: React 19, Three.js, Vite, Flask, Gunicorn, Lucide Icons
+Components: Steganography Engine, Universal Polyglot Engine, QR Steganography, 3D Monochromatic Digital Earth
 Backend: Stateless, zero-retention ephemeral processing
 Hosting: Vercel (Frontend), Render (Backend)
