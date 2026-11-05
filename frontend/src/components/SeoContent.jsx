@@ -174,10 +174,6 @@ export default function SeoContent() {
           <a href="https://github.com/rolan-r-n-r/InvisioVault" target="_blank" rel="noopener noreferrer">
             <FileCode size={14} className="inline-icon" /> View Source on GitHub
           </a>
-          <span>•</span>
-          <a href="/.well-known/security.txt">security.txt</a>
-          <span>•</span>
-          <a href="/humans.txt">humans.txt</a>
         </div>
       </div>
     </section>
