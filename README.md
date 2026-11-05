@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="frontend/public/InvisioVault.png" alt="InvisioVault Logo" width="160"/>
+  <img src="frontend/public/InvisioVault_Logo.png" alt="InvisioVault Logo" width="280"/>
 </p>
 
 <h1 align="center">InvisioVault</h1>
