@@ -1,0 +1,158 @@
+/* -------------------------------------------------------------------------- */
+/*                 Monochromatic Ambient Visualization Layer                  */
+/* -------------------------------------------------------------------------- */
+
+.ambient-visualization-root {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1; /* Behind central application (z-index: 10) */
+  overflow: hidden;
+  user-select: none;
+  background: transparent !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                      Left Gutter: Hero Digital Earth                       */
+/* -------------------------------------------------------------------------- */
+
+.ambient-gutter-left {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: max(0px, calc((100vw - 900px) / 2));
+  display: flex;
+  align-items: center; /* Vertically centered in the viewport workspace */
+  justify-content: flex-end; /* Positioned toward the central application */
+  /* Comfortable spacing: Never overlaps the central 900px app, while staying away from outer screen edge */
+  padding-right: clamp(14px, 2vw, 32px);
+  padding-left: 8px;
+  box-sizing: border-box;
+  pointer-events: none;
+  background: transparent !important;
+  overflow: visible;
+}
+
+.earth-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  /* Visual center adjustment: subtly aligned with the primary application card */
+  transform: translateY(-1.5vh);
+  width: 100%;
+  max-width: 450px;
+  height: min(450px, 82vh);
+  aspect-ratio: 1 / 1;
+  background: transparent !important;
+  overflow: visible;
+}
+
+.earth-canvas-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  pointer-events: auto;
+  cursor: grab;
+  background: transparent !important;
+  overflow: visible;
+}
+
+.earth-canvas-container:active {
+  cursor: grabbing;
+}
+
+.earth-canvas-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  background: transparent !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/*             Right Gutter: Editorial Brand Identity Composition             */
+/* -------------------------------------------------------------------------- */
+
+.ambient-gutter-right {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: max(0px, calc((100vw - 900px) / 2));
+  display: flex;
+  align-items: center; /* Vertically aligned across the viewport with the Earth */
+  justify-content: flex-start; /* Aligns starting comfortably from the central workspace */
+  padding-left: clamp(14px, 2.5vw, 40px);
+  padding-right: 12px;
+  box-sizing: border-box;
+  pointer-events: none;
+  background: transparent !important;
+  overflow: visible;
+}
+
+.brand-identity-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  position: relative;
+  /* Visual center adjustment matching Earth's vertical alignment */
+  transform: translateY(-1.5vh);
+  width: 100%;
+  max-width: 380px;
+  background: transparent !important;
+  overflow: visible;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                               Responsiveness                               */
+/* -------------------------------------------------------------------------- */
+
+/* Standard Desktop / Laptop Scaling */
+@media (max-width: 1599px) {
+  .ambient-gutter-left {
+    padding-right: clamp(12px, 1.8vw, 24px);
+  }
+
+  .earth-wrapper {
+    max-width: 380px;
+    height: min(380px, 80vh);
+  }
+
+  .ambient-gutter-right {
+    padding-left: clamp(12px, 1.8vw, 28px);
+  }
+
+  .brand-identity-wrapper {
+    max-width: 320px;
+  }
+}
+
+@media (max-width: 1399px) {
+  .ambient-gutter-left {
+    padding-right: 10px;
+    padding-left: 6px;
+  }
+
+  .earth-wrapper {
+    max-width: 290px;
+    height: min(290px, 76vh);
+  }
+
+  .ambient-gutter-right {
+    padding-left: 10px;
+    padding-right: 6px;
+  }
+
+  .brand-identity-wrapper {
+    max-width: 220px;
+  }
+}
+
+/* Tablets and Mobile: Gracefully hide side gutters to protect central workspace */
+@media (max-width: 1120px) {
+  .ambient-gutter-left,
+  .ambient-gutter-right {
+    display: none !important;
+  }
+}
