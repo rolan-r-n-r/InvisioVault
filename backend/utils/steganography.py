@@ -92,6 +92,7 @@ import math
 import hashlib
 import hmac
 import struct
+import base64
 from cryptography.fernet import Fernet
 import itertools
 import gc
@@ -149,10 +150,15 @@ _FLAG_ENC_ONLY_ADAPTIVE_NEW:     int = 0x11   # encrypt-only, compressed+ECC, ad
 _FLAG_ENC_COMPRESSED_ADAPTIVE_NEW: int = 0x12 # encrypt+compress, compressed+ECC, adaptive
 
 # v4 fast-adaptive flags: NumPy MT19937 permutation + LSB-replacement on
-# LSB-zeroed edge scores.  Header layout identical to v3.  These are the
-# flags the current writer produces.
-_FLAG_PLAIN_FAST:    int = 0x20   # plain, compressed+ECC, fast adaptive (current writer)
-_FLAG_ENC_ONLY_FAST: int = 0x21   # encrypt-only, compressed+ECC, fast adaptive (current writer)
+# LSB-zeroed edge scores.  Header layout identical to v3.
+_FLAG_PLAIN_FAST:    int = 0x20   # plain, compressed+ECC, fast adaptive (legacy v4 writer)
+_FLAG_ENC_ONLY_FAST: int = 0x21   # encrypt-only, compressed+ECC, fast adaptive (legacy v4 writer)
+
+# v5 resilient flags:
+#   0x30: plain, compressed + ECC, fast adaptive
+#   0x31: encrypt-then-ECC (proper channel coding protecting ciphertext), raw binary token, fast adaptive
+_FLAG_PLAIN_RESILIENT: int = 0x30  # plain, compressed+ECC, fast adaptive (current writer)
+_FLAG_ENC_RESILIENT:   int = 0x31  # encrypt-then-ECC, raw binary token (current writer)
 
 _V1_META_LEN_BYTES: int = 2
 _V2_META_LEN_BYTES: int = 4
@@ -165,6 +171,13 @@ _MAX_METADATA_ENC_LEN:   int = 1_024
 _MAX_PAYLOAD_BYTES:      int = 100 * 1_024 * 1_024
 _MAX_DECOMPRESSED_BYTES: int = 100 * 1_024 * 1_024
 _DECOMPRESS_CHUNK:       int = 65_536
+
+# ── High-resolution operational limits (Render 512 MB RAM safety) ─────────────
+HIGH_RES_PIXEL_THRESHOLD: int = 4_000_000       # 4 megapixels threshold
+MAX_HIGH_RES_PAYLOAD_SIZE: int = 1_024 * 1_024  # 1 MB operational ceiling for carriers > 4 MP
+MAX_HIGH_RES_PRE_RS_SIZE: int = 1_049_088       # 1 MB + 512 B worst-case compression/encryption expansion
+MAX_HIGH_RES_STREAM_SIZE: int = math.ceil((MAX_HIGH_RES_PAYLOAD_SIZE + 256) / 223) * 255  # 1,199,520 bytes
+MAX_HIGH_RES_EXTRACTION_STREAM_SIZE: int = int(os.getenv('MAX_HIGH_RES_EXTRACTION_STREAM_SIZE', '1500000'))  # 1.5 MB safe extraction cap
 
 assert _MAX_METADATA_PLAIN_LEN <= 0xFFFF_FFFF
 assert _MAX_METADATA_ENC_LEN   <= 0xFFFF_FFFF
@@ -500,7 +513,10 @@ def _v4_eligible_channels(scores: np.ndarray, threshold: int,
     eligible_pixels = np.flatnonzero(scores >= threshold).astype(np.int32)
     if eligible_pixels.size == 0:
         return np.empty(0, dtype=np.int32)
-    expanded = (eligible_pixels[:, None] * np.int32(3) + np.arange(3, dtype=np.int32)).reshape(-1)
+    expanded = np.empty(eligible_pixels.size * 3, dtype=np.int32)
+    expanded[0::3] = eligible_pixels * np.int32(3)
+    expanded[1::3] = expanded[0::3] + np.int32(1)
+    expanded[2::3] = expanded[0::3] + np.int32(2)
     start_idx = np.searchsorted(expanded, header_bits)
     return expanded[start_idx:]
 
@@ -554,6 +570,7 @@ def hide_file_in_image(
     output_path: str,
     password: Optional[str] = None,
     original_filename: str | None = None,
+    enforce_operational_limits: bool = False,
 ) -> str:
     """Hide a file using detection‑resistant steganography (new adaptive writer).
 
@@ -594,20 +611,11 @@ def hide_file_in_image(
     if total_pixels > (_MAX_PAYLOAD_BYTES * 8 // 3):
         raise ValueError("Host image dimensions exceed the maximum supported size.")
 
-    # ── 1. Prepare file data: compress → ECC → (encrypt) ──────────────────────
+    # ── 1. Prepare file data: compress ─────────────────────────────────────────
     with open(file_path, "rb") as f:
         file_data = f.read()
 
     compressed = zlib.compress(file_data, level=9)
-    ecc_data = _ecc_encode(compressed)      # ECC after compression
-
-    # Plain / encrypted path
-    if password:
-        payload_bytes_plain = ecc_data
-        flag = _FLAG_ENC_ONLY_FAST
-    else:
-        payload_bytes_plain = ecc_data
-        flag = _FLAG_PLAIN_FAST
 
     # ── 2. Metadata ──────────────────────────────────────────────────────────
     if not original_filename:
@@ -627,17 +635,34 @@ def hide_file_in_image(
     if len(metadata_plain) > _MAX_METADATA_PLAIN_LEN:
         raise ValueError(f"Metadata too long ({len(metadata_plain)} B).")
 
-    # ── 3. Encryption / pass‑through ──────────────────────────────────────────
+    # ── 3. Encryption & Channel Coding (v5 Resilient) ─────────────────────────
+    # For encrypted payloads: apply Fernet encryption first, decode Base64 to save
+    # 33.3% raw storage bloat, then apply Reed-Solomon channel coding to the
+    # CIPHERTEXT. This ensures channel bit-errors are repaired before HMAC
+    # verification so that RS ECC can actually protect encrypted transmissions.
     salt = secrets.token_bytes(16)
     if password:
         key = _derive_key_from_password(password, salt)
         fernet = Fernet(key)
         metadata_field = fernet.encrypt(metadata_plain)
-        payload_field = fernet.encrypt(payload_bytes_plain)
+        raw_ciphertext = base64.urlsafe_b64decode(fernet.encrypt(compressed))
+        pre_rs_data = raw_ciphertext
+        flag = _FLAG_ENC_RESILIENT
         key = fernet = None
     else:
         metadata_field = metadata_plain
-        payload_field = payload_bytes_plain
+        pre_rs_data = compressed
+        flag = _FLAG_PLAIN_RESILIENT
+
+    # Pre-RS stream limit enforcement for high-resolution carriers (> 4 MP)
+    if enforce_operational_limits and total_pixels > HIGH_RES_PIXEL_THRESHOLD:
+        if len(pre_rs_data) > MAX_HIGH_RES_PRE_RS_SIZE:
+            raise ValueError(
+                f"Pre-RS payload stream length ({len(pre_rs_data):,} bytes) exceeds maximum "
+                f"operational limit ({MAX_HIGH_RES_PRE_RS_SIZE:,} bytes) for high-resolution carriers (> 4 MP)."
+            )
+
+    payload_field = _ecc_encode(pre_rs_data)
 
     # ── 4. Build header (without threshold yet) ───────────────────────────────
     metadata_length = _encode_metadata_length(len(metadata_field))
@@ -715,6 +740,7 @@ def hide_file_in_image(
         if isinstance(k, str) and isinstance(v, str):
             pnginfo.add_text(k, v, zip=False)
     exif = original_info.get("exif")
+    icc_profile = original_info.get("icc_profile")
 
     try:
         host_img.save(
@@ -723,10 +749,71 @@ def hide_file_in_image(
             compress_level=6,
             pnginfo=pnginfo,
             exif=exif,
+            icc_profile=icc_profile,
         )
     finally:
         host_img.close()
     return output_path
+
+
+def detect_stego_engine(image_path: str) -> str:
+    """Inspect carrier image LSBs to detect steganography engine version.
+
+    Returns:
+        'v6': Carrier begins with V6 magic (0xFF 0x06) and has sufficient channels.
+        'v5': Carrier has V2-V5 magic (0xFF 0x02) with resilient flag (0x30, 0x31).
+        'v4': Carrier has V2-V5 magic with fast adaptive flag (0x20, 0x21).
+        'v3': Carrier has V2-V5 magic with adaptive/random flag.
+        'v2': Carrier has V2-V5 magic with sequential flag.
+        'v1': Carrier does not contain a V2 or V6 magic prefix (legacy V1 format).
+    """
+    raw_img = Image.open(image_path)
+    img = None
+    try:
+        img = raw_img.convert("RGB") if raw_img.mode != "RGB" else raw_img
+        if img is raw_img:
+            img.load()
+    finally:
+        if raw_img is not None and img is not raw_img:
+            raw_img.close()
+
+    try:
+        total_channels = img.width * img.height * 3
+        if total_channels < 16:
+            return "v1"
+
+        gen_seq = _iter_lsb_bytes(img)
+        first_two = _read_exactly(gen_seq, 2, "magic probe")
+
+        if len(first_two) < 2:
+            return "v1"
+
+        if first_two == b"\xff\x06" and total_channels >= 456:
+            return "v6"
+
+        if first_two == _V2_MAGIC:
+            flag_bytes = _read_exactly(gen_seq, 1, "password flag")
+            if not flag_bytes:
+                return "v2"
+            flag = flag_bytes[0]
+            if flag in (_FLAG_PLAIN_RESILIENT, _FLAG_ENC_RESILIENT):
+                return "v5"
+            elif flag in (_FLAG_PLAIN_FAST, _FLAG_ENC_ONLY_FAST):
+                return "v4"
+            elif flag in (
+                _FLAG_PLAIN_ADAPTIVE_NEW, _FLAG_ENC_ONLY_ADAPTIVE_NEW,
+                _FLAG_ENC_COMPRESSED_ADAPTIVE_NEW,
+                _FLAG_PLAIN_RANDOM, _FLAG_ENC_ONLY_RANDOM,
+                _FLAG_ENC_COMPRESSED_RANDOM
+            ):
+                return "v3"
+            else:
+                return "v2"
+
+        return "v1"
+    finally:
+        if img is not None:
+            img.close()
 
 
 def extract_file_from_image(
@@ -751,6 +838,7 @@ def extract_file_from_image(
 
     try:
         width, height = img.width, img.height
+        total_pixels = width * height
         total_channels = width * height * 3
         max_carriable = total_channels // 8
 
@@ -766,14 +854,15 @@ def extract_file_from_image(
                 _FLAG_ENC_COMPRESSED_SEQUENTIAL, _FLAG_ENC_ONLY_SEQUENTIAL,
                 _FLAG_ENC_ONLY_RANDOM, _FLAG_ENC_COMPRESSED_RANDOM,
                 _FLAG_ENC_ONLY_ADAPTIVE_NEW, _FLAG_ENC_COMPRESSED_ADAPTIVE_NEW,
-                _FLAG_ENC_ONLY_FAST,
+                _FLAG_ENC_ONLY_FAST, _FLAG_ENC_RESILIENT,
             )
-            is_fast = flag in (_FLAG_PLAIN_FAST, _FLAG_ENC_ONLY_FAST)   # v4
+            is_resilient = flag in (_FLAG_PLAIN_RESILIENT, _FLAG_ENC_RESILIENT)  # v5
+            is_fast = flag in (_FLAG_PLAIN_FAST, _FLAG_ENC_ONLY_FAST) or is_resilient   # v4 and v5
             is_v3_adaptive = flag in (
                 _FLAG_PLAIN_ADAPTIVE_NEW, _FLAG_ENC_ONLY_ADAPTIVE_NEW,
                 _FLAG_ENC_COMPRESSED_ADAPTIVE_NEW,
             )
-            # Both v3 and v4 store the threshold byte in the header.
+            # v3, v4, and v5 store the threshold byte in the header.
             is_new_adaptive = is_v3_adaptive or is_fast
             is_old_random = flag in (_FLAG_PLAIN_RANDOM, _FLAG_ENC_ONLY_RANDOM,
                                      _FLAG_ENC_COMPRESSED_RANDOM)
@@ -782,6 +871,7 @@ def extract_file_from_image(
                 _FLAG_PLAIN_SEQUENTIAL, _FLAG_PLAIN_RANDOM,
                 _FLAG_ENC_COMPRESSED_SEQUENTIAL, _FLAG_ENC_COMPRESSED_RANDOM,
                 _FLAG_PLAIN_ADAPTIVE_NEW, _FLAG_ENC_COMPRESSED_ADAPTIVE_NEW,
+                _FLAG_PLAIN_RESILIENT,
             )
 
             if has_password and not password:
@@ -791,7 +881,7 @@ def extract_file_from_image(
             # salt (used to seed the payload permutation), so include them.
             salt = b""
             if has_password or flag in (
-                _FLAG_PLAIN_RANDOM, _FLAG_PLAIN_ADAPTIVE_NEW, _FLAG_PLAIN_FAST,
+                _FLAG_PLAIN_RANDOM, _FLAG_PLAIN_ADAPTIVE_NEW, _FLAG_PLAIN_FAST, _FLAG_PLAIN_RESILIENT,
             ):
                 salt = _read_exactly(gen_seq, 16, "salt")
 
@@ -810,6 +900,11 @@ def extract_file_from_image(
             )
             if data_length == 0 or data_length > min(max_carriable, _MAX_PAYLOAD_BYTES):
                 raise ValueError("Data length is invalid or exceeds image capacity.")
+            if total_pixels > HIGH_RES_PIXEL_THRESHOLD and data_length > MAX_HIGH_RES_EXTRACTION_STREAM_SIZE:
+                raise ValueError(
+                    f"Declared payload stream length ({data_length:,} bytes) exceeds maximum "
+                    f"operational limit ({MAX_HIGH_RES_EXTRACTION_STREAM_SIZE:,} bytes) for high-resolution carriers (> 4 MP)."
+                )
 
             # For new adaptive format, read stored threshold
             threshold = None
@@ -886,9 +981,12 @@ def extract_file_from_image(
                 # Sequential payload (v1, v2, or plain sequential)
                 payload_field = _read_exactly(gen_seq, data_length, "payload")
 
+        elif first_two == b"\xff\x06":
+            raise ValueError("V6 carrier detected. Please extract using the V6 steganography engine.")
         else:
             # ── v1 parser ─────────────────────────────────────────────────────
             password_flag_byte = first_two[0]
+            flag = password_flag_byte
             has_password = password_flag_byte == 0x01
             is_compressed = True
             is_new_adaptive = False
@@ -913,9 +1011,57 @@ def extract_file_from_image(
             )
             if data_length == 0 or data_length > min(max_carriable, _MAX_PAYLOAD_BYTES):
                 raise ValueError("Data length invalid.")
+            if total_pixels > HIGH_RES_PIXEL_THRESHOLD and data_length > MAX_HIGH_RES_EXTRACTION_STREAM_SIZE:
+                raise ValueError(
+                    f"Declared payload stream length ({data_length:,} bytes) exceeds maximum "
+                    f"operational limit ({MAX_HIGH_RES_EXTRACTION_STREAM_SIZE:,} bytes) for high-resolution carriers (> 4 MP)."
+                )
             payload_field = _read_exactly(gen_seq, data_length, "payload")
 
-        # ── Decrypt if needed ─────────────────────────────────────────────────
+        # ── v5 Resilient extraction path (proper channel decoding before decryption) ──
+        if flag == _FLAG_ENC_RESILIENT:
+            if not password:
+                raise ValueError("This file is password-protected. Please provide the password.")
+            # 1. Reed-Solomon channel decode repairs transmission/image noise on the ciphertext
+            raw_ciphertext = _ecc_decode(payload_field)
+            # 2. Derive key and authenticate/decrypt with Fernet
+            try:
+                assert password is not None
+                key = _derive_key_from_password(password, salt)
+                fernet = Fernet(key)
+                metadata_plain = fernet.decrypt(metadata_bytes)
+                token_b64 = base64.urlsafe_b64encode(raw_ciphertext)
+                compressed = fernet.decrypt(token_b64)
+            except Exception:
+                raise ValueError("Incorrect password.")
+            finally:
+                key = fernet = None
+            # 3. Safe decompression
+            file_data = _safe_decompress(compressed)
+            try:
+                metadata = metadata_plain.decode("utf-8")
+            except UnicodeDecodeError:
+                raise ValueError("Metadata is not valid UTF-8. The image may be corrupted.")
+            if "|" not in metadata:
+                raise ValueError("Metadata malformed (missing separator).")
+            original_filename, mime_type = metadata.rsplit("|", 1)
+            return file_data, original_filename, mime_type
+
+        elif flag == _FLAG_PLAIN_RESILIENT:
+            # 1. Reed-Solomon channel decode
+            plain_compressed = _ecc_decode(payload_field)
+            # 2. Safe decompression
+            file_data = _safe_decompress(plain_compressed)
+            try:
+                metadata = metadata_bytes.decode("utf-8")
+            except UnicodeDecodeError:
+                raise ValueError("Metadata is not valid UTF-8. The image may be corrupted.")
+            if "|" not in metadata:
+                raise ValueError("Metadata malformed (missing separator).")
+            original_filename, mime_type = metadata.rsplit("|", 1)
+            return file_data, original_filename, mime_type
+
+        # ── Legacy paths (v1, v2, v3, v4) ─────────────────────────────────────
         if has_password:
             try:
                 assert password is not None  # guaranteed: has_password flag is only set when password was provided
