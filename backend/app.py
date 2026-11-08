@@ -50,7 +50,7 @@ def create_app(config_name='default'):
             "origins": cors_origins,
             "methods": ["GET", "POST", "OPTIONS"],
             "allow_headers": ["Content-Type"],
-            "expose_headers": ["Content-Disposition"],
+            "expose_headers": ["Content-Disposition", "X-InvisioVault-Engine", "X-InvisioVault-Mode"],
             "supports_credentials": False
         }
     })

@@ -4,7 +4,6 @@ from werkzeug.utils import secure_filename
 from PIL import Image
 import os
 import secrets
-import uuid
 from io import BytesIO
 from collections import OrderedDict
 import logging
@@ -23,18 +22,35 @@ from typing import Any, Dict
 # can correctly map it to the "api.detect_qr" / "api.health_check" endpoints.
 from extensions import limiter
 
-from utils.steganography import hide_file_in_image, extract_file_from_image
+from utils.steganography import hide_file_in_image, extract_file_from_image, detect_stego_engine
+from utils.steganography_v6 import (
+    hide_file_v6,
+    extract_file_v6,
+    hide_text_v6,
+    calculate_v6_capacity,
+    V6SteganographyError,
+    DowngradeAttackError,
+    HeaderAuthenticationError,
+    HeaderIntegrityError,
+    CapacityExceededError,
+    CycleWalkingExceededError,
+    ReedSolomonDecodingError,
+    ChecksumMismatchError,
+    DecryptionError,
+)
 from utils.polyglot import create_polyglot, extract_from_polyglot
 from utils.validators import (
     validate_image,
     validate_hideable_file,
+    validate_carrier_payload_limit,
     validate_qr_colors,
     MAX_STEGO_IMAGE_SIZE,
+    HIGH_RES_PIXEL_THRESHOLD,
+    MAX_HIGH_RES_PAYLOAD_SIZE,
 )
 from utils.qr_stego import (
     generate_qr_with_stego,
     extract_from_qr_stego,
-    calculate_qr_capacity,
     get_qr_capacity_info,
     QRErrorCode,
     QRStegoError,
@@ -203,6 +219,10 @@ def calculate_capacity():
     select/drop.  30/min gives plenty of headroom for normal use while
     preventing a bot from using it as a cheap I/O-amplification vector.
     """
+    engine = request.form.get('engine') or request.args.get('engine')
+    if engine == 'v6':
+        return calculate_capacity_v6()
+
     try:
         # Validate request
         image = request.files.get('image')
@@ -222,12 +242,25 @@ def calculate_capacity():
         # Capacity calculation: 3 bits per pixel (1 bit per RGB channel)
         # Divided by 8 to convert bits to bytes
         total_capacity_bytes = (total_pixels * 3) // 8
+        # Usable safe capacity accounting for ~200B header + RS(255, 223) ECC expansion (~14.3%)
+        safe_capacity_bytes = max(0, int((total_capacity_bytes - 200) * 223 / 255))
+        # Encrypted safe capacity: accounting for Fernet binary token overhead (~60B IV/tag/pad)
+        encrypted_safe_bytes = max(0, safe_capacity_bytes - 60)
 
-        logger.info(f"Calculated capacity for image: {total_capacity_bytes} bytes")
+        # Operational memory ceiling for carriers > 4 MP (Render 512 MB safety)
+        if total_pixels > HIGH_RES_PIXEL_THRESHOLD:
+            safe_capacity_bytes = min(safe_capacity_bytes, MAX_HIGH_RES_PAYLOAD_SIZE)
+            encrypted_safe_bytes = min(encrypted_safe_bytes, MAX_HIGH_RES_PAYLOAD_SIZE)
+
+        logger.info(f"Calculated capacity for image: {total_capacity_bytes} bytes (safe: {safe_capacity_bytes} bytes)")
 
         return jsonify({
             'totalCapacityBytes': total_capacity_bytes,
-            'totalCapacityFormatted': _format_bytes(total_capacity_bytes)
+            'totalCapacityFormatted': _format_bytes(total_capacity_bytes),
+            'safeCapacityBytes': safe_capacity_bytes,
+            'safeCapacityFormatted': _format_bytes(safe_capacity_bytes),
+            'encryptedSafeBytes': encrypted_safe_bytes,
+            'encryptedSafeFormatted': _format_bytes(encrypted_safe_bytes),
         }), 200
     
     except ValueError as e:
@@ -236,6 +269,64 @@ def calculate_capacity():
         return jsonify({'error': safe_error}), 400
     except Exception as e:
         logger.error(f"Error calculating capacity: {str(e)}")
+        safe_error = sanitize_error('An error occurred while calculating capacity', current_app.config['DEBUG'])
+        return jsonify({'error': safe_error}), 500
+
+
+@api.route('/calculate-capacity-v6', methods=['POST'])
+@limiter.limit("30 per minute", override_defaults=False)
+def calculate_capacity_v6():
+    """Calculate the available V6 steganography capacity for an image.
+    Uses Matrix (3,2) coset encoding and RS(255, 223) parameters.
+    """
+    try:
+        image = request.files.get('image')
+        if not image:
+            return jsonify({'error': 'Image file is required'}), 400
+
+        validate_image(image)
+
+        image.stream.seek(0)
+        with Image.open(image.stream) as img:
+            width, height = img.width, img.height
+            total_pixels = width * height
+        image.stream.seek(0)
+
+        v6_cap = calculate_v6_capacity(width, height)
+        max_raw = v6_cap["max_raw_payload_capacity"]
+
+        # Safe capacity accounting for ~200B metadata framing + Fernet/CRC overhead
+        safe_capacity_bytes = max(0, max_raw - 200)
+        encrypted_safe_bytes = max(0, max_raw - 260)
+
+        # Operational memory ceiling for carriers > 4 MP (Render 512 MB safety)
+        if total_pixels > HIGH_RES_PIXEL_THRESHOLD:
+            safe_capacity_bytes = min(safe_capacity_bytes, MAX_HIGH_RES_PAYLOAD_SIZE)
+            encrypted_safe_bytes = min(encrypted_safe_bytes, MAX_HIGH_RES_PAYLOAD_SIZE)
+
+        logger.info(
+            f"Calculated V6 capacity for image ({width}x{height}): "
+            f"{max_raw} raw bytes (safe: {safe_capacity_bytes} bytes)"
+        )
+
+        return jsonify({
+            'totalCapacityBytes': max_raw,
+            'totalCapacityFormatted': _format_bytes(max_raw),
+            'safeCapacityBytes': safe_capacity_bytes,
+            'safeCapacityFormatted': _format_bytes(safe_capacity_bytes),
+            'encryptedSafeBytes': encrypted_safe_bytes,
+            'encryptedSafeFormatted': _format_bytes(encrypted_safe_bytes),
+            'availableTriplets': v6_cap["available_triplets"],
+            'maxRsBlocks': v6_cap["max_rs_blocks"],
+            'engine': 'v6'
+        }), 200
+
+    except ValueError as e:
+        logger.error(f"Validation error in V6 capacity: {str(e)}")
+        safe_error = sanitize_error(str(e), current_app.config['DEBUG'])
+        return jsonify({'error': safe_error}), 400
+    except Exception as e:
+        logger.error(f"Error calculating V6 capacity: {str(e)}")
         safe_error = sanitize_error('An error occurred while calculating capacity', current_app.config['DEBUG'])
         return jsonify({'error': safe_error}), 500
 
@@ -270,9 +361,18 @@ def hide_file():
 
         # Pre-validation: format, magic, dimensions, and size checks before acquiring lock
         validate_image(image)
-        if not text_to_hide:
+
+        # Determine carrier pixel count safely from stream headers without reading full RGB
+        image.stream.seek(0)
+        with Image.open(image.stream) as img:
+            carrier_pixels = img.width * img.height
+        image.stream.seek(0)
+
+        if text_to_hide:
+            validate_carrier_payload_limit(carrier_pixels, len(text_to_hide.encode('utf-8')))
+        else:
             assert file_to_hide is not None  # guaranteed by the check at line 259
-            validate_hideable_file(file_to_hide)
+            validate_hideable_file(file_to_hide, carrier_pixels=carrier_pixels)
 
         # Concurrency protection: acquire bounded semaphore for heavy steganography encode
         acquired = _heavy_operation_semaphore.acquire(timeout=_HEAVY_OP_TIMEOUT_SECONDS)
@@ -308,7 +408,14 @@ def hide_file():
             # Hide file in image
             output_filename = f"{secrets.token_urlsafe(16)}.png"
             output_path = os.path.join(upload_folder, output_filename)
-            hide_file_in_image(image_path, file_path, output_path, password, original_filename=clean_original_filename)
+            hide_file_in_image(
+                image_path,
+                file_path,
+                output_path,
+                password,
+                original_filename=clean_original_filename,
+                enforce_operational_limits=True,
+            )
 
             logger.info(f"Successfully hid file in image: {output_filename}")
             return jsonify({
@@ -370,18 +477,21 @@ def download_image(download_id):
 def extract_file():
     """Extract a hidden file from an image.
 
-    Heavy endpoint: full LSB decode + optional AES-GCM decryption.  The tight
-    10/hour limit also mitigates password brute-forcing via repeated extraction
-    attempts with different passwords.
+    Automatically detects the steganography engine (V1–V6) from carrier format.
+    Never falls back between engines on failure.
     """
     image_path = None
     try:
         # Validate request
         image = request.files.get('image')
         password = request.form.get('password') or None
+        expected_mode = (request.form.get('expected_mode') or request.form.get('mode') or 'auto').strip().lower()
 
         if not image:
             return jsonify({'error': 'Image file is required'}), 400
+
+        if expected_mode not in ('auto', 'encrypted', 'plain'):
+            return jsonify({'error': 'Invalid expected_mode. Must be auto, encrypted, or plain'}), 400
 
         # Pre-validation: magic bytes, dimensions, and size checks before acquiring lock
         validate_image(image, max_size=MAX_STEGO_IMAGE_SIZE)
@@ -403,44 +513,111 @@ def extract_file():
             image_path = os.path.join(upload_folder, f"{secrets.token_hex(8)}_{image_filename}")
             image.save(image_path)
 
-            # Extract file
-            file_data, original_filename, mime_type = extract_file_from_image(image_path, password)
+            # Auto-detect steganography engine
+            detected_engine = detect_stego_engine(image_path)
+            logger.info(f"Auto-detected steganography engine: {detected_engine} for {image_filename}")
 
-            # Sanitize filename from untrusted stego metadata to prevent
-            # Content-Disposition header injection / path traversal (P0-03)
-            safe_filename = _safe_download_name(original_filename)
-            safe_mime = mime_type if (mime_type and _SAFE_MIME_RE.match(mime_type)) else "application/octet-stream"
-            logger.info(f"Successfully extracted file: {safe_filename} (mimetype: {safe_mime})")
+            if detected_engine == 'v6':
+                try:
+                    payload_bytes, metadata = extract_file_v6(
+                        image_path,
+                        password=password,
+                        expected_mode=expected_mode
+                    )
+                except (HeaderAuthenticationError, DecryptionError):
+                    logger.warning("V6 extraction authentication failed")
+                    return jsonify({'error': SAFE_ERROR_MESSAGES['password']}), 400
+                except DowngradeAttackError as e:
+                    logger.warning(f"V6 extraction downgrade rejected: {str(e)}")
+                    return jsonify({'error': 'Carrier claims plain mode, but password was provided. Downgrade attack rejected.'}), 400
+                except (HeaderIntegrityError, ChecksumMismatchError):
+                    logger.warning("V6 extraction integrity verification failed")
+                    return jsonify({'error': 'Integrity check failed: corrupted stego image.'}), 400
+                except ReedSolomonDecodingError:
+                    logger.warning("V6 extraction Reed-Solomon decoding failed")
+                    return jsonify({'error': 'Reed-Solomon decoding failed: uncorrectable carrier corruption.'}), 400
+                except CapacityExceededError:
+                    logger.warning("V6 carrier capacity exceeded or invalid")
+                    return jsonify({'error': 'Carrier image too small or invalid stego image.'}), 400
+                except V6SteganographyError as e:
+                    logger.error(f"V6 extraction error: {str(e)}")
+                    safe_error = sanitize_error(str(e), current_app.config['DEBUG'])
+                    return jsonify({'error': safe_error}), 400
 
-            # Configurable size-tiered response streaming:
-            # Small objects (< threshold): in-memory BytesIO (eliminates disk I/O)
-            # Large objects (>= threshold): file-backed streaming with response.call_on_close cleanup
-            threshold = current_app.config.get('SMALL_OBJECT_THRESHOLD_BYTES', 1048576)
-            if len(file_data) < threshold:
-                output = BytesIO(file_data)
-                output.seek(0)
-                del file_data
-                return send_file(
-                    output,
-                    mimetype=safe_mime,
-                    as_attachment=True,
-                    download_name=safe_filename
-                )
+                raw_filename = metadata.get("filename") or ("text_payload.txt" if metadata.get("file_type") == "text" else "extracted_payload.bin")
+                safe_filename = _safe_download_name(raw_filename)
+                safe_mime = "text/plain; charset=utf-8" if safe_filename.endswith(".txt") else "application/octet-stream"
+
+                logger.info(f"Successfully extracted V6 payload: {safe_filename} (size: {len(payload_bytes)} bytes)")
+
+                threshold = current_app.config.get('SMALL_OBJECT_THRESHOLD_BYTES', 1048576)
+                if len(payload_bytes) < threshold:
+                    output = BytesIO(payload_bytes)
+                    output.seek(0)
+                    del payload_bytes
+                    response = send_file(
+                        output,
+                        mimetype=safe_mime,
+                        as_attachment=True,
+                        download_name=safe_filename
+                    )
+                else:
+                    out_tmp_filename = f"ext_v6_{secrets.token_hex(8)}_{safe_filename}"
+                    out_tmp_path = os.path.join(upload_folder, out_tmp_filename)
+                    with open(out_tmp_path, "wb") as f:
+                        f.write(payload_bytes)
+                    del payload_bytes
+
+                    response = send_file(
+                        out_tmp_path,
+                        mimetype=safe_mime,
+                        as_attachment=True,
+                        download_name=safe_filename
+                    )
+                    response.direct_passthrough = False
+                    response.call_on_close(lambda: _remove_quietly(out_tmp_path))
+
+                response.headers["X-InvisioVault-Engine"] = "v6"
+                response.headers["X-InvisioVault-Mode"] = metadata.get("mode", "unknown")
+                return response
+
             else:
-                out_tmp_filename = f"ext_{secrets.token_hex(8)}_{safe_filename}"
-                out_tmp_path = os.path.join(upload_folder, out_tmp_filename)
-                with open(out_tmp_path, "wb") as f:
-                    f.write(file_data)
-                del file_data
+                # Extract legacy file (V1–V5)
+                file_data, original_filename, mime_type = extract_file_from_image(image_path, password)
 
-                response = send_file(
-                    out_tmp_path,
-                    mimetype=safe_mime,
-                    as_attachment=True,
-                    download_name=safe_filename
-                )
-                response.direct_passthrough = False
-                response.call_on_close(lambda: _remove_quietly(out_tmp_path))
+                safe_filename = _safe_download_name(original_filename)
+                safe_mime = mime_type if (mime_type and _SAFE_MIME_RE.match(mime_type)) else "application/octet-stream"
+                logger.info(f"Successfully extracted legacy file ({detected_engine}): {safe_filename} (mimetype: {safe_mime})")
+
+                threshold = current_app.config.get('SMALL_OBJECT_THRESHOLD_BYTES', 1048576)
+                if len(file_data) < threshold:
+                    output = BytesIO(file_data)
+                    output.seek(0)
+                    del file_data
+                    response = send_file(
+                        output,
+                        mimetype=safe_mime,
+                        as_attachment=True,
+                        download_name=safe_filename
+                    )
+                else:
+                    out_tmp_filename = f"ext_{secrets.token_hex(8)}_{safe_filename}"
+                    out_tmp_path = os.path.join(upload_folder, out_tmp_filename)
+                    with open(out_tmp_path, "wb") as f:
+                        f.write(file_data)
+                    del file_data
+
+                    response = send_file(
+                        out_tmp_path,
+                        mimetype=safe_mime,
+                        as_attachment=True,
+                        download_name=safe_filename
+                    )
+                    response.direct_passthrough = False
+                    response.call_on_close(lambda: _remove_quietly(out_tmp_path))
+
+                response.headers["X-InvisioVault-Engine"] = detected_engine
+                response.headers["X-InvisioVault-Mode"] = "encrypted" if password else "plain"
                 return response
         finally:
             _heavy_operation_semaphore.release()
@@ -454,10 +631,264 @@ def extract_file():
         safe_error = sanitize_error('An error occurred while extracting the file', current_app.config['DEBUG'])
         return jsonify({'error': safe_error}), 500
     finally:
-        # Always delete the uploaded stego image — including when extraction
-        # fails (wrong password, corrupt data), so failed requests can't leak
-        # temp files.
         _remove_quietly(image_path)
+
+
+# ==============================================================================
+# V6 Steganography Endpoints (Matrix (3,2) Coset + 10-Round Feistel + Interleaved RS)
+# ==============================================================================
+
+@api.route('/hide-v6', methods=['POST'])
+@limiter.limit("10 per hour", override_defaults=False)
+def hide_file_v6_endpoint():
+    """Hide a file or text in an image using the InvisioVault V6 steganography engine.
+    Supports encrypted mode (Fernet AES-CBC + HMAC) and plain mode (CRC-32 checksum).
+    """
+    image_path = None
+    file_path = None
+    try:
+        # Validate request
+        image = request.files.get('image')
+        file_to_hide = request.files.get('file')
+        text_to_hide = request.form.get('text', '').strip()
+        password = request.form.get('password') or None
+        mode = (request.form.get('mode') or 'auto').strip().lower()
+
+        if not image:
+            return jsonify({'error': 'Image is required'}), 400
+
+        if not file_to_hide and not text_to_hide:
+            return jsonify({'error': 'Either file or text is required'}), 400
+
+        if mode not in ('auto', 'encrypted', 'plain'):
+            return jsonify({'error': 'Invalid mode. Must be auto, encrypted, or plain'}), 400
+
+        if mode == 'encrypted':
+            if not password:
+                return jsonify({'error': 'Password is required for encrypted mode'}), 400
+            if len(password) < MIN_PASSWORD_LENGTH:
+                return jsonify({'error': f'Password must be at least {MIN_PASSWORD_LENGTH} characters long'}), 400
+        elif mode == 'plain':
+            if password:
+                return jsonify({'error': 'Password cannot be specified when plain mode is selected'}), 400
+        elif mode == 'auto':
+            if password and len(password) < MIN_PASSWORD_LENGTH:
+                return jsonify({'error': f'Password must be at least {MIN_PASSWORD_LENGTH} characters long'}), 400
+
+        # Pre-validation: format, magic bytes, dimensions, and size checks before acquiring lock
+        validate_image(image)
+
+        # Read dimensions directly from stream headers without reading full RGB
+        image.stream.seek(0)
+        with Image.open(image.stream) as img:
+            width, height = img.width, img.height
+            carrier_pixels = width * height
+        image.stream.seek(0)
+
+        # Check payload size against high-res operational limit
+        if text_to_hide:
+            payload_size = len(text_to_hide.encode('utf-8'))
+            validate_carrier_payload_limit(carrier_pixels, payload_size)
+        else:
+            assert file_to_hide is not None
+            validate_hideable_file(file_to_hide, carrier_pixels=carrier_pixels)
+            file_to_hide.stream.seek(0, 2)
+            payload_size = file_to_hide.stream.tell()
+            file_to_hide.stream.seek(0)
+
+        # Pre-check carrier capacity using V6 formula
+        v6_cap = calculate_v6_capacity(width, height)
+        if payload_size > v6_cap["max_raw_payload_capacity"]:
+            return jsonify({'error': SAFE_ERROR_MESSAGES['capacity']}), 400
+
+        # Concurrency protection: acquire bounded semaphore for heavy steganography encode
+        acquired = _heavy_operation_semaphore.acquire(timeout=_HEAVY_OP_TIMEOUT_SECONDS)
+        if not acquired:
+            logger.warning("Heavy operation timed out waiting for semaphore on /hide-v6")
+            return jsonify({
+                'error': 'The server is currently busy processing another heavy task. Please try again shortly.'
+            }), 503, {'Retry-After': '5'}
+
+        try:
+            upload_folder = current_app.config['UPLOAD_FOLDER']
+            os.makedirs(upload_folder, exist_ok=True)
+
+            image_filename = secure_filename(image.filename or "")
+            image_path = os.path.join(upload_folder, f"{secrets.token_hex(8)}_{image_filename}")
+            image.save(image_path)
+
+            output_filename = f"{secrets.token_urlsafe(16)}.png"
+            output_path = os.path.join(upload_folder, output_filename)
+
+            if text_to_hide:
+                info = hide_text_v6(
+                    image_path,
+                    text_to_hide,
+                    output_path,
+                    password=password,
+                    compress=True
+                )
+            else:
+                assert file_to_hide is not None
+                file_filename = _safe_upload_name(file_to_hide.filename or "")
+                file_path = os.path.join(upload_folder, f"{secrets.token_hex(8)}_{file_filename}")
+                file_to_hide.save(file_path)
+                info = hide_file_v6(
+                    image_path,
+                    file_path,
+                    output_path,
+                    password=password,
+                    original_filename=file_filename,
+                    compress=True
+                )
+
+            logger.info(f"Successfully hidden payload using V6 engine: {output_filename}")
+            return jsonify({
+                'success': True,
+                'message': 'File hidden successfully using V6 engine',
+                'download_id': output_filename,
+                'mode': 'encrypted' if password else 'plain',
+                'metadata': {
+                    'engine': 'v6',
+                    'triplets_used': info.get('triplets_used'),
+                    'rs_blocks': info.get('rs_blocks'),
+                    'mode': 'encrypted' if password else 'plain'
+                }
+            }), 200
+        finally:
+            _heavy_operation_semaphore.release()
+
+    except CapacityExceededError as e:
+        logger.error(f"V6 capacity exceeded: {str(e)}")
+        safe_error = sanitize_error(str(e), current_app.config['DEBUG'])
+        return jsonify({'error': safe_error}), 400
+    except CycleWalkingExceededError as e:
+        logger.error(f"V6 cycle walking exceeded: {str(e)}")
+        return jsonify({'error': 'Embedding failed: permutation cycle walking exceeded cutoff. Please try again with a different image.'}), 500
+    except (DowngradeAttackError, V6SteganographyError, ValueError) as e:
+        logger.error(f"V6 hide error: {str(e)}")
+        safe_error = sanitize_error(str(e), current_app.config['DEBUG'])
+        return jsonify({'error': safe_error}), 400
+    except Exception as e:
+        logger.error(f"Unexpected error in V6 hide: {str(e)}")
+        safe_error = sanitize_error('An error occurred while hiding the file', current_app.config['DEBUG'])
+        return jsonify({'error': safe_error}), 500
+    finally:
+        _remove_quietly(image_path, file_path)
+
+
+@api.route('/extract-v6', methods=['POST'])
+@limiter.limit("10 per hour", override_defaults=False)
+def extract_file_v6_endpoint():
+    """Extract a hidden file or text from an image using the InvisioVault V6 steganography engine.
+    Supports encrypted mode and plain mode. Never falls back to legacy V1–V5 engines on error.
+    """
+    image_path = None
+    try:
+        image = request.files.get('image')
+        password = request.form.get('password') or None
+        expected_mode = (request.form.get('expected_mode') or request.form.get('mode') or 'auto').strip().lower()
+
+        if not image:
+            return jsonify({'error': 'Image file is required'}), 400
+
+        if expected_mode not in ('auto', 'encrypted', 'plain'):
+            return jsonify({'error': 'Invalid expected_mode. Must be auto, encrypted, or plain'}), 400
+
+        validate_image(image, max_size=MAX_STEGO_IMAGE_SIZE)
+
+        acquired = _heavy_operation_semaphore.acquire(timeout=_HEAVY_OP_TIMEOUT_SECONDS)
+        if not acquired:
+            logger.warning("Heavy operation timed out waiting for semaphore on /extract-v6")
+            return jsonify({
+                'error': 'The server is currently busy processing another heavy task. Please try again shortly.'
+            }), 503, {'Retry-After': '5'}
+
+        try:
+            upload_folder = current_app.config['UPLOAD_FOLDER']
+            os.makedirs(upload_folder, exist_ok=True)
+
+            image_filename = secure_filename(image.filename or "")
+            image_path = os.path.join(upload_folder, f"{secrets.token_hex(8)}_{image_filename}")
+            image.save(image_path)
+
+            payload_bytes, metadata = extract_file_v6(
+                image_path,
+                password=password,
+                expected_mode=expected_mode
+            )
+
+            raw_filename = metadata.get("filename") or ("text_payload.txt" if metadata.get("file_type") == "text" else "extracted_payload.bin")
+            safe_filename = _safe_download_name(raw_filename)
+            safe_mime = "text/plain; charset=utf-8" if safe_filename.endswith(".txt") else "application/octet-stream"
+
+            logger.info(f"Successfully extracted V6 payload: {safe_filename} (size: {len(payload_bytes)} bytes)")
+
+            threshold = current_app.config.get('SMALL_OBJECT_THRESHOLD_BYTES', 1048576)
+            if len(payload_bytes) < threshold:
+                output = BytesIO(payload_bytes)
+                output.seek(0)
+                del payload_bytes
+                response = send_file(
+                    output,
+                    mimetype=safe_mime,
+                    as_attachment=True,
+                    download_name=safe_filename
+                )
+            else:
+                out_tmp_filename = f"ext_v6_{secrets.token_hex(8)}_{safe_filename}"
+                out_tmp_path = os.path.join(upload_folder, out_tmp_filename)
+                with open(out_tmp_path, "wb") as f:
+                    f.write(payload_bytes)
+                del payload_bytes
+
+                response = send_file(
+                    out_tmp_path,
+                    mimetype=safe_mime,
+                    as_attachment=True,
+                    download_name=safe_filename
+                )
+                response.direct_passthrough = False
+                response.call_on_close(lambda: _remove_quietly(out_tmp_path))
+
+            response.headers["X-InvisioVault-Engine"] = "v6"
+            response.headers["X-InvisioVault-Mode"] = metadata.get("mode", "unknown")
+            return response
+        finally:
+            _heavy_operation_semaphore.release()
+
+    except (HeaderAuthenticationError, DecryptionError):
+        logger.warning("V6 extraction authentication failed")
+        return jsonify({'error': SAFE_ERROR_MESSAGES['password']}), 400
+    except DowngradeAttackError as e:
+        logger.warning(f"V6 extraction downgrade rejected: {str(e)}")
+        return jsonify({'error': 'Carrier claims plain mode, but password was provided. Downgrade attack rejected.'}), 400
+    except (HeaderIntegrityError, ChecksumMismatchError):
+        logger.warning("V6 extraction integrity verification failed")
+        return jsonify({'error': 'Integrity check failed: corrupted stego image.'}), 400
+    except ReedSolomonDecodingError:
+        logger.warning("V6 extraction Reed-Solomon decoding failed")
+        return jsonify({'error': 'Reed-Solomon decoding failed: uncorrectable carrier corruption.'}), 400
+    except CapacityExceededError:
+        logger.warning("V6 carrier capacity exceeded or invalid")
+        return jsonify({'error': 'Carrier image too small or invalid stego image.'}), 400
+    except V6SteganographyError as e:
+        logger.error(f"V6 extraction error: {str(e)}")
+        safe_error = sanitize_error(str(e), current_app.config['DEBUG'])
+        return jsonify({'error': safe_error}), 400
+    except ValueError as e:
+        logger.error(f"V6 extraction validation error: {str(e)}")
+        safe_error = sanitize_error(str(e), current_app.config['DEBUG'])
+        return jsonify({'error': safe_error}), 400
+    except Exception as e:
+        logger.error(f"Unexpected error in V6 extract: {str(e)}")
+        safe_error = sanitize_error('An error occurred while extracting the file', current_app.config['DEBUG'])
+        return jsonify({'error': safe_error}), 500
+    finally:
+        _remove_quietly(image_path)
+
+
+
 
 
 @api.route('/polyglot/create', methods=['POST'])

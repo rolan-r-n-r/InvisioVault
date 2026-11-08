@@ -29,9 +29,14 @@ logger = logging.getLogger(__name__)
 # ── Global Pillow safety cap ─────────────────────────────────────────────────
 # Setting this converts Pillow's DecompressionBombWarning into a hard
 # DecompressionBombError for *any* image exceeding the limit, regardless
-# of which code path opens it. Configured for Render 512 MB memory safety.
-MAX_PIXEL_COUNT = int(os.getenv('MAX_PIXEL_COUNT', '25000000'))  # 25 megapixels
+# of which code path opens it. Calibrated for Render 512 MB memory safety:
+# 10 megapixels (supports full 4K UHD 3840x2160 = 8.3 MP at ~426 MB peak RSS).
+MAX_PIXEL_COUNT = int(os.getenv('MAX_PIXEL_COUNT', '10000000'))  # 10 megapixels safe ceiling for 512 MB RAM
 Image.MAX_IMAGE_PIXELS = MAX_PIXEL_COUNT
+
+# ── High-resolution carrier memory guard (Render 512 MB safety) ──────────────
+HIGH_RES_PIXEL_THRESHOLD = int(os.getenv('HIGH_RES_PIXEL_THRESHOLD', '4000000'))  # 4 megapixels threshold
+MAX_HIGH_RES_PAYLOAD_SIZE = int(os.getenv('MAX_HIGH_RES_PAYLOAD_SIZE', '1048576'))  # 1 MB (1,048,576 bytes) ceiling for carriers > 4 MP
 
 # ── File size limits (bytes) ─────────────────────────────────────────────────
 MAX_IMAGE_SIZE = 10 * 1024 * 1024       # 10 MB — carrier images (hide input)
@@ -217,7 +222,7 @@ def validate_file(
                 raise ValueError(
                     f"File size ({size_mb:.1f} MB) exceeds maximum of {max_mb:.0f} MB"
                 )
-        except (OSError, IOError):
+        except OSError:
             # If we can't determine size, log warning but allow validation
             # to continue — Flask's MAX_CONTENT_LENGTH still protects us.
             pass
@@ -255,7 +260,7 @@ def validate_image(file: FileStorage, max_size: int = MAX_IMAGE_SIZE) -> None:
     try:
         header = file.stream.read(16)
         file.stream.seek(0)
-    except (OSError, IOError) as exc:
+    except OSError as exc:
         raise ValueError(f"Could not read file header: {exc}")
 
     if len(header) < 2:
@@ -300,7 +305,7 @@ def validate_image(file: FileStorage, max_size: int = MAX_IMAGE_SIZE) -> None:
         raise  # re-raise our own pixel-count ValueError
     except Image.DecompressionBombError:
         raise ValueError(
-            f"Image dimensions exceed the maximum supported size "
+            f"Image is too large: dimensions exceed the maximum supported size "
             f"({MAX_PIXEL_COUNT // 1_000_000} megapixels). "
             f"Please use a smaller image."
         )
@@ -322,7 +327,50 @@ def validate_image(file: FileStorage, max_size: int = MAX_IMAGE_SIZE) -> None:
         file.stream.seek(0)
 
 
-def validate_hideable_file(file: FileStorage) -> None:
-    """Validate that file can be hidden in an image with size limit."""
-    validate_file(file, ALLOWED_FILE_EXTENSIONS, MAX_HIDEABLE_FILE_SIZE)
+def validate_carrier_payload_limit(carrier_pixels: int, payload_size: int) -> None:
+    """Validate that payload size does not exceed the operational memory ceiling
+    for high-resolution carriers (> 4 MP).
+
+    Args:
+        carrier_pixels: Total pixel count (width * height) of the carrier image.
+        payload_size: Size in bytes of the uploaded payload file or text.
+
+    Raises:
+        ValueError: If carrier > 4,000,000 pixels and payload exceeds 1,048,576 bytes.
+    """
+    if carrier_pixels > HIGH_RES_PIXEL_THRESHOLD and payload_size > MAX_HIGH_RES_PAYLOAD_SIZE:
+        raise ValueError(
+            f"Payload size ({payload_size / (1024 * 1024):.2f} MB) exceeds maximum operational limit "
+            f"of {MAX_HIGH_RES_PAYLOAD_SIZE // (1024 * 1024)} MB ({MAX_HIGH_RES_PAYLOAD_SIZE:,} bytes) "
+            f"for high-resolution carriers (> 4 megapixels)."
+        )
+
+
+def validate_hideable_file(file: FileStorage, carrier_pixels: Optional[int] = None) -> None:
+    """Validate that file can be hidden in an image with size limit.
+
+    If carrier_pixels is provided and exceeds HIGH_RES_PIXEL_THRESHOLD (4 MP),
+    enforces MAX_HIGH_RES_PAYLOAD_SIZE (1 MB).
+    """
+    effective_max = MAX_HIDEABLE_FILE_SIZE
+    if carrier_pixels is not None and carrier_pixels > HIGH_RES_PIXEL_THRESHOLD:
+        effective_max = MAX_HIGH_RES_PAYLOAD_SIZE
+
+    try:
+        validate_file(file, ALLOWED_FILE_EXTENSIONS, effective_max)
+    except ValueError as exc:
+        if carrier_pixels is not None and carrier_pixels > HIGH_RES_PIXEL_THRESHOLD and "exceeds maximum of" in str(exc):
+            try:
+                current_pos = file.stream.tell()
+                file.stream.seek(0, 2)
+                actual_size = file.stream.tell()
+                file.stream.seek(current_pos)
+            except OSError:
+                actual_size = effective_max
+            raise ValueError(
+                f"Payload size ({actual_size / (1024 * 1024):.2f} MB) exceeds maximum operational limit "
+                f"of {MAX_HIGH_RES_PAYLOAD_SIZE // (1024 * 1024)} MB ({MAX_HIGH_RES_PAYLOAD_SIZE:,} bytes) "
+                f"for high-resolution carriers (> 4 megapixels)."
+            ) from exc
+        raise
 

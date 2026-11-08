@@ -18,12 +18,28 @@ bind = f"0.0.0.0:{os.getenv('PORT', '10000')}"
 # Worker model
 # ---------------------------------------------------------------------------
 # Sync workers are the correct default for CPU-bound Flask workloads.
-# 1 worker keeps RAM under Render's 512 MB free-tier limit.
-workers = 1
+# Strictly 1 worker and 1 thread keeps RAM under Render's 512 MB free-tier limit.
+# Hard-pinned to 1 worker and 1 thread to prevent multiple carrier allocations
+# and concurrent multipart request parsing from exhausting container memory.
+# Defensive parsing: handles missing, malformed, zero, negative, or excessive values.
+def _get_worker_count() -> int:
+    raw = os.getenv("WEB_CONCURRENCY", "1")
+    try:
+        val = int(raw.strip() if isinstance(raw, str) else raw)
+        return 1
+    except (ValueError, TypeError, AttributeError):
+        return 1
 
-# Two threads within the single worker handle overlapping I/O (e.g. health
-# probes arriving while a file-hide operation is in progress).
-threads = 2
+workers = _get_worker_count()
+
+# Single worker and single thread strictly enforced for the 512 MiB container envelope.
+# FIND-VAL-01 Remediation: A single thread prevents concurrent Werkzeug multipart request
+# parsing before acquiring the application semaphore. Subsequent requests queue safely
+# in the OS listen backlog rather than consuming heap memory simultaneously.
+threads = 1
+
+# Explicit TCP listen backlog queue depth.
+backlog = 2048
 
 # Defensive worker recycling to prevent subtle C-extension heap fragmentation
 # over long runtimes in Render's 512 MB container.

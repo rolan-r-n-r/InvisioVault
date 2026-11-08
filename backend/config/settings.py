@@ -76,7 +76,9 @@ class Config:
     _env_max_content = int(os.getenv('MAX_CONTENT_LENGTH', str(50 * 1024 * 1024)))
     MAX_CONTENT_LENGTH = min(_env_max_content, 100 * 1024 * 1024)  # 50 MB default, capped at 100 MB guard
     SMALL_OBJECT_THRESHOLD_BYTES = int(os.getenv('SMALL_OBJECT_THRESHOLD_BYTES', '1048576'))  # 1 MB
-    MAX_PIXEL_COUNT = int(os.getenv('MAX_PIXEL_COUNT', '25000000'))  # 25 megapixels
+    MAX_PIXEL_COUNT = int(os.getenv('MAX_PIXEL_COUNT', '10000000'))  # 10 megapixels (512 MB RAM ceiling)
+    HIGH_RES_PIXEL_THRESHOLD = int(os.getenv('HIGH_RES_PIXEL_THRESHOLD', '4000000'))  # 4 megapixels threshold
+    MAX_HIGH_RES_PAYLOAD_SIZE = int(os.getenv('MAX_HIGH_RES_PAYLOAD_SIZE', '1048576'))  # 1 MB operational ceiling for carriers > 4 MP
 
     # QR steganography: verify every generated image before returning it.
     # Disable only for offline diagnostics; never in production.
