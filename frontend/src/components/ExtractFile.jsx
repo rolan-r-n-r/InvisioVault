@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { CheckCircle2, Download, Lock, Info, Copy, Check, Eye, EyeOff } from 'lucide-react'
+import { useState, useMemo } from 'react'
+import { CheckCircle2, Download, Lock, Info, Copy, Check, Eye, EyeOff, Cpu } from 'lucide-react'
 import axios from 'axios'
 import './ExtractFile.css'
 import API_URL from '../config/api'
@@ -15,6 +15,7 @@ const STEPS = [
 ]
 
 function ExtractFile() {
+  const [extractedEngine, setExtractedEngine] = useState('')
   const [image, setImage] = useState(null)
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -22,6 +23,7 @@ function ExtractFile() {
   const [error, setError] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
   const [extractedText, setExtractedText] = useState('')
+  const [extractedBlob, setExtractedBlob] = useState(null)
   const [extractedFilename, setExtractedFilename] = useState('')
   const [copied, setCopied] = useState(false)
 
@@ -57,6 +59,9 @@ function ExtractFile() {
         responseType: 'blob'
       })
 
+      const engineHeader = response.headers['x-invisiovault-engine'] || ''
+      setExtractedEngine(engineHeader)
+
       // Get filename from Content-Disposition header
       const contentDisposition = response.headers['content-disposition']
       let filename = 'extracted_file.bin' // Default fallback with extension
@@ -71,9 +76,16 @@ function ExtractFile() {
 
       // Check if it's a text file
       if (filename.endsWith('.txt')) {
-        // Display text content instead of downloading
-        const text = await response.data.text()
-        setExtractedText(text)
+        setExtractedBlob(response.data)
+        const isVeryLarge = response.data.size > 100 * 1024
+        if (isVeryLarge) {
+          const slice = response.data.slice(0, 50 * 1024)
+          const previewText = await slice.text()
+          setExtractedText(previewText + '\n\n... [File exceeds 100 KB. Preview truncated to avoid browser lag. Click "Download as Text File" below for full content.]')
+        } else {
+          const text = await response.data.text()
+          setExtractedText(text)
+        }
         setExtractedFilename(filename)
       } else {
         // Download non-text files
@@ -85,7 +97,8 @@ function ExtractFile() {
         link.click()
         link.remove()
         window.URL.revokeObjectURL(url)
-        setSuccessMessage(`"${filename}" extracted and downloaded successfully!`)
+        const engineLabel = engineHeader ? ` (${engineHeader.toUpperCase()})` : ''
+        setSuccessMessage(`"${filename}" extracted${engineLabel} and downloaded successfully!`)
         setTimeout(() => setSuccessMessage(''), 4000)
       }
 
@@ -101,7 +114,7 @@ function ExtractFile() {
   }
 
   const handleDownloadText = () => {
-    const blob = new Blob([extractedText], { type: 'text/plain' })
+    const blob = extractedBlob || new Blob([extractedText], { type: 'text/plain' })
     const url = window.URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
@@ -134,12 +147,13 @@ function ExtractFile() {
   const charCount = extractedText ? extractedText.length : 0
   const wordCount = extractedText ? extractedText.trim().split(/\s+/).filter(Boolean).length : 0
 
-  const processingStages = [
-    'Reading carrier image headers...',
-    'Scanning LSB pixel bitstream...',
-    password ? 'Decrypting payload with password...' : 'Unpacking bitstream...',
-    'Extracting payload content...'
-  ]
+  const processingStages = useMemo(() => [
+    'Reading carrier image structure...',
+    'Detecting steganography engine and carrier format...',
+    password ? 'Authenticating and decrypting payload...' : 'Verifying payload integrity...',
+    'Decoding bitstream and reconstructing content...',
+    'Finalizing extracted output...'
+  ], [password])
 
   return (
     <div className="extract-file">
@@ -159,6 +173,11 @@ function ExtractFile() {
               <span>Text Extracted Successfully!</span>
             </h3>
             <div className="text-badges">
+              {extractedEngine && (
+                <span className="text-badge engine-detected-tag">
+                  {extractedEngine.toUpperCase()} ENGINE
+                </span>
+              )}
               <span className="text-badge">{charCount} chars</span>
               <span className="text-badge">{wordCount} words</span>
             </div>
@@ -200,6 +219,8 @@ function ExtractFile() {
               onClick={() => {
                 setExtractedText('')
                 setExtractedFilename('')
+                setExtractedBlob(null)
+                setExtractedEngine('')
               }}
               className="new-button"
             >
@@ -209,21 +230,27 @@ function ExtractFile() {
         </div>
       ) : (
         <form onSubmit={handleSubmit} aria-describedby={error ? 'extract-error-msg' : undefined}>
+          {/* Automatic Engine Detection Note */}
+          <div className="extract-engine-notice" role="status">
+            <span className="auto-detect-dot" aria-hidden="true"></span>
+            <span>Engine & format detected automatically (V1–V6 supported)</span>
+          </div>
+
           <FileDropzone
             id="extract-image-input"
-            label="Select Stego Image (PNG, JPG, JPEG, BMP)"
+            label="Select Stego Image (Lossless PNG)"
             accept="image/png,image/jpeg,image/bmp"
             file={image}
             onFileSelect={(f) => { setImage(f); setError(''); }}
             onClear={() => setImage(null)}
-            helperText="Drag & drop or browse the carrier image containing the secret"
+            helperText="Drag & drop or browse the stego image (PNG required; lossy JPEG compression destroys hidden data)"
             required
             disabled={loading}
           />
 
           <div className="form-group">
             <label htmlFor="extract-password-input" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-              <span>Password (Optional)</span>
+              <span>Password (Optional — leave empty if unencrypted)</span>
               <Lock size={14} style={{ opacity: 0.7 }} aria-hidden="true" />
             </label>
             <div className="password-input-wrapper">

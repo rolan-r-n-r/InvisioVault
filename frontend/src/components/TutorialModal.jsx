@@ -22,14 +22,14 @@ const TABS = [
 
 const STEGO_HIDE_STEPS = [
   { num: 1, title: 'Select Cover Image', desc: 'Pick a PNG, JPG, or BMP image — this will be the innocent-looking carrier of your hidden data.' },
-  { num: 2, title: 'Choose Secret File', desc: 'Select any file you want to conceal inside the cover image.' },
-  { num: 3, title: 'Set a Password', desc: 'Optionally add a password to encrypt your hidden data for an extra layer of security.' },
+  { num: 2, title: 'Choose Secret File', desc: 'Select any file or enter text you want to conceal inside the cover image.' },
+  { num: 3, title: 'Select Encryption Mode', desc: 'Choose Encrypted Mode (min. 8-character password for authenticated Fernet encryption) or Plain Mode (verified with CRC-32 integrity without a password).' },
   { num: 4, title: 'Hide & Download', desc: 'Click "Hide File" to generate the steganographic image, then download it. It looks completely normal!' },
 ]
 
 const STEGO_EXTRACT_STEPS = [
-  { num: 1, title: 'Upload Stego Image', desc: 'Select the steganographic image that contains the hidden file.' },
-  { num: 2, title: 'Enter Password', desc: 'Provide the password if one was used during the hiding process.' },
+  { num: 1, title: 'Upload Stego Image', desc: 'Select any InvisioVault carrier image. The engine automatically detects whether it uses V6 or a legacy format (V1–V5).' },
+  { num: 2, title: 'Enter Password', desc: 'Provide the password if the carrier was created in Encrypted Mode. If Plain Mode was used, no password is needed.' },
   { num: 3, title: 'Extract & Download', desc: 'Click "Extract File" to retrieve and download your hidden data.' },
 ]
 
