@@ -26,42 +26,176 @@ InvisioVault is engineered as a zero-retention, decoupled system consisting of a
 │                Stateless Backend Service (Render 512 MB)                │
 │  ├─ Gunicorn Master + Sync Worker + post_fork Cleanup Thread            │
 │  ├─ Global Concurrency Semaphore (_heavy_operation_semaphore: 1)       │
-│  └─ Flask REST API Router (14 Endpoints)                                │
+│  └─ Flask REST API Router (17 Endpoints)                                │
 └───────────────────┬───────────────────┬───────────────────┬─────────────┘
                     │                   │                   │
                     ▼                   ▼                   ▼
 ┌───────────────────────┐ ┌───────────────────────┐ ┌─────────────────────┐
 │ Steganography Engine  │ │Universal Polyglot Eng.│ │  QR Stego Engine    │
-│├─ Sobel Edge Texture  │ │├─ Dual-Parser Verify  │ │├─ Visual Masking    │
-│├─ LSB Matching (±1)   │ │├─ ZIP CDFH/EOCD Parse │ │├─ Stream Fragment   │
-│├─ Reed-Solomon ECC    │ │└─ Binary mmap Patch   │ │└─ zxing-cpp Decode  │
-│└─ Feistel Permutation │ └───────────┬───────────┘ └──────────┬──────────┘
+│├─ V6 Matrix (3,2)     │ │├─ Dual-Parser Verify  │ │├─ Visual Masking    │
+│├─ 10-Round Feistel    │ │├─ ZIP CDFH/EOCD Parse │ │├─ Stream Fragment   │
+│├─ Interleaved RS ECC  │ │└─ Binary mmap Patch   │ │└─ zxing-cpp Decode  │
+│├─ Auto-Detection V1-V6│ └───────────┬───────────┘ └──────────┬──────────┘
+│└─ Legacy V1-V5 Decoders             │                        │
 └───────────┬───────────┘             │                        │
             │                         │                        │
             └─────────────────────────┼────────────────────────┘
                                       ▼
                     ┌───────────────────────────────────┐
                     │       Crypto Core Subsystem       │
-                    │  ├─ PBKDF2-HMAC-SHA256 (480k)     │
-                    │  └─ Fernet (AES-128-CBC + HMAC)   │
+                    │  ├─ PBKDF2-HMAC-SHA256 (600k/480k)│
+                    │  ├─ Two-Tier HKDF Key Separation  │
+                    │  ├─ Fernet (AES-128-CBC + HMAC)   │
+                    │  └─ SHA-256 / CRC-32 Integrity    │
                     └───────────────────────────────────┘
 ```
 
 ---
 
-## 2. Steganography Engine: LSB Matching, Edge Guidance & Wire Formats
+## 2. Steganography Engine: V6 Advanced Architecture & Multi-Engine Dispatch
 
-Traditional Least Significant Bit (LSB) steganography simply overwrites the lowest bit of pixel color channels with payload bits. This creates a statistical imbalance known as the **Asymmetric PoV (Pairs of Values) effect**, which can be easily detected by $\chi^2$ (Chi-square) steganalysis.
+InvisioVault features a multi-generational steganographic engine architecture:
+1. **V6 Advanced Engine (Primary Writer):** The default and exclusive embedding engine for all new hiding operations. Employs Matrix (3,2) coset syndrome coding, 10-round balanced Feistel permutation, interleaved Reed-Solomon RS(255, 223), and 57-byte authenticated headers.
+2. **Legacy Engines (V1–V5 Extraction Support):** Fully preserved decoders enabling automatic backward-compatible recovery of legacy carrier files without requiring manual engine selection.
 
-InvisioVault mitigates this via **Detection-Resistant LSB Matching (±1 adjustment)**, **Sobel Edge Texture Guidance**, and **Differential Reed-Solomon Error Correction**.
+---
 
-### 2.1 Wire Format Specifications
+### 2.1 InvisioVault V6 Engine Architecture (Primary Writer)
 
-InvisioVault uses structured binary packaging embedded directly into the pixel bitstream.
+InvisioVault V6 is engineered for maximum detection resistance, robust channel error correction, and cryptographic authentication in lossless raster images (PNG).
 
-#### Wire Format v4 (Current Production Writer: Fast Adaptive)
-All v4 payloads begin with an unencrypted sequential header, followed by a pseudo-randomly permuted payload.
+```text
+[Plaintext Payload]
+        │
+        ▼ (Optional zlib Level 9)
+[Compressed Payload]
+        │
+        ▼ (Metadata JSON Framing)
+[Serialized Message Stream]
+        │
+        ├──► Encrypted Mode: Fernet AEAD (AES-128-CBC + HMAC-SHA256) ──► Raw Binary Token
+        └──► Plain Mode: Prefix 4-byte CRC-32 Checksum ────────────────► Raw Plain Stream
+        │
+        ▼ (Pad to multiple of 223 bytes)
+[Pre-RS Byte Stream]
+        │
+        ▼ (Reed-Solomon RS(255, 223) Encoding)
+[Codeword Stream: N x 255 bytes]
+        │
+        ▼ (Dynamic Group Interleaving, K=4)
+[Interleaved Byte Stream]
+        │
+        ▼ (Bit Serialization: 2 bits per symbol)
+[Matrix (3,2) Coset Encoder] ◄─── Channel Coordinates from 10-Round Feistel Permutation
+        │
+        ▼ (LSB Modification on 3-channel groups)
+[Lossless Stego PNG]
+```
 
+#### Core Technological Pillars:
+
+1. **Matrix (3, 2) Coset Syndrome Coding:**
+   Embeds 2 message bits into every 3 carrier channels with at most 1 bit modification using the linear parity-check matrix:
+   $$H = \begin{pmatrix} 1 & 0 & 1 \\ 0 & 1 & 1 \end{pmatrix}$$
+   For carrier channel LSBs $(c_1, c_2, c_3)$ and target bits $m = (m_1, m_2)^T$, the syndrome difference $d = m \oplus Hc$ maps deterministically to a minimal coset leader with at most 1 bit flip:
+   - $d = (0, 0)^T \implies$ no flips
+   - $d = (1, 0)^T \implies$ flip $c_1$
+   - $d = (0, 1)^T \implies$ flip $c_2$
+   - $d = (1, 1)^T \implies$ flip $c_3$
+
+   Average bit flips per 2 bits: $\frac{0 + 1 + 1 + 1}{4} = 0.75$ flips ($0.375$ flips/bit). This achieves a strict **25.00% reduction in carrier modifications** compared to standard LSB replacement ($0.50$ flips/bit), substantially diminishing statistical detectability.
+
+2. **10-Round Balanced Feistel Channel Permutation:**
+   Disperses payload bits pseudorandomly across carrier pixel coordinates using an in-memory 10-round Feistel network with precomputed AES-256-CTR round tables. The table lookup requires only 160 KiB of RAM (at maximum block size $k=13$), residing entirely within the host CPU's L2 cache for microsecond-level coordinate mapping.
+
+3. **Cycle Walking Domain Restriction & Runtime Guard:**
+   Restricts the power-of-two Feistel block cipher onto arbitrary carrier channel triplet domains $\{0, \dots, M_{\text{triplets}}-1\}$ with proven bijectivity and zero collisions. While cycle walking on a finite bijection terminates with probability 1, the engine enforces a defensive runtime guard of `MAX_CYCLE_WALK_ITERATIONS = 100` to prevent latency anomalies. If any coordinate slot exceeds 100 iterations during embedding, the engine draws a fresh 16-byte random salt and retries (up to 5 attempts); during extraction, exceeding the guard safely terminates with `CycleWalkingExceededError`.
+
+4. **Dynamic-Group Interleaved Reed-Solomon RS(255, 223):**
+   Employs dynamic-group block interleaving with depth $K = 4$ over $\text{GF}(2^8)$ with primitive polynomial $0\text{x}11\text{D}$. Each 255-byte codeword can correct up to 16 symbol errors, and $K=4$ interleaving tolerates localized burst corruptions of up to 64 contiguous bytes without data loss.
+
+5. **Two-Tier HKDF Key Separation:**
+   In Encrypted Mode, user passphrases derive a 32-byte master key using **PBKDF2-HMAC-SHA256** with **600,000 iterations** (OWASP 2023+ recommendation) and a 16-byte cryptographically secure random salt (`os.urandom(16)`). From this master key, independent subkeys are derived via **HKDF-Expand (RFC 5869)**:
+   - Header authentication subkey: `K_auth` (HMAC-SHA256)
+   - Payload encryption subkey: `K_enc` (Fernet AES-128-CBC)
+   - Permutation root subkey: `K_perm_root` (Feistel round keys and IVs)
+
+6. **Canonical 57-Byte Authenticated Header Wire Format:**
+   Sequential embedding into carrier channels $0 \dots 455$ using standard LSB replacement:
+
+   | Byte Offset | Field Name | Data Type | Permitted Values | Description |
+   | :---: | :--- | :--- | :--- | :--- |
+   | `0x00 - 0x01` | `magic` | `bytes[2]` | `b"\xFF\x06"` | InvisioVault V6 protocol identifier |
+   | `0x02` | `mode` | `uint8` | `0x40` (Plain), `0x41` (Encrypted) | Operational mode flag |
+   | `0x03` | `interleave_k` | `uint8` | `4` (`1, 2, 4, 8, 16` supported) | Dynamic Reed-Solomon interleaving depth |
+   | `0x04` | `reserved` | `uint8` | `0x00` | Reserved for future expansion (must be 0) |
+   | `0x05 - 0x14` | `salt` | `bytes[16]` | 16 random bytes | Carrier salt from `os.urandom(16)` |
+   | `0x15 - 0x18` | `raw_payload_len`| `uint32_be`| $1 \le L_{\text{raw}} \le \text{MaxCapacity}$ | Exact original unpadded raw payload length |
+   | `0x19 - 0x38` | `auth_tag` | `bytes[32]` | 32-byte hash / MAC | HMAC-SHA256 (Encrypted) or SHA-256 (Plain) |
+   | **Total** | | | | **57 Bytes** ($456\text{ channels}$) |
+
+7. **Dual Operational Modes:**
+   - **Encrypted Mode (`0x41`):** Requires password. Payload is encrypted with Fernet (AES-128-CBC + HMAC-SHA256). Header `auth_tag` is an HMAC-SHA256 computed over header fields $0\text{x}00 \dots 0\text{x}18$.
+   - **Plain Mode (`0x40`):** No password required. Payload is framed with a 4-byte CRC-32 checksum. Header `auth_tag` is a SHA-256 digest computed over the salt, payload length, and raw payload data for tamper detection.
+
+8. **Anti-Downgrade & Strict Security Validation:**
+   The extractor strictly enforces mode consistency: providing a password for a plain-mode carrier is rejected as an intentional downgrade attack (`400 Bad Request`), and header authentication failure immediately aborts processing before parsing payload bytes.
+
+9. **Capacity Equations:**
+   - Available payload channels: $M_{\text{payload}} = M - 456$, where $M = H \times W \times 3$.
+   - Available channel triplets: $M_{\text{triplets}} = \lfloor M_{\text{payload}} / 3 \rfloor$.
+   - Maximum encoded capacity: $C_{\text{encoded}} = \lfloor (M_{\text{triplets}} \times 2) / 8 \rfloor$ bytes.
+   - Maximum RS blocks: $N_{\text{blocks}} = \lfloor C_{\text{encoded}} / 255 \rfloor$.
+   - Maximum raw payload budget: $C_{\text{raw}} = N_{\text{blocks}} \times 223$ bytes.
+
+*For complete mathematical proofs, encoding tables, and reference implementations, see [docs/V6_SPECIFICATION.md](file:///c:/Users/rolan/Desktop/RNR/InvisioVault/InvisioVault/docs/V6_SPECIFICATION.md).*
+
+---
+
+### 2.2 Universal Extraction Dispatch & Automatic Engine Detection
+
+InvisioVault's unified extraction endpoint (`POST /api/extract`) does not require the user to specify which engine was used to generate the carrier. Instead, the backend automatically detects the embedded format by inspecting the carrier's initial least-significant bits:
+
+```text
+                       ┌────────────────────────┐
+                       │ Steganographic Carrier │
+                       └───────────┬────────────┘
+                                   │
+                      detect_stego_engine(image)
+                                   │
+              ┌────────────────────┴────────────────────┐
+              ▼                                         ▼
+    Header == b"\xFF\x06"                      Legacy Formats (V1–V5)
+              │                                         │
+              ▼                                         ▼
+      extract_file_v6()                       extract_file_from_image()
+ (Matrix coset + Feistel)                     (Adaptive LSB / Edge)
+              │                                         │
+   ┌──────────┴──────────┐                              │
+Success               Failure                           │
+   │                     │                              │
+HTTP 200              HTTP 400                          │
+(X-Engine: v6)   (ZERO fallback to legacy)              │
+                         │                              │
+                         └──────────────┬───────────────┘
+                                        ▼
+                            Client Response & Download
+```
+
+#### Format Detection Mechanism (`detect_stego_engine`):
+1. The extractor reads the first 2 bytes from carrier LSBs.
+2. If the first 2 bytes equal `0xFF 0x06`, the carrier is identified as **V6**.
+3. If the first 2 bytes equal `0xFF 0x02`, the extractor inspects flag bits to identify **V5**, **V4**, or **V3**.
+4. If no magic bytes match, legacy header structures determine **V2** or **V1**.
+5. **Zero-Fallback Guarantee:** If V6 extraction fails (due to wrong password, corrupted carrier, or altered header), the extractor aborts with a 400 error immediately. It **never falls back to legacy engines**, preventing downgrade attacks and misleading error messages.
+
+---
+
+### 2.3 Legacy Wire Formats (V1–V5 Extraction Compatibility)
+
+InvisioVault preserves full extraction compatibility for carriers generated by earlier versions:
+
+#### Wire Format v4 / v5 (Legacy Fast Adaptive Writer)
 ```
 ┌─────────────────┬───────────────────┬───────────────┬───────────────────────────┐
 │ MAGIC (2 Bytes) │ Password Flag (1B)│ Salt (16 B)   │ Metadata Length (4B, BE)  │
@@ -74,47 +208,18 @@ All v4 payloads begin with an unencrypted sequential header, followed by a pseud
 └─────────────────┴───────────────────┴───────────────────────────────────────────┘
 ```
 
-#### Supported Flag Bitmasks:
-- `0x20` (`_FLAG_PLAIN_FAST`): Plain, compressed + Reed-Solomon ECC, fast adaptive embed with stored threshold (Current Writer).
-- `0x21` (`_FLAG_ENC_ONLY_FAST`): Password protected (Fernet authenticated AES-128-CBC + HMAC), compressed + ECC, fast adaptive embed (Current Writer).
-- `0x10`, `0x11`, `0x12`: Legacy v3 adaptive formats with stored threshold (fully supported for extraction).
-- `0x00`, `0x01`, `0x03`, `0x04`, `0x05`, `0x06`: Legacy v1/v2 sequential and random formats (fully supported for extraction).
+#### Legacy Flag Bitmasks:
+- `0x20` (`_FLAG_PLAIN_FAST`): Plain, compressed + Reed-Solomon ECC, fast adaptive embed with stored threshold (v4/v5).
+- `0x21` (`_FLAG_ENC_ONLY_FAST`): Password protected (Fernet AES-128-CBC + HMAC, PBKDF2 480k), compressed + ECC (v4/v5).
+- `0x10`, `0x11`, `0x12`: Legacy v3 adaptive formats with stored threshold.
+- `0x00`, `0x01`, `0x03`, `0x04`, `0x05`, `0x06`: Legacy v1/v2 sequential and random formats.
+
+#### Sobel Edge Guidance & LSB Matching (Legacy Feature):
+In legacy v4/v5 engines, a $3 \times 3$ Sobel filter convolution identifies high-frequency luminance edge pixels ($G(x, y) \ge T$), and $\pm 1$ randomized LSB matching avoids parity skew. These algorithms remain fully operational within the extraction subsystem.
 
 ---
 
-### 2.2 Sobel Edge Texture Guidance
-
-Steganographic embedding is least perceptible to the human eye in high-frequency, complex textures (edges, foliage, hair, grain) and most noticeable in smooth, flat gradients (sky, skin).
-
-InvisioVault applies a **$3 \times 3$ Sobel filter convolution** across the carrier image's luminance channel:
-
-$$G_x = \begin{bmatrix} -1 & 0 & +1 \\ -2 & 0 & +2 \\ -1 & 0 & +1 \end{bmatrix} * I, \quad G_y = \begin{bmatrix} +1 & +2 & +1 \\ 0 & 0 & 0 \\ -1 & -2 & -1 \end{bmatrix} * I$$
-
-$$G = \sqrt{G_x^2 + G_y^2}$$
-
-1. An edge gradient magnitude map $G(x, y)$ is computed.
-2. A binary search determines the optimal gradient threshold $T$ such that the number of eligible edge pixels ($G(x, y) \ge T$) exactly accommodates the payload plus error correction overhead.
-3. The selected threshold $T$ is stored as a single byte in the header, allowing the extractor to reconstruct the identical pixel eligibility map without re-running optimization.
-
----
-
-### 2.3 LSB Matching (±1 Randomization)
-
-Instead of setting the target bit directly ($b_{target} = bit$), LSB matching inspects the current pixel byte $P$:
-
-$$\text{If } (P \pmod 2) \ne bit: \quad P' = \begin{cases} P + 1 & \text{with probability } 0.5 \\ P - 1 & \text{with probability } 0.5 \end{cases}$$
-
-Boundary cases ($P = 0$ and $P = 255$) are clamped. This random drift eliminates the artificial flattening of histogram pairs of values, blinding classic statistical detectors.
-
----
-
-### 2.4 Pixel Dispersion via CSPRNG Feistel Permutation
-
-To prevent localized clusters of modified pixels (which form visible artifacts), pixel locations are scattered across all eligible edge coordinates using a pseudo-random permutation generated by a **Feistel network** keyed by the 16-byte cryptographic salt.
-
----
-
-### 2.5 ⚠️ CRITICAL LIMITATION: Carrier Degradation & Lossy Compression
+### 2.4 ⚠️ CRITICAL LIMITATION: Carrier Degradation & Lossy Compression
 
 > [!WARNING]
 > **LSB Steganography CANNOT survive lossy image compression!**
@@ -128,8 +233,6 @@ To prevent localized clusters of modified pixels (which form visible artifacts),
 > 2. Prefer lossless formats: **PNG** or **BMP**. While JPEG can serve as a carrier in InvisioVault, it must remain bit-for-bit unchanged post-embedding.
 
 ---
-
-## 3. Universal Polyglot Engine: Dual-Parser Format Concatenation
 
 A polyglot file simultaneously satisfies two distinct file format parsers without error.
 

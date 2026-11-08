@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: InvisioVault REST API
   description: |
-    Production REST API for InvisioVault: secure file hiding via edge-guided LSB steganography, universal polyglot generation, and stealth QR code embedding.
+    Production REST API for InvisioVault: secure file hiding via V6 Matrix (3,2) coset steganography with 10-round Feistel permutation, interleaved Reed-Solomon RS(255, 223), automatic multi-engine carrier extraction (V1–V6), universal polyglot generation, and stealth QR code embedding.
   version: 2.0.1
   contact:
     name: Rolan (RNR)
@@ -38,10 +38,232 @@ paths:
                     type: string
                     example: InvisioVault API is running
 
+  /calculate-capacity-v6:
+    post:
+      summary: Calculate V6 Steganographic Capacity
+      description: Computes exact raw payload capacity, pre-RS stream budget, RS block counts, and available triplets under V6 Matrix (3,2) coset coding from carrier image header metadata without full image decoding.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - image
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: Carrier image (PNG, JPG, BMP)
+      responses:
+        '200':
+          description: Calculated V6 capacity metrics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalCapacityBytes:
+                    type: integer
+                    example: 1382400
+                  totalCapacityFormatted:
+                    type: string
+                    example: 1.32 MB
+                  engine:
+                    type: string
+                    example: v6
+                  v6_details:
+                    type: object
+                    properties:
+                      carrier_pixels:
+                        type: integer
+                        example: 2073600
+                      available_channels:
+                        type: integer
+                        example: 6220344
+                      available_triplets:
+                        type: integer
+                        example: 2073448
+                      max_raw_payload_capacity:
+                        type: integer
+                        example: 432360
+                      rs_block_count:
+                        type: integer
+                        example: 1938
+                      interleave_k:
+                        type: integer
+                        example: 4
+        '400':
+          description: Invalid image or missing file
+
+  /hide-v6:
+    post:
+      summary: Hide File in Image (V6 Advanced Steganography)
+      description: Conceals a file or text payload into carrier image pixels using Matrix (3,2) coset syndrome coding, 10-round balanced Feistel channel permutation, dynamic-group interleaved Reed-Solomon RS(255, 223), and 57-byte authenticated headers. Supports Encrypted Mode (PBKDF2 600k + Fernet) and Plain Mode (CRC-32 + SHA-256 integrity).
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - image
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: Host carrier image (PNG, JPG, BMP). Max 10 MB, up to 10 megapixels.
+                file:
+                  type: string
+                  format: binary
+                  description: File payload to conceal. Max 50 MB (1 MB operational ceiling for carriers > 4 MP).
+                text:
+                  type: string
+                  description: Plain text payload to conceal (if file is omitted).
+                mode:
+                  type: string
+                  enum: [encrypted, plain, auto]
+                  default: encrypted
+                  description: Operating mode. Encrypted requires password; Plain prohibits password.
+                password:
+                  type: string
+                  minLength: 8
+                  description: Passphrase for PBKDF2 (600,000 iter) key derivation in encrypted mode. Strictly prohibited in plain mode.
+      responses:
+        '200':
+          description: Payload embedded successfully using V6 engine
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: File hidden successfully using V6 engine
+                  download_id:
+                    type: string
+                    example: 9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d.png
+                  mode:
+                    type: string
+                    example: encrypted
+                  metadata:
+                    type: object
+                    properties:
+                      engine:
+                        type: string
+                        example: v6
+                      triplets_used:
+                        type: integer
+                        example: 15420
+                      rs_blocks:
+                        type: integer
+                        example: 15
+                      mode:
+                        type: string
+                        example: encrypted
+        '400':
+          description: Validation error, password mismatch, or payload exceeds capacity
+
+  /extract-v6:
+    post:
+      summary: Extract File from V6 Stego Image
+      description: Dedicated V6 extraction endpoint. Performs Feistel coordinate inversion, Reed-Solomon de-interleaving, CRC-32 / Fernet authentication, and mode-downgrade prevention.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - image
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: Stego image containing V6 payload.
+                password:
+                  type: string
+                  description: Passphrase (required if carrier was embedded in encrypted mode).
+                mode:
+                  type: string
+                  enum: [auto, encrypted, plain]
+                  default: auto
+                  description: Expected mode.
+      responses:
+        '200':
+          description: Extracted file stream
+          headers:
+            Content-Disposition:
+              schema:
+                type: string
+                example: attachment; filename="confidential.pdf"
+            X-InvisioVault-Engine:
+              schema:
+                type: string
+                example: v6
+            X-InvisioVault-Mode:
+              schema:
+                type: string
+                example: encrypted
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Extraction error, incorrect password, or corrupted carrier
+
+  /extract:
+    post:
+      summary: Extract File from Stego Image (Automatic Multi-Engine Detection)
+      description: Universal extraction endpoint. Automatically inspects initial carrier channel LSBs (`detect_stego_engine`) to identify the embedding engine (V6 or legacy V1–V5) and dispatches accordingly without manual version selection. Strictly prevents fallback from V6 to legacy engines upon failure.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - image
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: Steganographic carrier image (PNG, JPG, BMP). Max 50 MB.
+                password:
+                  type: string
+                  description: Passphrase (required if carrier was encrypted; rejected if V6 plain).
+      responses:
+        '200':
+          description: Extracted secret file stream
+          headers:
+            Content-Disposition:
+              schema:
+                type: string
+                example: attachment; filename="secret.txt"
+            X-InvisioVault-Engine:
+              schema:
+                type: string
+                example: v6
+            X-InvisioVault-Mode:
+              schema:
+                type: string
+                example: encrypted
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Extraction failed, invalid password, or corrupted carrier
+
   /calculate-capacity:
     post:
-      summary: Calculate Steganographic Capacity
-      description: Reads image dimensions directly from file headers to compute available LSB byte capacity without full image decoding.
+      summary: Calculate Steganographic Capacity (Legacy)
+      description: Legacy endpoint. Reads image dimensions directly from file headers to compute available LSB byte capacity under the legacy V4/V5 model.
       requestBody:
         required: true
         content:
@@ -74,8 +296,9 @@ paths:
 
   /hide:
     post:
-      summary: Hide File in Image (LSB Steganography)
-      description: Encodes a file or text payload into carrier image pixels using Sobel edge guidance, Reed-Solomon ECC, and optional Fernet encryption.
+      summary: Hide File in Image (Legacy LSB Steganography)
+      description: Legacy embedding endpoint preserved for backward compatibility. Encodes a payload into carrier pixels using Sobel edge guidance, Reed-Solomon ECC, and PBKDF2 (480k) + Fernet encryption.
+      deprecated: true
       requestBody:
         required: true
         content:
@@ -133,33 +356,6 @@ paths:
           description: Processed steganographic image file stream
           content:
             image/png:
-              schema:
-                type: string
-                format: binary
-
-  /extract:
-    post:
-      summary: Extract File from Stego Image
-      description: Recovers and decrypts hidden payloads embedded inside steganographic carrier images.
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              required:
-                - image
-              properties:
-                image:
-                  type: string
-                  format: binary
-                password:
-                  type: string
-      responses:
-        '200':
-          description: Extracted file stream
-          content:
-            application/octet-stream:
               schema:
                 type: string
                 format: binary

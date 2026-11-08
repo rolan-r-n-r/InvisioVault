@@ -94,29 +94,128 @@ curl -X POST https://invisiovault-backend.onrender.com/api/calculate-capacity \
 
 ## 2. Image Steganography Endpoints
 
-### `POST /api/hide`
-Embeds a secret file or text into an image carrier using Sobel edge guidance, Reed-Solomon ECC, and optional Fernet encryption. Enforced with a bounded semaphore (`_heavy_operation_semaphore`) to prevent memory spikes.
+InvisioVault uses **V6** as its canonical primary steganography engine for all new embedding operations. Legacy engines (V1–V5) remain fully supported internally for backward-compatible extraction.
+
+---
+
+### `POST /api/hide-v6` (Primary Embedding Endpoint)
+Conceals a secret file or plaintext string into an image carrier using the **InvisioVault V6** steganography engine. Employs Matrix (3,2) coset syndrome coding, 10-round balanced Feistel channel permutation, dynamic-group interleaved Reed-Solomon RS(255, 223), and 57-byte authenticated headers.
 
 **Parameters (multipart/form-data):**
-- `image` *(file, required)*: Carrier image (PNG, JPG, BMP). Max 10 MB.
-- `file` *(file, optional)*: Secret file to hide. Max 50 MB.
-- `text` *(string, optional)*: Text string to hide (if `file` not supplied).
-- `password` *(string, optional)*: Encryption passphrase (min 8 characters).
+- `image` *(file, required)*: Carrier image (PNG, JPG, BMP). Max 10 MB, up to 10 megapixels.
+- `file` *(file, optional)*: Secret file to conceal (max 50 MB; 1 MB operational ceiling for carriers > 4 MP).
+- `text` *(string, optional)*: Plaintext string to conceal (if `file` not supplied).
+- `mode` *(string, optional)*: Operating mode: `encrypted` (default) or `plain`.
+- `password` *(string, optional)*: Passphrase for encrypted mode (minimum 8 characters; strictly prohibited in plain mode).
 
-**Curl Example:**
+**Curl Example (Encrypted Mode):**
 ```bash
-curl -X POST https://invisiovault-backend.onrender.com/api/hide \
-  -F "image=@scenery.png" \
+curl -X POST https://invisiovault-backend.onrender.com/api/hide-v6 \
+  -F "image=@carrier.png" \
   -F "file=@confidential.pdf" \
+  -F "mode=encrypted" \
   -F "password=supersecretpassphrase"
+```
+
+**Curl Example (Plain Mode):**
+```bash
+curl -X POST https://invisiovault-backend.onrender.com/api/hide-v6 \
+  -F "image=@carrier.png" \
+  -F "text=Public verifiable manifesto" \
+  -F "mode=plain"
 ```
 
 **Response (200 OK):**
 ```json
 {
   "success": true,
-  "message": "File hidden successfully",
-  "download_id": "8f3b4a2e5c6d4b7e9f1a2d3e4f5a6b7c.png"
+  "message": "File hidden successfully using V6 engine",
+  "download_id": "9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d.png",
+  "mode": "encrypted",
+  "metadata": {
+    "engine": "v6",
+    "triplets_used": 15420,
+    "rs_blocks": 15,
+    "mode": "encrypted"
+  }
+}
+```
+
+---
+
+### `POST /api/extract` (Unified Automatic Extraction Endpoint)
+Recovers hidden files from any InvisioVault steganographic carrier. The backend **automatically detects** whether the carrier was embedded using the V6 engine or a legacy version (V1–V5) by inspecting initial channel LSBs (`detect_stego_engine`). No manual engine selection is required.
+
+**Zero-Fallback Invariant:** If V6 extraction fails (e.g. incorrect password, corrupt matrix embedding, or damaged header), an HTTP 400 error is returned immediately. The extractor **never silently falls back** to legacy engines.
+
+**Parameters (multipart/form-data):**
+- `image` *(file, required)*: Steganographic carrier image (PNG, JPG, BMP). Max 50 MB.
+- `password` *(string, optional)*: Passphrase used during embedding (required for encrypted carriers; prohibited for V6 plain carriers).
+
+**Response Headers:**
+- `Content-Disposition: attachment; filename="<original_filename>"`
+- `X-InvisioVault-Engine: v6` (or `v5`, `v4`, etc.)
+- `X-InvisioVault-Mode: encrypted` (or `plain`)
+
+**Curl Example:**
+```bash
+curl -X POST https://invisiovault-backend.onrender.com/api/extract \
+  -F "image=@stego_carrier.png" \
+  -F "password=supersecretpassphrase" \
+  -O -J
+```
+
+---
+
+### `POST /api/extract-v6` (Dedicated V6 Extraction Endpoint)
+Directly extracts payloads embedded with the V6 engine. Performs 10-round Feistel permutation inversion on channel coordinates, Reed-Solomon dynamic-group de-interleaving, CRC-32 / Fernet authentication verification, and strict mode-downgrade prevention.
+
+**Parameters (multipart/form-data):**
+- `image` *(file, required)*: Stego image containing V6 payload.
+- `password` *(string, optional)*: Passphrase (required if carrier was embedded in encrypted mode).
+- `mode` *(string, optional)*: Expected mode: `auto` (default), `encrypted`, or `plain`.
+
+**Curl Example:**
+```bash
+curl -X POST https://invisiovault-backend.onrender.com/api/extract-v6 \
+  -F "image=@stego_v6.png" \
+  -F "password=supersecretpassphrase" \
+  -O -J
+```
+
+**Response Headers:**
+- `Content-Disposition: attachment; filename="confidential.pdf"`
+- `X-InvisioVault-Engine: v6`
+- `X-InvisioVault-Mode: encrypted`
+
+---
+
+### `POST /api/calculate-capacity-v6` (V6 Exact Capacity Calculation)
+Computes exact raw payload capacity, pre-RS stream budget, codeword block count, and recommended maximum file payload under V6 Matrix (3,2) coset coding. Reads image dimension headers directly from the upload stream without full RGB memory expansion.
+
+**Parameters (multipart/form-data):**
+- `image` *(file, required)*: Carrier image (PNG, JPG, BMP).
+
+**Curl Example:**
+```bash
+curl -X POST https://invisiovault-backend.onrender.com/api/calculate-capacity-v6 \
+  -F "image=@carrier.png"
+```
+
+**Response (200 OK):**
+```json
+{
+  "totalCapacityBytes": 1382400,
+  "totalCapacityFormatted": "1.32 MB",
+  "engine": "v6",
+  "v6_details": {
+    "carrier_pixels": 2073600,
+    "available_channels": 6220344,
+    "available_triplets": 2073448,
+    "max_raw_payload_capacity": 432360,
+    "rs_block_count": 1938,
+    "interleave_k": 4
+  }
 }
 ```
 
@@ -132,19 +231,31 @@ curl -O https://invisiovault-backend.onrender.com/api/download/8f3b4a2e5c6d4b7e9
 
 ---
 
-### `POST /api/extract`
-Recovers hidden files from a steganographic carrier.
+### Legacy Steganography Compatibility Endpoints
+
+The following endpoints remain active on the backend exclusively for backward compatibility with legacy clients and automated regression harnesses. Normal user interfaces use the V6 endpoints above.
+
+#### `POST /api/hide` (Legacy Embedding Endpoint)
+Embeds a secret file or text into an image carrier using legacy Sobel edge guidance, Reed-Solomon ECC, and optional Fernet encryption (V4/V5 wire format).
 
 **Parameters (multipart/form-data):**
-- `image` *(file, required)*: Steganographic image. Max 50 MB.
-- `password` *(string, optional)*: Passphrase used during embedding.
+- `image` *(file, required)*: Carrier image (PNG, JPG, BMP). Max 10 MB.
+- `file` *(file, optional)*: Secret file to hide. Max 50 MB.
+- `text` *(string, optional)*: Text string to hide.
+- `password` *(string, optional)*: Passphrase for PBKDF2 (480k iter) + Fernet encryption.
 
-**Curl Example:**
-```bash
-curl -X POST https://invisiovault-backend.onrender.com/api/extract \
-  -F "image=@stego_scenery.png" \
-  -F "password=supersecretpassphrase" \
-  -O -J
+#### `POST /api/calculate-capacity` (Legacy Capacity Endpoint)
+Reads image dimensions to estimate raw byte capacity under the legacy V4/V5 Sobel edge-matching model.
+
+**Parameters (multipart/form-data):**
+- `image` *(file, required)*: Carrier image (PNG, JPG, BMP).
+
+**Response (200 OK):**
+```json
+{
+  "totalCapacityBytes": 2073600,
+  "totalCapacityFormatted": "1.9 MB"
+}
 ```
 
 ---
