@@ -17,7 +17,7 @@ const ROUTE_METADATA = {
   stego: {
     path: '/steganography',
     title: 'InvisioVault — Image Steganography Online',
-    description: 'Conceal files inside PNG, JPEG, and BMP pixels using Sobel edge guidance, LSB-matching (±1), and Reed-Solomon error correction.',
+    description: 'Conceal files inside PNG, JPEG, and BMP pixels using V6 Matrix (3,2) coset coding, 10-round Feistel permutation, and interleaved Reed-Solomon error correction. Multi-engine automatic extraction.',
   },
   polyglot: {
     path: '/polyglot',
@@ -32,7 +32,7 @@ const ROUTE_METADATA = {
   docs: {
     path: '/docs',
     title: 'InvisioVault — Cryptographic Documentation & Architecture',
-    description: 'Explore the technical specifications, binary wire formats (v1–v4), threat models, and REST API reference behind InvisioVault.',
+    description: 'Explore the V6 technical specifications, wire formats (V1–V6), mathematical proofs, threat models, and REST API reference behind InvisioVault.',
   },
   faq: {
     path: '/faq',

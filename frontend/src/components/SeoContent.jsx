@@ -5,7 +5,7 @@ import './SeoContent.css'
 const FAQ_ITEMS = [
   {
     q: 'What is InvisioVault?',
-    a: 'InvisioVault is an open-source, privacy-first cryptographic application that enables hiding confidential files and messages inside ordinary carriers like images, PDFs, videos, or QR codes using universal polyglot files and edge-adaptive steganography.'
+    a: 'InvisioVault is an open-source, privacy-first cryptographic application that enables hiding confidential files and messages inside ordinary carriers like images, PDFs, videos, or QR codes using V6 Matrix steganography, universal polyglots, and stealth QR barcodes.'
   },
   {
     q: 'Can I hide any file type inside any format?',
@@ -13,7 +13,11 @@ const FAQ_ITEMS = [
   },
   {
     q: 'How are files protected inside InvisioVault?',
-    a: 'Optional passwords derive cryptographic keys using PBKDF2-HMAC-SHA256 with 480,000 iterations, followed by authenticated Fernet encryption (AES-128-CBC with HMAC-SHA256 integrity verification).'
+    a: 'In V6 Encrypted Mode, user passwords derive keys via PBKDF2-HMAC-SHA256 with 600,000 iterations and two-tier HKDF-SHA256 subkey separation. Payloads are encrypted using Fernet (AES-128-CBC + HMAC-SHA256) and protected by a 57-byte authenticated header. In Plain Mode, payloads are verified with CRC-32 checksums and SHA-256 integrity tags without passwords. Legacy carriers (V1–V5) are automatically decrypted upon extraction.'
+  },
+  {
+    q: 'Do I need to select which engine was used to extract my carrier?',
+    a: "No. InvisioVault's extraction pipeline automatically inspects carrier headers and detects whether the image was created using the advanced V6 engine or any legacy version (V1–V5), extracting the payload seamlessly without manual configuration."
   },
   {
     q: 'Does InvisioVault store my files on the server?',
@@ -45,13 +49,13 @@ export default function SeoContent() {
       <div className="seo-cards-grid">
         <article className="seo-card">
           <div className="seo-card-icon">
-            <EyeOff size={24} />
+            <Cpu size={24} />
           </div>
-          <h3>Detection-Resistant LSB Matching</h3>
+          <h3>V6 Matrix Coset Steganography</h3>
           <p>
-            Standard steganography replaces least-significant bits, creating a detectable statistical skew known as the Pairs of Values (PoV) effect. InvisioVault implements <strong>LSB matching (±1 random drift)</strong> combined with <strong>Sobel edge gradient convolution</strong> to target high-frequency visual textures where human perception and statistical detectors are blind.
+            InvisioVault's primary V6 engine implements <strong>Matrix (3,2) coset syndrome coding</strong>, embedding 2 payload bits into 3 carrier channels with at most 1 bit modification (average 0.375 flips/bit) — reducing carrier alterations by 25% compared to standard LSB replacement. Channels are permuted via an in-memory <strong>10-round Feistel network</strong> with cycle walking and protected by <strong>interleaved Reed-Solomon RS(255, 223)</strong>.
           </p>
-          <div className="seo-card-tag">Reed-Solomon RS(255, 223) ECC</div>
+          <div className="seo-card-tag">Matrix (3,2) · Feistel · RS(255, 223) ECC</div>
         </article>
 
         <article className="seo-card">
@@ -108,10 +112,10 @@ export default function SeoContent() {
             <tbody>
               <tr>
                 <td><strong>PNG, BMP</strong> (Lossless)</td>
-                <td>Sobel LSB Matching (±1)</td>
-                <td>Fernet (AES-128-CBC + HMAC-SHA256)</td>
-                <td>PBKDF2 (480,000 iter)</td>
-                <td>3 bits / pixel (~12.5% of carrier)</td>
+                <td>V6 Matrix (3,2) Coset Embedding + 10-Round Feistel (V1–V5 Legacy Supported)</td>
+                <td>Fernet (AES-128-CBC) + HMAC-SHA256 / Plain CRC-32 + SHA-256</td>
+                <td>PBKDF2-HMAC-SHA256 (600,000 iter) + HKDF-SHA256</td>
+                <td>2 bits / triplet (up to ~20–25% of carrier with K=4 ECC)</td>
               </tr>
               <tr>
                 <td><strong>PDF, MP4, MP3, JPG</strong></td>
