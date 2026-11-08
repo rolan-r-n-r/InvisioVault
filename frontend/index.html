@@ -17,8 +17,8 @@
     
     <!-- Primary Meta Tags -->
     <title>InvisioVault — Universal Polyglot &amp; Steganography Toolkit</title>
-    <meta name="description" content="Conceal files inside images, PDFs, videos &amp; scannable QR codes using universal polyglots and edge-adaptive steganography. Zero retention &amp; authenticated Fernet encryption." />
-    <meta name="keywords" content="InvisioVault, steganography online, hide file in image, universal polyglot files, QR steganography, LSB steganography, Fernet encryption, file hiding, cybersecurity tools, PBKDF2, Reed-Solomon ECC" />
+    <meta name="description" content="Conceal files inside images, PDFs, videos &amp; scannable QR codes using V6 Matrix (3,2) coset steganography, universal polyglots, and stealth QR barcodes. Authenticated encryption &amp; zero retention." />
+    <meta name="keywords" content="InvisioVault, steganography online, hide file in image, hide text in image, matrix embedding steganography, error-correcting steganography, Feistel permutation steganography, universal polyglot files, QR steganography, Fernet encryption, PBKDF2 600k, Reed-Solomon ECC" />
     <meta name="author" content="Rolan (RNR)" />
     <meta name="creator" content="Rolan (RNR)" />
     <meta name="publisher" content="Rolan (RNR)" />
@@ -31,7 +31,7 @@
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://invisio-vault.vercel.app/" />
     <meta property="og:title" content="InvisioVault — Universal Polyglot &amp; Steganography Toolkit" />
-    <meta property="og:description" content="Conceal files inside images, PDFs, videos &amp; scannable QR codes with zero visual distortion and authenticated Fernet encryption." />
+    <meta property="og:description" content="Conceal files inside images, PDFs, videos &amp; scannable QR codes with V6 Matrix coset steganography, universal polyglots, and authenticated encryption." />
     <meta property="og:image" content="https://invisio-vault.vercel.app/og-image.png" />
     <meta property="og:image:secure_url" content="https://invisio-vault.vercel.app/og-image.png" />
     <meta property="og:image:type" content="image/png" />
@@ -45,7 +45,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content="https://invisio-vault.vercel.app/" />
     <meta name="twitter:title" content="InvisioVault — Universal Polyglot &amp; Steganography Toolkit" />
-    <meta name="twitter:description" content="Universal polyglot files, detection-resistant LSB steganography, and stealth QR codes. Open-source with authenticated encryption." />
+    <meta name="twitter:description" content="V6 Matrix coset steganography, universal polyglots, and stealth QR codes. Open-source with authenticated encryption." />
     <meta name="twitter:image" content="https://invisio-vault.vercel.app/og-image.png" />
     <meta name="twitter:image:alt" content="InvisioVault - Universal Polyglot and Steganography Platform Preview" />
     <meta name="twitter:site" content="@Rolan_RNR" />
@@ -70,8 +70,8 @@
         <h2>Available Cryptographic Tools &amp; Deep Links</h2>
         <ul>
           <li>
-            <a href="/steganography" style="color: #60a5fa; font-weight: bold;">Image Steganography Engine:</a>
-            Embed files or encrypted text inside PNG, JPEG, and BMP pixels using Sobel edge texture guidance, LSB-matching (±1 random adjustment), and Reed-Solomon error correction.
+            <a href="/steganography" style="color: #60a5fa; font-weight: bold;">V6 Image Steganography Engine:</a>
+            Embed files or encrypted text inside PNG, JPEG, and BMP pixels using Matrix (3,2) coset syndrome coding, 10-round Feistel permutation, and interleaved Reed-Solomon RS(255, 223). Features universal multi-engine extraction (V1–V6 auto-detection).
           </li>
           <li>
             <a href="/polyglot" style="color: #60a5fa; font-weight: bold;">Universal Polyglot Creator:</a>
@@ -143,12 +143,14 @@
             "priceCurrency": "USD"
           },
           "featureList": [
-            "Universal Polyglot File Generation",
-            "Edge-Adaptive LSB Matching Steganography",
-            "Sobel Gradient Texture Filtering",
-            "Reed-Solomon Forward Error Correction (RSCodec)",
-            "Password-Protected Key Stretching via PBKDF2-HMAC-SHA256 (480,000 iterations)",
+            "V6 Advanced Steganography Engine (Matrix (3,2) Coset Syndrome Coding)",
+            "10-Round Balanced Feistel Channel Permutation (Precomputed AES-256-CTR Tables)",
+            "Dynamic-Group Interleaved Reed-Solomon Error Correction (RS(255, 223))",
+            "Universal Multi-Engine Extraction (Automatic V1–V6 Carrier Detection)",
+            "Dual Operational Modes: Password-Protected Encryption & Plain Integrity Verification",
+            "Password-Protected Key Stretching via PBKDF2-HMAC-SHA256 (600,000 iterations for V6) & HKDF Key Separation",
             "Authenticated Fernet Symmetric Encryption (AES-128-CBC + HMAC-SHA256)",
+            "Universal Polyglot File Generation (Zero-Copy ZIP Offset Patching)",
             "Stealth QR Code Steganography (Visual Module Masking & Legacy Stream Decoding)",
             "Real-Time Camera QR Scanner with Dual-Canvas Preprocessing",
             "Zero-Retention Ephemeral Memory Architecture"
@@ -186,8 +188,8 @@
             },
             {
               "@type": "HowToStep",
-              "name": "Set Passphrase (Optional)",
-              "text": "Enter an 8+ character password to encrypt the payload with authenticated Fernet AES-128-CBC and 480k-iteration PBKDF2."
+              "name": "Select Encryption Mode",
+              "text": "Choose Encrypted Mode (min. 8-character password with 600k-iteration PBKDF2 key derivation and authenticated Fernet protection) or Plain Mode (verified with CRC-32 integrity)."
             },
             {
               "@type": "HowToStep",
@@ -205,7 +207,7 @@
               "name": "What is InvisioVault?",
               "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "InvisioVault is an open-source, privacy-first cryptographic application that enables hiding confidential files and messages inside ordinary carriers like images, PDFs, videos, or QR codes using universal polyglot files and edge-adaptive steganography."
+                "text": "InvisioVault is an open-source, privacy-first cryptographic application that enables hiding confidential files and messages inside ordinary carriers like images, PDFs, videos, or QR codes using V6 Matrix steganography, universal polyglots, and stealth QR barcodes."
               }
             },
             {
@@ -221,7 +223,7 @@
               "name": "How are files protected inside InvisioVault?",
               "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "Optional passwords derive cryptographic keys using PBKDF2-HMAC-SHA256 with 480,000 iterations, followed by authenticated Fernet encryption (AES-128-CBC with HMAC-SHA256 integrity verification)."
+                "text": "In V6 Encrypted Mode, user passwords derive keys using PBKDF2-HMAC-SHA256 with 600,000 iterations and two-tier HKDF-SHA256 subkey separation, followed by authenticated Fernet encryption (AES-128-CBC with HMAC-SHA256 integrity verification) and a 57-byte authenticated header. In Plain Mode, payloads are verified with CRC-32 framing and SHA-256 integrity tags without passwords. Legacy carrier formats (V1–V5) are automatically detected and decrypted during extraction."
               }
             },
             {

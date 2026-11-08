@@ -11,10 +11,10 @@ const routes = [
   {
     path: 'steganography',
     title: 'Image Steganography Online — Hide Files in Images | InvisioVault',
-    description: 'Conceal confidential files and text inside PNG, JPEG, and BMP pixels using Sobel edge guidance, LSB matching (±1), and Reed-Solomon error correction.',
+    description: 'Conceal confidential files and text inside PNG, JPEG, and BMP pixels using V6 Matrix (3,2) coset coding, 10-round Feistel permutation, and interleaved Reed-Solomon error correction.',
     canonical: 'https://invisio-vault.vercel.app/steganography',
     ogTitle: 'InvisioVault — Image Steganography Engine',
-    ogDescription: 'Hide files inside images with zero visual degradation. Edge-adaptive LSB matching with authenticated Fernet encryption.',
+    ogDescription: 'Hide files inside images with zero visual degradation. V6 Matrix (3,2) coset embedding with authenticated encryption and automatic multi-engine extraction.',
   },
   {
     path: 'polyglot',
@@ -35,7 +35,7 @@ const routes = [
   {
     path: 'docs',
     title: 'InvisioVault Documentation — Cryptographic Architecture & REST API',
-    description: 'Technical specifications, binary wire formats (v1–v4), threat models, Sobel edge algorithms, and REST API endpoint reference for InvisioVault.',
+    description: 'Technical specifications, wire formats (V1–V6), threat models, Matrix (3,2) coset coding, Feistel permutations, and REST API endpoint reference for InvisioVault.',
     canonical: 'https://invisio-vault.vercel.app/docs',
     ogTitle: 'InvisioVault — Cryptography & Architecture Hub',
     ogDescription: 'Explore the complete cryptographic specifications, threat models, and OpenAPI definitions behind InvisioVault.',
@@ -46,7 +46,7 @@ const routes = [
     description: 'Frequently asked questions about image steganography, universal polyglot files, QR code concealment, and cryptographic zero-retention policies.',
     canonical: 'https://invisio-vault.vercel.app/faq',
     ogTitle: 'InvisioVault FAQ — Frequently Asked Questions',
-    ogDescription: 'Learn how InvisioVault protects your privacy with edge-guided steganography, stateless processing, and authenticated encryption.',
+    ogDescription: 'Learn how InvisioVault protects your privacy with V6 Matrix steganography, universal polyglots, stateless processing, and authenticated encryption.',
   }
 ]
 

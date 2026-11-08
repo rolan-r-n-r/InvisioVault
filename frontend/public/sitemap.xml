@@ -27,7 +27,7 @@
     <image:image>
       <image:loc>https://invisio-vault.vercel.app/screenshot.png</image:loc>
       <image:title>InvisioVault Image Steganography Interface</image:title>
-      <image:caption>Hide confidential files and messages inside PNG, JPG, and BMP images using LSB matching and Sobel edge filtering</image:caption>
+      <image:caption>Hide confidential files and messages inside PNG, JPG, and BMP images using V6 Matrix (3,2) coset coding and interleaved Reed-Solomon error correction</image:caption>
     </image:image>
   </url>
 
