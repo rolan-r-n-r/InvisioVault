@@ -9,18 +9,22 @@ The stateless cryptographic backend for InvisioVault. Implemented with Python 3.
 ```
 backend/
 ├── api/
-│   └── routes.py              # Blueprint declaring all 14 REST endpoints
+│   └── routes.py              # Blueprint declaring all 17 REST endpoints
 ├── config/
 │   └── settings.py            # Environment configuration & CORS origin validation
 ├── utils/
 │   ├── crypto_utils.py        # PBKDF2 key derivation & Fernet symmetric cryptography
-│   ├── steganography.py       # Sobel edge filter, LSB matching & wire format encoders
+│   ├── steganography_v6.py    # V6 Matrix (3,2) coset coding & 10-round Feistel permutation
+│   ├── steganography.py       # Legacy Sobel edge filter, LSB matching & auto-detection dispatcher
 │   ├── polyglot.py            # Dual-format binary concatenation & ZIP offset patching
 │   ├── qr_stego.py            # QR steganography (Visual generation & legacy Stream extraction)
 │   ├── qr_module_map.py       # Structural module isolation & masking
 │   ├── validators.py          # Magic-byte file validation & dimension limits
 │   └── cleanup.py             # Background ephemeral file cleaner thread
 ├── tests/                     # Comprehensive test suites
+│   ├── test_steganography_v6.py # V6 core unit tests & mathematical proofs
+│   ├── test_steganography_v6_api.py # V6 REST API integration & anti-downgrade tests
+│   ├── test_auto_engine_detection.py # Universal multi-engine automatic detection tests
 │   ├── test_integration.py    # End-to-end API route tests
 │   ├── test_concurrency.py    # Render concurrency & semaphore benchmarks
 │   ├── test_camera_scan.py    # Camera frame decode & cache hit tests

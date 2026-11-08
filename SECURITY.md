@@ -10,7 +10,7 @@ Security updates and patches are actively applied to the following versions:
 
 | Version | Supported | Notes |
 |---|---|---|
-| `2.0.x` | :white_check_mark: Yes | Current production release (Fernet authenticated encryption, PBKDF2 at 480k iterations, universal polyglots, adaptive QR steganography). |
+| `2.x` / `v6` | :white_check_mark: Yes | Current production release (V6 Matrix (3,2) coset steganography, 10-round Feistel permutation, PBKDF2 at 600k iterations, two-tier HKDF key separation, 57-byte authenticated headers, universal polyglots, adaptive QR steganography, and automatic legacy V1–V5 extraction). |
 | `1.x` | :x: No | Legacy prototype. Extraction logic maintained for backwards compatibility only. |
 
 ---
@@ -52,8 +52,9 @@ InvisioVault operates on a client-server paradigm with an ephemeral, stateless b
 │              InvisioVault Stateless Backend                 │
 │  - Rate Limiter (Memory / Token Bucket)                     │
 │  - Input Sanitization & Magic-Byte File Validation          │
-│  - Cryptographic Derivation (PBKDF2-HMAC-SHA256, 480k)     │
+│  - Cryptographic Derivation (PBKDF2 600k / HKDF-SHA256)     │
 │  - Authenticated Encryption (Fernet: AES-128-CBC + HMAC)    │
+│  - V6 Matrix (3,2) Coset Coding & 10-Round Feistel          │
 │  - Steganographic Bitstream & Polyglot Offset Patching      │
 │  - Ephemeral File Storage (Immediate Unlinking Post-Stream) │
 └─────────────────────────────────────────────────────────────┘
@@ -63,10 +64,11 @@ InvisioVault operates on a client-server paradigm with an ephemeral, stateless b
 
 ### 3.2 In-Scope Protections (What InvisioVault Guarantees)
 
-1. **Confidentiality & Authentication:**
-   - Payloads encrypted with user passwords use **Fernet authenticated encryption** (AES-128-CBC with HMAC-SHA256 authentication). 
-   - Encryption keys are derived using **PBKDF2-HMAC-SHA256** with **480,000 iterations** and a 16-byte cryptographically secure random salt (`os.urandom`), preventing precomputed dictionary or rainbow table attacks.
-   - Any ciphertext tampering or invalid password results in an immediate authentication failure without leaking plaintext fragments.
+1. **Confidentiality, Authentication & Integrity:**
+   - **V6 Encrypted Mode:** Payloads are encrypted using **Fernet authenticated encryption** (AES-128-CBC with PKCS7 padding and HMAC-SHA256 authentication). Encryption keys are derived using **PBKDF2-HMAC-SHA256 with 600,000 iterations** (OWASP recommendation) and a 16-byte cryptographically secure random salt (`os.urandom(16)`). Independent subkeys for header authentication (`HMAC-SHA256`), payload encryption (`Fernet`), and permutation round functions are generated via **HKDF-Expand (RFC 5869)**.
+   - **V6 Plain Mode:** Payloads are framed with a 4-byte CRC-32 checksum and authenticated with a 32-byte SHA-256 integrity tag over the salt, payload length, and raw content to detect accidental channel corruption. Plain mode explicitly prohibits encryption keys and does not provide secrecy against an unauthorized observer.
+   - **Anti-Downgrade Enforcement:** Providing a passphrase for a plain-mode carrier is rejected as a protocol downgrade attempt. Any header HMAC mismatch or ciphertext tampering immediately aborts extraction before parsing payload data.
+   - **Zero-Fallback Invariant:** V6 extraction failures return HTTP 400 immediately and never silently fall back to legacy decoders.
 
 2. **Zero Server Retention & Ephemeral Lifetime:**
    - The backend operates a strict zero-retention policy. Uploaded carriers and generated steganographic files are streamed to the user and scheduled for immediate unlinking (`os.remove`) in Python `finally` blocks.
@@ -74,13 +76,15 @@ InvisioVault operates on a client-server paradigm with an ephemeral, stateless b
 
 3. **Input Sanitization & Resource Exhaustion Defense:**
    - **Decompression Bomb Guard:** Zip entries inflate with a hard ceiling of 50 MB (`_MAX_EXTRACT_SIZE`), preventing zip-bomb and memory-exhaustion exploits.
-   - **Pixel Dimension Cap:** Images are capped at 25 Megapixels (`MAX_PIXEL_COUNT`) to prevent memory allocation denial-of-service.
+   - **Pixel Dimension Cap:** Images are capped at 25 Megapixels (`MAX_PIXEL_COUNT`) to prevent memory allocation denial-of-service (10 Megapixel upload ceiling for V6 embedding).
+   - **Cycle Walking Runtime Guard:** In V6 permutation, cycle walking is restricted with a defensive guard of `MAX_CYCLE_WALK_ITERATIONS = 100`, backed by a 5-attempt fresh-salt retry on embedding and immediate termination with `CycleWalkingExceededError` on extraction to avoid worker hangs.
    - **Path Traversal Shield:** Untrusted embedded filenames are sanitized via `secure_filename()` with strict fallbacks, preventing directory climbing attacks (e.g. `../../etc/passwd`).
    - **Deterministic Concurrency Semaphore:** Heavy operations (LSB encode/decode, polyglot concatenation) are constrained via bounded semaphores to prevent process memory thrashing.
 
 4. **Visual & Structural Steganographic Invisibility:**
-   - **LSB Matching (±1 Adjustment):** Rather than standard LSB replacement (which produces detectable parity asymmetry), InvisioVault uses ±1 random matching to defeat standard Chi-square ($\chi^2$) and Pairs of Values (PoV) statistical detectors.
-   - **Edge Texture Guidance:** Sobel filter convolution identifies high-frequency texture edges where human visual perception is least sensitive to minor luminance variations.
+   - **V6 Matrix (3,2) Coset Syndrome Coding:** Embeds 2 payload bits into 3 carrier channels with at most 1 bit flip (average 0.375 flips/bit), delivering a 25.00% reduction in carrier modifications compared to standard LSB replacement.
+   - **10-Round Balanced Feistel Permutation:** Disperses modified coordinates pseudorandomly across all eligible carrier channels using AES-256-CTR precomputed tables, eliminating spatial clustering.
+   - **Legacy LSB Matching (±1 Adjustment) & Sobel Texture Selection:** Supported for extraction of legacy V1–V5 carriers.
 
 ---
 
@@ -99,7 +103,7 @@ InvisioVault operates on a client-server paradigm with an ephemeral, stateless b
    - **Mitigation:** For maximum covertness, maintain a payload-to-carrier size ratio below 10% and use high-entropy natural photographs as carrier images.
 
 4. **Weak Passwords:**
-   - While PBKDF2 at 480,000 iterations dramatically increases the cost of offline brute-forcing, short or dictionary passwords (e.g., `password123`) remain vulnerable. Users are strictly advised to use passphrases with 12+ characters.
+   - While PBKDF2 at 600,000 iterations (V6) and 480,000 iterations (QR/legacy) dramatically increases the cost of offline brute-forcing, short or dictionary passwords (e.g., `password123`) remain vulnerable. Users are strictly advised to use passphrases with 12+ characters.
 
 ---
 
@@ -107,10 +111,12 @@ InvisioVault operates on a client-server paradigm with an ephemeral, stateless b
 
 | Primitive | Specification | Purpose |
 |---|---|---|
-| **Symmetric Cipher** | AES-128-CBC (PKCS7 padded) | Payload encryption |
-| **Message Authentication** | HMAC-SHA256 | Ciphertext authenticity & integrity |
+| **Symmetric Cipher** | AES-128-CBC (PKCS7 padded via Fernet) | Payload encryption |
+| **Message Authentication** | HMAC-SHA256 | Header authentication (V6) & ciphertext integrity |
 | **Key Derivation** | PBKDF2-HMAC-SHA256 | Password-to-key stretching |
-| **Iteration Count** | 480,000 iterations | Brute-force work factor |
-| **Salt Size** | 16 bytes (128-bit CSPRNG) | Salt uniqueness per encryption |
-| **Error Correction** | Reed-Solomon ($RS(255, 223)$) | Burst error recovery in image & QR |
-| **Permutation** | CSPRNG-seeded Feistel cipher | Non-sequential pixel distribution |
+| **Iteration Count** | 600,000 iterations (V6 stego) / 480,000 iterations (QR & legacy) | Brute-force resistance (OWASP 2023+ recommendation) |
+| **Subkey Derivation** | HKDF-Expand with SHA-256 (RFC 5869) | Cryptographically independent subkeys (V6) |
+| **Embedding Paradigm** | Matrix (3,2) coset syndrome coding | Linear coset encoding, 25% fewer carrier modifications (V6) |
+| **Permutation** | 10-round balanced Feistel with AES-256-CTR tables | L2 cache-resident pseudorandom channel distribution (V6) |
+| **Salt Size** | 16 bytes (128-bit CSPRNG `os.urandom`) | Salt uniqueness per encryption |
+| **Error Correction** | Interleaved Reed-Solomon ($RS(255, 223)$, $K=4$) | Dynamic-group burst error recovery in image & QR |

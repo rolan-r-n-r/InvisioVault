@@ -52,6 +52,7 @@ I am committed to providing a welcoming, respectful, and harassment-free experie
 
 ### Cryptography & Security First
 - **Zero Inventions:** Never implement custom or non-standard cryptographic primitives. Always rely on vetted primitives from `cryptography.fernet`, `hashlib.pbkdf2_hmac`, or `reedsolo`.
+- **V6 Protocol Invariance:** The V6 steganography wire format, parity-check matrix, and key derivation schedule defined in `docs/V6_SPECIFICATION.md` are frozen. Do not alter wire formats, header byte offsets, or cryptographic constants.
 - **Constant-Time Verification:** Ensure password and MAC comparisons use constant-time operations (`hmac.compare_digest`).
 - **Memory & File Cleanup:** Any operation touching the filesystem must register cleanup inside a `finally` block or context manager.
 - **Resource Constraints:** The production backend runs in a 512 MB memory envelope on Render. Avoid holding unbounded raw file arrays in memory; prefer streaming, chunked iterations, or `mmap`.
@@ -78,6 +79,13 @@ Before submitting a pull request, ensure all unit, integration, and security tes
 ### Running Backend Tests
 ```bash
 cd backend
+# Run full regression suite:
+python -m pytest tests/ -v
+
+# Or run individual test suites:
+python -m pytest tests/test_steganography_v6.py -v
+python -m pytest tests/test_steganography_v6_api.py -v
+python -m pytest tests/test_auto_engine_detection.py -v
 python -m pytest tests/test_integration.py -v
 python -m pytest tests/test_concurrency.py -v
 python -m pytest tests/test_camera_scan.py -v

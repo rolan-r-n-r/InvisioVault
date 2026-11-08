@@ -45,10 +45,10 @@ frontend/
 │   └── prerender-seo.js          # Build-time static snapshot generator for social bots
 ├── src/
 │   ├── components/
-│   │   ├── CapacityIndicator.jsx # Dynamic LSB image capacity estimation
-│   │   ├── ExtractFile.jsx       # Stego extraction interface
+│   │   ├── CapacityIndicator.jsx # V6 Matrix (3,2) exact capacity and overhead calculation
+│   │   ├── ExtractFile.jsx       # Universal extraction with automatic multi-engine detection (V1–V6)
 │   │   ├── FileDropzone.jsx      # Accessible drag & drop file upload
-│   │   ├── HideFile.jsx          # LSB image steganography encoding interface
+│   │   ├── HideFile.jsx          # V6 Matrix (3,2) coset steganography interface (Encrypted & Plain modes)
 │   │   ├── Polyglot.jsx          # Universal polyglot creation and inspection
 │   │   ├── ProcessingIndicator.jsx # Processing animations & progress states
 │   │   ├── QRCode.jsx            # Double-agent QR generation & camera scanner
@@ -82,6 +82,7 @@ InvisioVault uses **React Router** to map functional modes to clean, indexable U
 | `/polyglot` | Universal Polyglot | `InvisioVault — Universal Polyglot File Generator` |
 | `/qr-code` | Stealth QR Code | `InvisioVault — Stealth QR Code Steganography & Scanner` |
 | `/docs` | Documentation Hub | `InvisioVault — Cryptographic Documentation & Architecture` |
+| `/faq` | FAQ Hub | `InvisioVault FAQ — Steganography & Polyglot Questions Answered` |
 
 ### Social Crawler Handling (Open Graph / Twitter Cards)
 Because client-side rendered apps update document `<head>` after Javascript execution, social crawlers (Twitter/X, Facebook, LinkedIn, Discord, Slack) do not execute React scripts:

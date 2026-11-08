@@ -5,6 +5,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [Unreleased]
+
+### Added
+- **V6 Advanced Steganography Engine:** Introduced the V6 steganography engine as the canonical primary writer for all new image hiding operations (`/api/hide-v6`).
+- **Matrix (3, 2) Coset Syndrome Coding:** Embeds 2 payload bits into 3 carrier channels with at most 1 bit modification, achieving a 25.00% reduction in carrier modifications compared to standard LSB replacement.
+- **10-Round Balanced Feistel Channel Permutation:** Pseudorandom channel coordinate dispersion using an in-memory 10-round Feistel network with precomputed AES-256-CTR tables (160 KiB L2 cache footprint).
+- **Cycle Walking Domain Restriction:** Restricts the Feistel cipher onto arbitrary carrier triplet universes with a 100-iteration defensive runtime guard and fresh-salt retry loop.
+- **Dynamic-Group Interleaved Reed-Solomon RS(255, 223):** Channel coding with depth $K=4$ over $\text{GF}(2^8)$, tolerating up to 16 symbol errors per 255-byte block and up to 64 contiguous burst bytes.
+- **Dual Operational Modes:** Added password-protected Encrypted Mode (PBKDF2-HMAC-SHA256 with 600,000 iterations, HKDF-SHA256 key separation, Fernet AES-128-CBC encryption, and HMAC-SHA256 header authentication) and Plain Mode (CRC-32 payload framing with SHA-256 integrity tag).
+- **Canonical 57-Byte Authenticated Header:** Structured header wire format (`0xFF 0x06`) with anti-downgrade enforcement binding mode flags, salt, and length parameters.
+- **Automatic Multi-Engine Extraction:** Enhanced `POST /api/extract` with automatic engine detection (`detect_stego_engine`), transparently recovering V6 carriers alongside legacy V1–V5 carriers without manual version selection.
+- **Dedicated V6 API Endpoints:** Added `POST /api/hide-v6`, `POST /api/extract-v6`, and `POST /api/calculate-capacity-v6`.
+
+### Changed
+- **Default Engine Promotion:** V6 is now the default and primary embedding engine across both the frontend web client and the backend REST API.
+- **Simplified User Interfaces:** Removed manual engine selectors from both Hide and Extract interfaces. Extraction now automatically identifies the carrier format.
+- **Key Stretching Elevation:** Upgraded PBKDF2 iteration count to 600,000 iterations for V6 key derivation.
+- **Backward Compatibility:** Maintained internal support for extracting legacy V1–V5 carrier formats without behavioral regression.
+
+### Security
+- **Anti-Downgrade Invariant:** Strictly rejects passphrases when presented with Plain Mode carriers, and aborts upon header HMAC authentication mismatch prior to payload processing.
+- **Zero-Fallback Guarantee:** Prohibited automatic fallback from V6 extraction to legacy decoders upon failure, ensuring error fidelity.
+
+---
+
 ## [2.0.1] - 2026-09-18
 
 ### Added
