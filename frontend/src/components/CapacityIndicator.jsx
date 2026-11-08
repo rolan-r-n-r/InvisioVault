@@ -4,50 +4,64 @@ import axios from 'axios'
 import './CapacityIndicator.css'
 import API_URL from '../config/api'
 
-function CapacityIndicator({ carrierFile, hiddenFile, hiddenText, mode = 'stego', password }) {
+function CapacityIndicator({ carrierFile, hiddenFile, hiddenText, mode = 'stego', password, engine = 'v6' }) {
     const [capacity, setCapacity] = useState(null)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
 
-    // Calculate file size with overhead
-    const calculateUsedBytes = (file, text, hasPassword) => {
-        // Fixed overhead from steganography.py structure:
-        // password_flag(1) + metadata_length(2) + data_length(4) = 7 bytes
-        let overhead = 7
-
-        // Add salt overhead if password protected
-        if (hasPassword) {
-            overhead += 16 // salt bytes
-        }
-
-        // Estimate metadata size (filename|mime_type)
+    // Calculate file size with accurate overhead
+    const calculateUsedBytes = (file, text, hasPassword, currentEngine) => {
         let metadataSize = 0
+        let dataSize = 0
+        let isPreCompressed = false
+
         if (file) {
             const mimeType = file.type || 'application/octet-stream'
             metadataSize = (file.name + '|' + mimeType).length
+            dataSize = file.size
+            const ext = (file.name.split('.').pop() || '').toLowerCase()
+            const preCompressedExts = ['zip', 'apk', 'png', 'jpg', 'jpeg', 'webp', 'mp4', 'pdf', 'docx', 'xlsx', 'gz', '7z', 'rar', 'bz2']
+            if (preCompressedExts.includes(ext)) {
+                isPreCompressed = true
+            }
         } else if (text) {
             metadataSize = ('hidden_text.txt|text/plain').length
-        }
-
-        // Get actual file/text size
-        let dataSize = 0
-        if (file) {
-            dataSize = file.size
-        } else if (text) {
             dataSize = new Blob([text]).size
         }
 
-        // Compression typically reduces size by 20-50% for text, less for binary
-        // We'll estimate conservatively (assume 30% compression for safety)
-        const estimatedCompressedSize = Math.ceil(dataSize * 0.7)
+        // Realistic compression estimation:
+        // Pre-compressed files do not compress further (1.0x).
+        // Text compresses well (~0.4x). General uncompressed files ~0.7x.
+        let estimatedCompressedSize = dataSize
+        if (text) {
+            estimatedCompressedSize = Math.ceil(dataSize * 0.4)
+        } else if (!isPreCompressed) {
+            estimatedCompressedSize = Math.ceil(dataSize * 0.7)
+        }
 
-        // Account for Fernet base64 token overhead (~1.35x compressed size) when encrypted
-        const estimatedPayloadSize = hasPassword
-            ? Math.ceil(estimatedCompressedSize * 1.35)
-            : estimatedCompressedSize
+        if (currentEngine === 'v6') {
+            // V6 engine uses JSON framing + Fernet/CRC.
+            // Raw pre-RS capacity is compared directly against max_raw_payload_capacity.
+            const cryptoOverhead = hasPassword ? 60 : 4
+            const v6MetadataOverhead = 100 // JSON metadata overhead
+            return estimatedCompressedSize + v6MetadataOverhead + cryptoOverhead + 2
+        }
 
-        // Total size = overhead + metadata + payload data
-        return overhead + metadataSize + estimatedPayloadSize
+        // Cryptographic overhead: Fernet binary token adds ~60 bytes (IV, timestamp, HMAC, padding).
+        // Encrypted metadata also has Fernet token overhead (~120 bytes).
+        const cryptoOverhead = hasPassword ? 60 : 0
+        const encMetadataSize = hasPassword ? Math.max(metadataSize + 70, 120) : metadataSize
+
+        // Channel coding (Reed-Solomon RS(255, 223)) overhead:
+        // Adds 32 parity bytes per 223-byte block (~14.3% expansion).
+        const payloadBeforeECC = estimatedCompressedSize + cryptoOverhead
+        const eccParityBytes = Math.ceil(payloadBeforeECC / 223) * 32
+        const totalPayloadWithECC = payloadBeforeECC + eccParityBytes
+
+        // Header: MAGIC(2) + flag(1) + salt(16) + meta_len(4) + metadata + data_len(4) + threshold(1) = 28 + metadata
+        const headerSize = 28 + encMetadataSize
+
+        return headerSize + totalPayloadWithECC
     }
 
     // Format bytes to human-readable string
@@ -109,8 +123,10 @@ function CapacityIndicator({ carrierFile, hiddenFile, hiddenText, mode = 'stego'
                 // Get total capacity from backend
                 const formData = new FormData()
                 formData.append('image', carrierFile)
+                formData.append('engine', engine)
 
-                const response = await axios.post(`${API_URL}/api/calculate-capacity`, formData, {
+                const endpoint = engine === 'v6' ? `${API_URL}/api/calculate-capacity-v6` : `${API_URL}/api/calculate-capacity`
+                const response = await axios.post(endpoint, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data'
                     },
@@ -125,7 +141,7 @@ function CapacityIndicator({ carrierFile, hiddenFile, hiddenText, mode = 'stego'
                 const totalBytes = response.data.totalCapacityBytes
 
                 // Calculate used bytes
-                const usedBytes = calculateUsedBytes(hiddenFile, hiddenText, !!password)
+                const usedBytes = calculateUsedBytes(hiddenFile, hiddenText, !!password, engine)
                 const percentage = totalBytes > 0 ? Math.round((usedBytes / totalBytes) * 100) : 100
 
                 setCapacity({
@@ -165,7 +181,7 @@ function CapacityIndicator({ carrierFile, hiddenFile, hiddenText, mode = 'stego'
             // unmounted component or clobber a newer request's result.
             controller.abort()
         }
-    }, [carrierFile, hiddenFile, hiddenText, password, mode])
+    }, [carrierFile, hiddenFile, hiddenText, password, mode, engine])
 
     if (!carrierFile || (!hiddenFile && !hiddenText)) {
         return null

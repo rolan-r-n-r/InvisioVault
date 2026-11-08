@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { FileText, Type, Lock, AlertTriangle, ShieldCheck, ShieldAlert, ShieldX, CheckCircle2, Download, Eye, EyeOff } from 'lucide-react'
+import { FileText, Type, Lock, AlertTriangle, ShieldCheck, ShieldAlert, ShieldX, CheckCircle2, Download, Eye, EyeOff, Cpu } from 'lucide-react'
 import axios from 'axios'
 import './HideFile.css'
 import API_URL from '../config/api'
@@ -17,6 +17,7 @@ const STEPS = [
 ]
 
 function HideFile() {
+  const [v6Mode, setV6Mode] = useState('encrypted') // 'encrypted' or 'plain'
   const [mode, setMode] = useState('file') // 'file' or 'text'
   const [image, setImage] = useState(null)
   const [file, setFile] = useState(null)
@@ -94,14 +95,15 @@ function HideFile() {
     }
 
     const trimmedPassword = password.trim()
-    if (password && trimmedPassword.length === 0) {
-      setError('Password cannot be only whitespace')
-      return
-    }
-
-    if (trimmedPassword && trimmedPassword.length < MIN_PASSWORD_LENGTH) {
-      setError(`Password must be at least ${MIN_PASSWORD_LENGTH} characters long`)
-      return
+    if (v6Mode === 'encrypted') {
+      if (!trimmedPassword) {
+        setError('Password is required for Encrypted mode')
+        return
+      }
+      if (trimmedPassword.length < MIN_PASSWORD_LENGTH) {
+        setError(`Password must be at least ${MIN_PASSWORD_LENGTH} characters long`)
+        return
+      }
     }
 
     setLoading(true)
@@ -116,11 +118,12 @@ function HideFile() {
         formData.append('text', text.trim())
       }
 
-      if (password) {
-        formData.append('password', password)
+      formData.append('mode', v6Mode)
+      if (v6Mode === 'encrypted' && trimmedPassword) {
+        formData.append('password', trimmedPassword)
       }
 
-      const response = await axios.post(`${API_URL}/api/hide`, formData, {
+      const response = await axios.post(`${API_URL}/api/hide-v6`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -173,12 +176,14 @@ function HideFile() {
   }
 
   const processingStages = useMemo(() => [
-    'Analyzing carrier image structure...',
-    mode === 'file' ? 'Compressing payload...' : 'Encoding text payload...',
-    password.trim() ? 'Encrypting payload with Fernet (AES)...' : 'Preparing bitstream...',
-    'Embedding secret bits into LSB pixels...',
-    'Finalizing steganographic image...'
-  ], [mode, password])
+    'Analyzing carrier RGB channels...',
+    v6Mode === 'encrypted'
+      ? 'Applying password-protected encryption with authenticated integrity...'
+      : 'Computing CRC-32 integrity checksum...',
+    'Applying Reed-Solomon RS(255, 223) dynamic interleaving...',
+    'Executing 10-round Feistel permutation & Matrix (3,2) coset embedding...',
+    'Finalizing lossless V6 stego PNG...'
+  ], [v6Mode])
 
   return (
     <div className="hide-file">
@@ -192,12 +197,29 @@ function HideFile() {
 
       {!success ? (
         <form onSubmit={handleSubmit}>
-          <div className="mode-selector" role="tablist" aria-label="Payload type">
+          {/* Steganography Engine Identification */}
+          <div className="engine-identity-bar">
+            <div className="engine-identity-info">
+              <span className="engine-identity-badge v6">
+                <Cpu size={13} aria-hidden="true" />
+                <span>V6 · ADVANCED</span>
+              </span>
+              <div className="engine-identity-text">
+                <span className="engine-identity-title">STEGANOGRAPHY ENGINE</span>
+                <span className="engine-identity-specs">
+                  Matrix embedding · Feistel permutation · Reed-Solomon error correction
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Payload Type Navigation (Tabs) */}
+          <div className="payload-type-nav" role="tablist" aria-label="Payload type">
             <button
               type="button"
               role="tab"
               aria-selected={mode === 'file'}
-              className={`mode-btn ${mode === 'file' ? 'active' : ''}`}
+              className={`payload-tab-btn ${mode === 'file' ? 'active' : ''}`}
               onClick={() => handleModeChange('file')}
             >
               <FileText size={16} aria-hidden="true" />
@@ -207,7 +229,7 @@ function HideFile() {
               type="button"
               role="tab"
               aria-selected={mode === 'text'}
-              className={`mode-btn ${mode === 'text' ? 'active' : ''}`}
+              className={`payload-tab-btn ${mode === 'text' ? 'active' : ''}`}
               onClick={() => handleModeChange('text')}
             >
               <Type size={16} aria-hidden="true" />
@@ -255,78 +277,134 @@ function HideFile() {
             </div>
           )}
 
-          <div className="form-group">
-            <label htmlFor="password-input" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-              <span>Password (Optional)</span>
-              <Lock size={14} style={{ opacity: 0.7 }} aria-hidden="true" />
-            </label>
-            <div className="password-input-wrapper">
-              <input
-                id="password-input"
-                type={showPassword ? "text" : "password"}
-                placeholder="Enter password to encrypt the file (min. 8 chars)"
-                value={password}
-                onChange={handlePasswordChange}
-                aria-describedby={passwordError ? 'hide-password-error' : undefined}
-                disabled={loading}
-              />
-              {password && (
-                <button
-                  type="button"
-                  className="password-toggle"
-                  onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                  aria-pressed={showPassword}
+          {/* Encryption Mode Selection (Balanced Cards) */}
+          <div className="v6-mode-section">
+            <span className="v6-mode-section-label">ENCRYPTION MODE</span>
+            <div className="v6-mode-cards" role="radiogroup" aria-label="Encryption Mode">
+              <button
+                type="button"
+                role="radio"
+                aria-checked={v6Mode === 'encrypted'}
+                className={`mode-card ${v6Mode === 'encrypted' ? 'selected' : ''}`}
+                onClick={() => { setV6Mode('encrypted'); setError(''); }}
+              >
+                <div className="mode-card-header">
+                  <div className="mode-card-icon-wrap">
+                    <Lock size={18} aria-hidden="true" />
+                  </div>
+                  <div className="mode-card-title-wrap">
+                    <span className="mode-card-title">Encrypted Mode</span>
+                    <span className="mode-card-sub required">Password Required</span>
+                  </div>
+                </div>
+                <p className="mode-card-description">
+                  Password-protected encryption with authenticated integrity.
+                </p>
+              </button>
+
+              <button
+                type="button"
+                role="radio"
+                aria-checked={v6Mode === 'plain'}
+                className={`mode-card ${v6Mode === 'plain' ? 'selected' : ''}`}
+                onClick={() => {
+                  setV6Mode('plain');
+                  setPassword('');
+                  setPasswordError('');
+                  setError('');
+                }}
+              >
+                <div className="mode-card-header">
+                  <div className="mode-card-icon-wrap">
+                    <ShieldCheck size={18} aria-hidden="true" />
+                  </div>
+                  <div className="mode-card-title-wrap">
+                    <span className="mode-card-title">Plain Mode</span>
+                    <span className="mode-card-sub plain">No Password Required</span>
+                  </div>
+                </div>
+                <p className="mode-card-description">
+                  Integrity-verified embedding without password protection.
+                </p>
+              </button>
+            </div>
+          </div>
+
+          {/* Password Input: Only displayed when Encrypted Mode is active */}
+          {v6Mode === 'encrypted' && (
+            <div className="form-group">
+              <label htmlFor="password-input" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+                <span>Password (Required)</span>
+                <Lock size={14} style={{ opacity: 0.7 }} aria-hidden="true" />
+              </label>
+              <div className="password-input-wrapper">
+                <input
+                  id="password-input"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter password (min. 8 characters)"
+                  value={password}
+                  onChange={handlePasswordChange}
+                  aria-describedby={passwordError ? 'hide-password-error' : undefined}
                   disabled={loading}
-                >
-                  {showPassword ? (
-                    <EyeOff size={18} aria-hidden="true" />
-                  ) : (
-                    <Eye size={18} aria-hidden="true" />
-                  )}
-                </button>
+                />
+                {password && (
+                  <button
+                    type="button"
+                    className="password-toggle"
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-pressed={showPassword}
+                    disabled={loading}
+                  >
+                    {showPassword ? (
+                      <EyeOff size={18} aria-hidden="true" />
+                    ) : (
+                      <Eye size={18} aria-hidden="true" />
+                    )}
+                  </button>
+                )}
+              </div>
+              {passwordError && (
+                <p id="hide-password-error" className="password-error-msg" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }} role="alert">
+                  <AlertTriangle size={14} style={{ flexShrink: 0 }} aria-hidden="true" />
+                  <span>{passwordError}</span>
+                </p>
+              )}
+              {password && !passwordError && (
+                <div className="password-strength" role="status" aria-live="polite">
+                  <div className={`strength-bar strength-${getPasswordStrength(password)}`}>
+                    <span></span><span></span><span></span>
+                  </div>
+                  <p className="file-name">
+                    {getPasswordStrength(password) === 'strong' && (
+                      <>
+                        <ShieldCheck size={14} aria-hidden="true" />
+                        <span>Strong password</span>
+                      </>
+                    )}
+                    {getPasswordStrength(password) === 'medium' && (
+                      <>
+                        <ShieldAlert size={14} aria-hidden="true" />
+                        <span>Medium strength — consider adding symbols or numbers</span>
+                      </>
+                    )}
+                    {getPasswordStrength(password) === 'weak' && (
+                      <>
+                        <ShieldX size={14} aria-hidden="true" />
+                        <span>Weak password</span>
+                      </>
+                    )}
+                  </p>
+                </div>
+              )}
+              {password && !passwordError && (
+                <p className="file-name">
+                  <Lock size={14} aria-hidden="true" />
+                  <span>File will be password-protected</span>
+                </p>
               )}
             </div>
-            {passwordError && (
-              <p id="hide-password-error" className="password-error-msg" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }} role="alert">
-                <AlertTriangle size={14} style={{ flexShrink: 0 }} aria-hidden="true" />
-                <span>{passwordError}</span>
-              </p>
-            )}
-            {password && !passwordError && (
-              <div className="password-strength" role="status" aria-live="polite">
-                <div className={`strength-bar strength-${getPasswordStrength(password)}`}>
-                  <span></span><span></span><span></span>
-                </div>
-                <p className="file-name">
-                  {getPasswordStrength(password) === 'strong' && (
-                    <>
-                      <ShieldCheck size={14} aria-hidden="true" />
-                      <span>Strong password</span>
-                    </>
-                  )}
-                  {getPasswordStrength(password) === 'medium' && (
-                    <>
-                      <ShieldAlert size={14} aria-hidden="true" />
-                      <span>Medium strength — consider adding symbols or numbers</span>
-                    </>
-                  )}
-                  {getPasswordStrength(password) === 'weak' && (
-                    <>
-                      <ShieldX size={14} aria-hidden="true" />
-                      <span>Weak password</span>
-                    </>
-                  )}
-                </p>
-              </div>
-            )}
-            {password && !passwordError && (
-              <p className="file-name">
-                <Lock size={14} aria-hidden="true" />
-                <span>File will be password-protected</span>
-              </p>
-            )}
-          </div>
+          )}
 
           {/* Capacity Indicator */}
           {image && hasActivePayload && (
@@ -335,7 +413,8 @@ function HideFile() {
               hiddenFile={mode === 'file' ? file : null}
               hiddenText={mode === 'text' ? text.trim() : ''}
               mode="stego"
-              password={password.trim()}
+              password={v6Mode === 'plain' ? '' : password.trim()}
+              engine="v6"
             />
           )}
 
